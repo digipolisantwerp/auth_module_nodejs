@@ -19,6 +19,7 @@ function getRedirectUrl(conf) {
 
   return `${conf.oauthDomain}${conf.authPath}?${querystring.stringify(query)}`;
 }
+
 describe('test #isLoggedin', function onDescribe() {
   let mprofileRouter;
 
@@ -26,14 +27,17 @@ describe('test #isLoggedin', function onDescribe() {
     mprofileRouter = router(correctConfig);
 
     const req = reqres.req({
-      url: '/api/mprofile/isloggedin',
+      url: '/api/aprofile/isloggedin',
       session: {
         user: user
       }
     });
     const res = reqres.res();
-
-    mprofileRouter.handle(req, res);
+    try {
+      mprofileRouter.handle(req, res);
+    } catch (e) {
+      return done(e);
+    }
     res.on('end', () => {
       res.json.calledWith({
         user: user,
@@ -46,26 +50,9 @@ describe('test #isLoggedin', function onDescribe() {
   it('#isLoggedin() should return login url when no user', function onIt(done) {
     mprofileRouter = router(correctConfig);
     const req = reqres.req({
-      url: '/api/mprofile/isloggedin'
-    });
-    const res = reqres.res();
-    mprofileRouter.handle(req, res);
-
-    res.on('end', () => {
-      res.json.calledWith({
-        isLoggedin: false,
-        url: getRedirectUrl(config.get())
-      });
-      return done();
-    });
-  });
-
-  it('#isLoggedin() should return login url when no user and store fromUrl', function onIt(done) {
-    mprofileRouter = router(correctConfig);
-    const req = reqres.req({
-      url: '/api/mprofile/isloggedin',
-      query: {
-        fromUrl: 'google.com'
+      url: '/api/aprofile/isloggedin',
+      session: {
+        save: cb => cb()
       }
     });
     const res = reqres.res();
@@ -74,7 +61,30 @@ describe('test #isLoggedin', function onDescribe() {
     res.on('end', () => {
       res.json.calledWith({
         isLoggedin: false,
-        url: getRedirectUrl(config.get())
+        url: getRedirectUrl(correctConfig)
+      });
+      return done();
+    });
+  });
+
+  it('#isLoggedin() should return login url when no user and store fromUrl', function onIt(done) {
+    mprofileRouter = router(correctConfig);
+    const req = reqres.req({
+      url: '/api/aprofile/isloggedin',
+      query: {
+        fromUrl: 'google.com'
+      },
+      session: {
+        save: cb => cb()
+      }
+    });
+    const res = reqres.res();
+    mprofileRouter.handle(req, res);
+
+    res.on('end', () => {
+      res.json.calledWith({
+        isLoggedin: false,
+        url: getRedirectUrl(correctConfig)
       });
       expect(req.session.fromUrl).to.equal('google.com');
       return done();
@@ -87,14 +97,14 @@ describe('test #isLoggedin', function onDescribe() {
     });
     mprofileRouter = router(conf);
     const req = reqres.req({
-      url: '/api/mprofile/isloggedin'
+      url: '/api/aprofile/isloggedin'
     });
     const res = reqres.res();
     mprofileRouter.handle(req, res);
 
     res.on('end', () => {
 
-      res.redirect.calledWith(getRedirectUrl(config.get()));
+      res.redirect.calledWith(getRedirectUrl(correctConfig));
       return done();
     });
   });
