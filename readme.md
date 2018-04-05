@@ -1,4 +1,4 @@
-## Mprofiel-login
+## digipolis-login
 **Note that this is still a work in progress and subject to changes and improvements**
 
 Mprofiel-login is implemented as an express router.
@@ -18,7 +18,7 @@ app.use(profileLogin({
 	oauthDomain: 'https://api-oauth2-o.antwerpen.be',
 	apiHost: 'https://api-gw-o.antwerpen.be',
 	domain: 'http://localhost:' + process.env.PORT,
-  baseUrl: // optional, defaults to /api/mprofile
+  baseUrl: // optional, defaults to /api/mprofile when mprofiel, /api/aprofile when aprofiel
   backendRedirect: boolean // optional, defaults to false.
 	auth: {
     service: profileLogin.APROFIEL // profileLogin.MPROFIEL (defaults to aprofiel)
@@ -41,7 +41,7 @@ this middleware exposes two routes.
 ### /isloggedin
 The `isloggedin` endpoint can be used to check if a user currently has a session.
 if a user is logged in, it returns 
-if fetchPermissions == true, user.permissions contains the permissions
+if fetchPermissions == true, user.permissions contains the permissions (not possible for aprofiel)
 ```
 {
   isLoggedin: true,
