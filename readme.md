@@ -23,7 +23,8 @@ app.use(profileLogin({
 	auth: {
     service: profileLogin.APROFIEL // profileLogin.MPROFIEL (defaults to aprofiel)
 		clientId: 'your-client-id',
-		clientSecret: 'your-client-secret'
+		clientSecret: 'your-client-secret',
+    scope: 'all' // optional, defaults to all
 	},
   key: 'aprofiel' // where the user is stored on the session (req.session.aprofiel), defaults to user
   fetchPermissions: Boolean // should fetch permissions
