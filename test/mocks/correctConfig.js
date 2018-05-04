@@ -8,5 +8,6 @@ module.exports = {
   auth: {
     clientId: uuid.v4(),
     clientSecret: uuid.v4()
-  }
+  },
+  refresh: false
 };
