@@ -15,17 +15,17 @@ app.use(session({
 const profileLogin = require('digipolis-mprofiel-login');
 // load session with corresponding persistence (postgres, mongo....)
 app.use(profileLogin({
-	oauthDomain: 'https://api-oauth2-o.antwerpen.be',
-	apiHost: 'https://api-gw-o.antwerpen.be',
-	domain: 'http://localhost:' + process.env.PORT,
+  oauthDomain: 'https://api-oauth2-o.antwerpen.be',
+  apiHost: 'https://api-gw-o.antwerpen.be',
+  domain: 'http://localhost:' + process.env.PORT,
   baseUrl: // optional, defaults to /api/mprofile when mprofiel, /api/aprofile when aprofiel
   backendRedirect: boolean // optional, defaults to false.
-	auth: {
+  auth: {
     service: profileLogin.APROFIEL // profileLogin.MPROFIEL (defaults to aprofiel)
-		clientId: 'your-client-id',
-		clientSecret: 'your-client-secret',
+    clientId: 'your-client-id',
+    clientSecret: 'your-client-secret',
     scope: 'all' // optional, defaults to all
-	},
+  },
   key: 'aprofiel' // where the user is stored on the session (req.session.aprofiel), defaults to user
   fetchPermissions: Boolean // should fetch permissions
   applicationName: String // required if fetchPermissions == true, should be name in User management,
