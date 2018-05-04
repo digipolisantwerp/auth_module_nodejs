@@ -1,5 +1,6 @@
 'use strict';
 
+const mockExpress = require('mock-express')();
 const router = require('../lib/router');
 const correctConfig = require('./mocks/correctConfig');
 const config = require('../lib/config');
@@ -24,7 +25,7 @@ describe('test #isLoggedin', function onDescribe() {
   let mprofileRouter;
 
   it('#isLoggedin() should return user of session', function onIt(done) {
-    mprofileRouter = router(correctConfig);
+    mprofileRouter = router(mockExpress, correctConfig);
 
     const req = reqres.req({
       url: '/api/aprofile/isloggedin',
@@ -48,7 +49,7 @@ describe('test #isLoggedin', function onDescribe() {
   });
 
   it('#isLoggedin() should return login url when no user', function onIt(done) {
-    mprofileRouter = router(correctConfig);
+    mprofileRouter = router(mockExpress, correctConfig);
     const req = reqres.req({
       url: '/api/aprofile/isloggedin',
       session: {
@@ -68,7 +69,7 @@ describe('test #isLoggedin', function onDescribe() {
   });
 
   it('#isLoggedin() should return login url when no user and store fromUrl', function onIt(done) {
-    mprofileRouter = router(correctConfig);
+    mprofileRouter = router(mockExpress, correctConfig);
     const req = reqres.req({
       url: '/api/aprofile/isloggedin',
       query: {
@@ -95,7 +96,7 @@ describe('test #isLoggedin', function onDescribe() {
     const conf = Object.assign({}, correctConfig, {
       backendRedirect: true
     });
-    mprofileRouter = router(conf);
+    mprofileRouter = router(mockExpress, conf);
     const req = reqres.req({
       url: '/api/aprofile/isloggedin'
     });
