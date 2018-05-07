@@ -24,20 +24,6 @@ const copy = (o) => {
 }
 
 describe('test refresh', function onDescribe() {
-  it('refresh() should continue when refreshing is disabled', function onIt(done) {
-    const config = copy(correctConfig);
-    const controller = createController(config);
-    const req = reqres.req({
-      session: {}
-    });
-    const res = reqres.req({});
-
-    controller.refresh(req, res, (err) => {
-      expect(err).to.be.undefined;
-      done();
-    });
-  });
-
   it('refresh() should continue when no token was found on the session', function onIt(done) {
     const config = copy(correctConfig);
     const controller = createController(config);
