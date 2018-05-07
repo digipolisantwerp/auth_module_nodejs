@@ -17,7 +17,7 @@ app.use(session({
 }))
 const profileLogin = require('digipolis-mprofiel-login');
 // load session with corresponding persistence (postgres, mongo....)
-app.use(profileLogin({
+app.use(profileLogin(app, {
   oauthDomain: 'https://api-oauth2-o.antwerpen.be',
   apiHost: 'https://api-gw-o.antwerpen.be',
   domain: 'http://localhost:' + process.env.PORT,
