@@ -2,6 +2,7 @@
 const mockery = require('mockery');
 const uuid = require('uuid');
 mockery.enable({
+  useCleanCache: true,
   warnOnReplace: false,
   warnOnUnregistered: false
 });
@@ -25,7 +26,11 @@ class OAuth2 {
     this.code = code;
     this.accessTokenOptions = options;
     const token = uuid.v4();
-    setTimeout(() => callback(null, token));
+    const refresh = uuid.v4();
+    setTimeout(() => callback(null, token, refresh, {
+      access_token: token,
+      expires_in: 2 * 60 * 60
+    }));
   }
 }
 
