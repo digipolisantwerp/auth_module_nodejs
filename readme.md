@@ -22,6 +22,7 @@ app.use(profileLogin(app, {
   domain: 'http://localhost:' + process.env.PORT,
   baseUrl: // optional, defaults to /api/mprofile when mprofiel, /api/aprofile when aprofiel
   backendRedirect: Boolean // optional, defaults to false.
+  errorRedirect: String // optional, defaults to /. Redirect url when logging in fails.
   auth: {
     service: profileLogin.APROFIEL // profileLogin.MPROFIEL (defaults to aprofiel)
     clientId: 'your-client-id',
