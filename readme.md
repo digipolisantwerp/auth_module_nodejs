@@ -7,9 +7,8 @@
 Mprofiel-login is implemented as an express router.
 
 Setup as follows:
-Ǹote that you should request a contract with mprofile  and
-configure a callback url on the api manager.
-```
+Ǹote that you should request a contract with mprofile and configure a callback url on the api manager.
+```js
 const session = require('express-session');
 const app = express();
 app.use(session({
@@ -22,7 +21,8 @@ app.use(profileLogin(app, {
   apiHost: 'https://api-gw-o.antwerpen.be',
   domain: 'http://localhost:' + process.env.PORT,
   baseUrl: // optional, defaults to /api/mprofile when mprofiel, /api/aprofile when aprofiel
-  backendRedirect: boolean // optional, defaults to false.
+  backendRedirect: Boolean // optional, defaults to false.
+  errorRedirect: String // optional, defaults to /. Redirect url when logging in fails.
   auth: {
     service: profileLogin.APROFIEL // profileLogin.MPROFIEL (defaults to aprofiel)
     clientId: 'your-client-id',
@@ -37,43 +37,42 @@ app.use(profileLogin(app, {
 }));
 ```
 
-this middleware exposes two routes.
-```
+This middleware exposes two routes.
+```js
   `${baseUrl}/isloggedin`
   `${baseUrl}/callback`
 ```
 
 ## /isloggedin
 
-The `isloggedin` endpoint can be used to check if a user currently has a session.
-if a user is logged in, it returns 
-if fetchPermissions == true, user.permissions contains the permissions (not possible for aprofiel)
-```
+The `isloggedin` endpoint can be used to check if a user currently has a session. If a user is logged in, it returns:
+```js
 {
   isLoggedin: true,
   user: { ... }
 }
 ```
+If fetchPermissions is set to `true`, _user.permissions_ contains the permissions (only possible for M-Profiel).  
+An optional query `fromUrl` parameter can be provided when requesting the `/isloggedin` route. When the login was successful, the user will be redirected to the root (by default) or to the `fromUrl` parameter.
 
 If no user is logged in, the following format is returned if `backendRedirect` is set to `false`
-```
+```js
 {
   isLoggedin: false,
   redirectUrl: url // url you can redirect to to login in the application
 }
 ```
 
-if `backendRedirect` is set to `true` the backend attempts a redirect.
+If `backendRedirect` is set to `true` the backend attempts a redirect.
 
 ## Callback
 
-Endpoint that you should not use manually, is used to return from the identity server
-and fetches a user corresponding to the login and stores it on the session.
+Endpoint that you should not use manually, is used to return from the identity server and fetches a user corresponding to the login and stores it on the session.
 
 ## Refresh
 
 When the `refresh` option is enabled, the following (example) token object will be available on the session:
-```
+```js
 {
   accessToken: 'D20A4360-EDD3-4983-8383-B64F46221115'
   refreshToken: '469FDDA4-7352-4E3E-A810-D0830881AA02'
