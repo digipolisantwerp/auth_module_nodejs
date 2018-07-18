@@ -14,7 +14,7 @@ const app = express();
 app.use(session({
   secret: 'blabla'
 }))
-const profileLogin = require('digipolis-mprofiel-login');
+const profileLogin = require('digipolis-login');
 // load session with corresponding persistence (postgres, mongo....)
 app.use(profileLogin(app, {
   oauthDomain: 'https://api-oauth2-o.antwerpen.be',
