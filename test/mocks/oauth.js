@@ -23,6 +23,7 @@ class OAuth2 {
   }
 
   getOAuthAccessToken(code, options, callback) {
+    console.log('this nocked');
     this.code = code;
     this.accessTokenOptions = options;
     const token = uuid.v4();

@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "async": "~2.5.0",
+    "async": "^2.5.0",
     "express": "~4.15.4",
     "lodash.get": "~4.4.2",
     "oauth": "~0.9.15",
