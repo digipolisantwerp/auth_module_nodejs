@@ -1,19 +1,46 @@
+## todo
+- remove backendRedirect option, als twee endpoints exposen?
+- saveConsent in readme
 # digipolis-login
 
-**Note that this is still a work in progress and subject to changes and improvements**
+Digipolis-login is implemented as an `Express` router. It exposes a couple of endpoints
+that can be used in your application to handle the process of logging into a user's 
+AProfile or mprofile via oAuth.
 
 ## Setup
+You should use `express-session` in your application to enable session-storage.
+After this step, you can load the `digipolis-login` middleware
 
-Mprofiel-login is implemented as an express router.
+`app.use(require('digipolis-login)(app, configuration));`
 
-Setup as follows:
-Ǹote that you should request a contract with mprofile and configure a callback url on the api manager.
-```js
+**Configuration:**
+
+- **oauthDomain** *string*: The domain corresponding to the oauth implementation 
+  (e.g: https://api-oauth2-o.antwerpen.be')
+- **apiHost** *string*: the hostname corresponding to the API gateway (e.g: https://api-gw-o.antwerpen.be)
+- **domain** *string*: the domain for your own application (e.g.: https://myapp.com or http://localhost:8080),
+- **baseUrl** *string*: the baseUrl which is appended to the exposed endpoints (e.g: api/auth)
+- **errorRedirect** *string*: where to redirect if the login fails (e.g: /login)
+- **auth** (credentials can be acquired from the api store)
+  - **service**: 'astad.mprofiel.v1' or 'astad.aprofiel.v1' (exposed via package under APROFIEL, MPROFIEL props)
+  - **clientId** *string*: client id of your application
+  - **clientSecret** *string*: client secret of your application
+  - **scope** *string*: scopes to get for the user
+- **key** *string*: where to store the user on your session (e.g.: profile, the user will be stored `req.session.profile`) 
+- **refresh** *boolean*: whether the oauth access token should be refreshed before expiration
+- **fetchPermissions** *boolean*: if permissions for the logged in user should be fetched (**ONLY WORKS FOR MPROFILE**)
+- **applicationName** *string*: required if fetchPermissions == true, should be the same as the name in user management.
+- **apiKey** *string*: required to fetch permissions (not needed otherwise)
+- **hooks**
+  - **authSuccess** *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`
+## Example implementation
+```
 const session = require('express-session');
 const app = express();
 app.use(session({
   secret: 'blabla'
 }))
+
 const profileLogin = require('digipolis-login');
 // load session with corresponding persistence (postgres, mongo....)
 app.use(profileLogin(app, {
@@ -33,7 +60,14 @@ app.use(profileLogin(app, {
   refresh: Boolean // defaults to false
   fetchPermissions: Boolean // should fetch permissions
   applicationName: String // required if fetchPermissions == true, should be name in User management,
-  apiKey: String // required if fetchPermissions == true
+  apiKey: String, // required if fetchPermissions == true
+  hooks: {
+    authSuccess: [
+      function,
+      function 
+      function // signature (req, res, next)
+    ]
+  }
 }));
 ```
 
