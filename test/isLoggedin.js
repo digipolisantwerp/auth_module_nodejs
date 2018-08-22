@@ -12,7 +12,7 @@ const querystring = require('querystring');
 function getRedirectUrl(conf) {
   const query = Object.assign({}, conf.auth, {
     client_id: conf.auth.clientId,
-    redirect_uri: `${conf.domain}${conf.baseUrl}/callback`
+    redirect_uri: `${conf.domain}${conf.basePath}/callback`
   });
 
   delete query.clientId;
