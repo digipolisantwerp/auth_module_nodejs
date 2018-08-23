@@ -1,6 +1,6 @@
 ## todo
 - token documentatie
-
+- meer uitleg over de hooks
 # digipolis-login
 
 Digipolis-login is implemented as an `Express` router. It exposes a couple of endpoints
@@ -17,29 +17,34 @@ Be sure to load this middleware before your other routes, otherwise the automati
 
 **Configuration:**
 
-- **oauthDomain** *string*: The domain corresponding to the oauth implementation 
-  (e.g: https://api-oauth2-o.antwerpen.be')
-- **apiHost** *string*: the hostname corresponding to the API gateway (e.g: https://api-gw-o.antwerpen.be)
-- **domain** *string*: the domain for your own application (e.g.: https://myapp.com or http://localhost:8080),
-- **basePath='/auth/aprofile' || '/auth/mprofile'** *string*: the basePath which is appended to the exposed endpoints (e.g: api/auth)
-- **errorRedirect** *string*: where to redirect if the login fails (e.g: /login)
+- **oauthHost** *string*: The domain corresponding to the oauth implementation 
+  (e.g: https://api-oauth2-o.antwerpen.be').
+- **apiHost** *string*: the hostname corresponding to the API gateway (e.g: https://api-gw-o.antwerpen.be).
+- **basePath=/auth (optional)** *string*: the basePath which is appended to the exposed endpoints.
+- **errorRedirect=/ (optional)** *string*: where to redirect if the login fails (e.g: /login)
 - **auth** (credentials can be acquired from the api store)
-  - **service='astad.aprofiel.v1'**: 'astad.mprofiel.v1' or 'astad.aprofiel.v1' (exposed via package under APROFIEL, MPROFIEL props)
   - **clientId** *string*: client id of your application
   - **clientSecret** *string*: client secret of your application
-  - **scope='all'** *string*: scopes to get for the user
-  - **saveConsent** *boolean*: whether the given consent should be saved. default true 
   - **apiKey** *string*: required to fetch permissions (not needed otherwise)
-- **key='user'** *string*: where to store the user on your session (e.g.: profile, the user will be stored `req.session.profile`) 
-- **refresh=false** *boolean*: whether the oauth access token should be refreshed before expiration
-- **fetchPermissions=false** *boolean*: if permissions for the logged in user should be fetched (**ONLY WORKS FOR MPROFILE**)
-- **applicationName** *string*: required if fetchPermissions == true, should be the same as the name in user management.
+- **serviceProviders**: object of the available oauth login services (currently aprofiel & MProfiel). You only need to configure the ones that you need.
+  - **aprofiel** (optional if not needed): 
+    - **scopes** *string*: The scopes you want of the profile (space separated identifiers)
+    - **url** *string*: the url where to fetch the aprofile after the login succeeded
+    - **identifier** *string*: the service identifier, used to create login url.
+    - **hooks (optional)**: async execution is supported
+      - **authSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
+  - **mprofiel** (optional if not needed):
+    - **scopes** *string*: the scopes you want for the profile
+    - **url** *string*: url where to fetch the profile
+    - **fetchPermissions=false** *boolean*: whether to fetch permissions in the User Man. engine
+    - **applicationname** *string*: required if permissions need to be fetched 
+    - **identifier=astad.mprofiel.v1** *string*: the service identifier, used to create the login url.
+    - **hooks (optional)**: async execution is supported
+      - **authSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
 
-- **hooks**
-  - **authSuccess** *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`
 
 ## Example implementation
-```
+```js
 const session = require('express-session');
 const app = express();
 app.use(session({
@@ -48,31 +53,48 @@ app.use(session({
 
 const profileLogin = require('digipolis-login');
 // load session with corresponding persistence (postgres, mongo....)
+const authSuccessHook = (req, res, next) => {
+  req.session.isEmployee = false;
+  if(req.digipolisLogin && req.digipolisLogin.serviceName === 'mprofiel') {
+    req.session.isEmployee = true;
+  }
+
+  req.session.save(() => next());
+} 
 app.use(profileLogin(app, {
-  oauthDomain: 'https://api-oauth2-o.antwerpen.be',
+  oauthHost: 'https://api-oauth2-o.antwerpen.be',
   apiHost: 'https://api-gw-o.antwerpen.be',
-  domain: 'http://localhost:' + process.env.PORT,
-  basePath: // optional, defaults to /api/mprofile when mprofiel, /api/aprofile when aprofiel
-  backendRedirect: Boolean // optional, defaults to false.
-  errorRedirect: String // optional, defaults to /. Redirect url when logging in fails.
+  errorRedirect: '/'
+  basePath: '/auth'
   auth: {
-    service: profileLogin.APROFIEL // profileLogin.MPROFIEL (defaults to aprofiel)
     clientId: 'your-client-id',
     clientSecret: 'your-client-secret',
-    scope: 'all' // optional, defaults to all
-    apiKey: String, // required if fetchPermissions == true
+    apiKey: 'my-api-string, // required if fetchPermissions == true
   },
-  key: 'aprofiel' // where the user is stored on the session (req.session.aprofiel), defaults to user
-  refresh: Boolean // defaults to false
-  fetchPermissions: Boolean // should fetch permissions
-  applicationName: String // required if fetchPermissions == true, should be name in User management,
-
-  hooks: {
-    authSuccess: [
-      function,
-      function 
-      function // signature (req, res, next)
-    ]
+  serviceProviders: {
+    aprofiel: {
+      scopes: '',
+      url: '',
+      identifier:'astad.aprofiel.v1'
+      hooks: {
+        authSuccess: [
+          authSuccessHook
+        ]
+      }
+    },
+    mprofiel: {
+      scopes: 'all',
+      url: '',
+      identifier: 'astad.mprofiel.v1',
+      fetchPermissions: false,
+      applicationName: 'this-is-my-app',
+      url,
+      hooks: {
+        authSuccess: [
+          authSuccessHook
+        ]
+      }
+    },
   }
 }));
 ```

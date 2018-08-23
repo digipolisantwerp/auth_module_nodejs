@@ -18,7 +18,7 @@ function getRedirectUrl(conf) {
   delete query.clientId;
   delete query.clientSecret;
 
-  return `${conf.oauthDomain}${conf.authPath}?${querystring.stringify(query)}`;
+  return `${conf.oauthHost}${conf.authPath}?${querystring.stringify(query)}`;
 }
 
 describe('test #isLoggedin', function onDescribe() {
