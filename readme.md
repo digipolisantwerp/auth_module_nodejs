@@ -1,5 +1,5 @@
 ## todo
-- token mee onder user steken? wat als met twee profielen ingelogd?
+- token documentatie
 
 # digipolis-login
 
@@ -118,7 +118,11 @@ If the user is not logged in, the following payload is returned.
 
 Endpoint that you should not use manually, is used to return from the identity server and fetches a user corresponding to the login and stores it on the session.
 
-If a redirect url was given through the `fromUrl` in the `login` or `login/redirect` endpoint, the user will be redirected to this url after the callback has executed.
+If a redirect url was given through the `fromUrl` in the `login` or `login/redirect` endpoint, the user will be redirected to this url after the callback has executed successfully.
+
+
+If the callback is does not originate from the login flow triggered from the application,
+it will trigger a 401. (this is checked with the state param).
 
 ### POST {basePath}/logout
 
