@@ -21,13 +21,14 @@ Be sure to load this middleware before your other routes, otherwise the automati
   (e.g: https://api-oauth2-o.antwerpen.be')
 - **apiHost** *string*: the hostname corresponding to the API gateway (e.g: https://api-gw-o.antwerpen.be)
 - **domain** *string*: the domain for your own application (e.g.: https://myapp.com or http://localhost:8080),
-- **basePath='/api/aprofile' || '/api/mprofile'** *string*: the basePath which is appended to the exposed endpoints (e.g: api/auth)
+- **basePath='/auth/aprofile' || '/auth/mprofile'** *string*: the basePath which is appended to the exposed endpoints (e.g: api/auth)
 - **errorRedirect** *string*: where to redirect if the login fails (e.g: /login)
 - **auth** (credentials can be acquired from the api store)
   - **service='astad.aprofiel.v1'**: 'astad.mprofiel.v1' or 'astad.aprofiel.v1' (exposed via package under APROFIEL, MPROFIEL props)
   - **clientId** *string*: client id of your application
   - **clientSecret** *string*: client secret of your application
   - **scope='all'** *string*: scopes to get for the user
+  - **saveConsent** *boolean*: whether the given consent should be saved. default true 
   - **apiKey** *string*: required to fetch permissions (not needed otherwise)
 - **key='user'** *string*: where to store the user on your session (e.g.: profile, the user will be stored `req.session.profile`) 
 - **refresh=false** *boolean*: whether the oauth access token should be refreshed before expiration
@@ -83,18 +84,10 @@ default basePaths will be used. /api/aprofile if the package is used for aprofie
 api/mprofile for mprofiel login.
 
 ### GET {basePath}/login?fromUrl={thisiswheretoredirectafterlogin}
-This endpoint generates a url that can be used to login the user in the corresponding 
-service.
+This endpoints tries to redirect the user to the login page of the corresponding service.
+(this will not work if the endpoint is called with an AJAX call)
 
-the `fromUrl` query parameter can be used to redirect the user to a given page
-after login.
-
-returns 
-``` 
-{
-  url: 'https://api-oauth2-o.antwerpen.be...'
-}
-```
+the `fromUrl` query parameter can be used to redirect the user to a given page after login.
 
 ### GET {basePath}/login/redirect?fromUrl={thisiswheretoredirectafterlogin}
 This endpoints tries to redirect the user to the login page of the corresponding service.
