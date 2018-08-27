@@ -5,7 +5,7 @@
 
 Digipolis-login is implemented as an `Express` router. It exposes a couple of endpoints
 that can be used in your application to handle the process of logging into a user's 
-AProfile or mprofile via oAuth.
+AProfile, mprofile or eid via oAuth.
 
 ## Setup
 You should use `express-session` in your application to enable session-storage.
@@ -40,6 +40,13 @@ Be sure to load this middleware before your other routes, otherwise the automati
     - **fetchPermissions=false** *boolean*: whether to fetch permissions in the User Man. engine
     - **applicationname** *string*: required if permissions need to be fetched 
     - **identifier=astad.mprofiel.v1** *string*: the service identifier, used to create the login url.
+     - **tokenEndpoint** *string*: where the service should get the accesstoken
+    - **hooks (optional)**: async execution is supported
+      - **authSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
+  - **eid** (optional if not needed):
+    - **scopes** *string*: the scopes you want for the profile
+    - **url** *string*: url where to fetch the profile
+    - **identifier=acpaas.fasdatastore.v1** *string*: the service identifier, used to create the login url.
      - **tokenEndpoint** *string*: where the service should get the accesstoken
     - **hooks (optional)**: async execution is supported
       - **authSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
@@ -90,6 +97,15 @@ app.use(profileLogin(app, {
       fetchPermissions: false,
       applicationName: 'this-is-my-app',
       tokenEndpoint: '/astad/mprofiel/v1/oauth2/token',
+      hooks: {
+        authSuccess: []
+      }
+    },
+    eid: {
+      scopes: 'name nationalregistrationnumber',
+      url: 'https://api-gw-o.antwerpen.be/acpaas/fasdatastore/v1/me',
+      identifier:'acpaas.fasdatastore.v1',
+      tokenEndpoint: '/acpaas/fasdatastore/v1/oauth2/token',
       hooks: {
         authSuccess: []
       }
