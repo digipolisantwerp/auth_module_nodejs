@@ -1,79 +1,225 @@
 'use strict';
 
-const config = require('../lib/config');
 const correctConfig = require('./mocks/correctConfig');
 const oauth = require('./mocks/oauth');
-oauth.getCreatedInstance();
-const expect = require('chai').expect;
-const createController = require('../lib/controller');
+const createRouter = require('../lib/router');
 const reqres = require('reqres');
+const mockExpress = require('mock-express')();
+const assert = require('assert');
 const user = require('./mocks/user');
 const userJSON = require('./mocks/user.json');
 
+oauth.getCreatedInstance();
 
 describe('test #callback', function onDescribe() {
 
-  it('callback should add user to session', (done) => {
-    const conf = config.createConfig(correctConfig)
-    user.nockGetAprofiel(conf.apiHost);
-    const controller = createController(conf);
-    const res = reqres.res();
-    const req = {
-      query: {
-        code: '1234'
-      },
+  it('callback redirect to errorRedirect when no code in query', (done) => {
+    const errorRedirect = '/error';
+    const config = Object.assign(correctConfig, {
+      errorRedirect
+    })
+    const router = createRouter(mockExpress, config);
+    const req = reqres.req({
+      url: '/auth/callback',
       session: {
-        save: (cb) => cb()
+        save: cb => cb()
       }
-    }
-    controller.callback(req, res);
+    });
+
+    const res = reqres.res();
+
     res.on('end', () => {
-      expect(req.session.user).to.eql(userJSON);
+      assert(res.redirect.calledWith(errorRedirect));
       return done();
     });
+
+    router.handle(req, res);
   });
 
-  it('authSuccess hook should run on callback', (done) => {
-    let count = 0;
-    const newConfig = Object.assign({}, correctConfig, {
-      hooks: {
-        authSuccess: [
-          (req, res, next) => {
-            count++;
-            return next();
-          },
-          (req, res, next) => {
-            count +=5;
-            return next();
-          },
-          (req, res, next) => {
-            req.session.count = count;
-            return next();
-          }
-        ]
+  it('callback redirect to errorRedirect when no state in query', (done) => {
+    const errorRedirect = '/error';
+    const config = Object.assign(correctConfig, {
+      errorRedirect
+    })
+    const router = createRouter(mockExpress, config);
+    const req = reqres.req({
+      url: '/auth/callback',
+      query: {
+        code: 'blabla'
+      },
+      session: {
+        save: cb => cb()
       }
     });
 
-
-    const conf = config.createConfig(newConfig)
-    user.nockGetAprofiel(conf.apiHost);
-    const controller = createController(conf);
     const res = reqres.res();
-    const req = {
-      query: {
-        code: '1234'
-      },
-      session: {
-        save: (cb) => cb()
-      }
-    }
 
-    controller.callback(req, res);
     res.on('end', () => {
-      expect(req.session.user).to.eql(userJSON);
-      expect(req.session.count).to.eql(count);
+      assert(res.redirect.calledWith(errorRedirect));
       return done();
     });
 
+    router.handle(req, res);
+  });
+
+  it('callback should 400 when state is unknown', (done) => {
+    const errorRedirect = '/error';
+    const config = Object.assign(correctConfig, {
+      errorRedirect
+    })
+    const router = createRouter(mockExpress, config);
+    const req = reqres.req({
+      url: '/auth/callback',
+      query: {
+        code: 'blabla',
+        state: 'nonExisting_1234'
+      },
+      session: {
+        save: cb => cb()
+      }
+    });
+
+    const res = reqres.res();
+
+    res.on('end', () => {
+      assert(res.sendStatus.calledWith(400))
+      return done();
+    });
+
+    router.handle(req, res);
+  });
+
+
+  it('callback should 401 when state does not matches key', (done) => {
+    const errorRedirect = '/error';
+    const config = Object.assign(correctConfig, {
+      errorRedirect
+    })
+    const router = createRouter(mockExpress, config);
+
+    const req = reqres.req({
+      url: '/auth/callback',
+      query: {
+        code: 'blabla',
+        state: 'aprofiel_1234'
+      },
+      session: {
+        save: cb => cb(),
+        aprofiel_key: 'aprofiel_43321'
+      }
+    });
+
+    const res = reqres.res();
+
+    res.on('end', () => {
+      assert(res.sendStatus.calledWith(401))
+      return done();
+    });
+
+    router.handle(req, res);
+  });
+
+  it('should login and redirect to fromUrl', (done) => {
+    user.nockGetAprofiel(correctConfig.apiHost);
+    const errorRedirect = '/error';
+    const fromUrl = '/fromUrl'
+    const config = Object.assign(correctConfig, {
+      errorRedirect
+    })
+    const router = createRouter(mockExpress, config);
+    const key = 'aprofiel_1234'
+    const req = reqres.req({
+      url: '/auth/callback',
+      query: {
+        code: 'blabla',
+        state: key
+      },
+      session: {
+        save: cb => cb(),
+        aprofiel_key: key,
+        fromUrl
+      }
+    });
+
+    const res = reqres.res();
+
+    res.on('end', () => {
+      assert(req.session.user);
+      assert(req.session.token);
+      assert(req.session.currentServiceProvider);
+      assert(res.redirect.calledWith(fromUrl));
+      return done();
+    });
+    try {
+      router.handle(req, res);
+    } catch (e) {
+      console.log(e);
+      return done(e);
+    }
+  });
+
+  it('should login and redirect to / if no fromUrl', (done) => {
+    user.nockGetAprofiel(correctConfig.apiHost);
+    const errorRedirect = '/error';
+    const config = Object.assign(correctConfig, {
+      errorRedirect
+    })
+    const router = createRouter(mockExpress, config);
+    const key = 'aprofiel_1234'
+    const req = reqres.req({
+      url: '/auth/callback',
+      query: {
+        code: 'blabla',
+        state: key
+      },
+      session: {
+        save: cb => cb(),
+        aprofiel_key: key,
+      }
+    });
+
+    const res = reqres.res();
+
+    res.on('end', () => {
+      assert(res.redirect.calledWith('/'));
+      return done();
+    });
+    try {
+      router.handle(req, res);
+    } catch (e) {
+      console.log(e);
+      return done(e);
+    }
+
+  });
+
+  it('should redirect to errorRedirect if login errors', (done) => {
+    user.nockGetAprofiel(correctConfig.apiHost, 400);
+    const errorRedirect = '/error';
+    const config = Object.assign(correctConfig, {
+      errorRedirect
+    })
+
+    const router = createRouter(mockExpress, config);
+    const key = 'aprofiel_1234'
+    const req = reqres.req({
+      url: '/auth/callback',
+      query: {
+        code: 'blabla',
+        state: key
+      },
+      session: {
+        save: cb => cb(),
+        aprofiel_key: key
+      },
+    });
+
+    const res = reqres.res();
+    res.on('end', () => {
+      assert(res.redirect.calledWith(config.errorRedirect));
+      return done();
+    });
+
+    router.handle(req, res);
   });
 });

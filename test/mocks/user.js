@@ -2,11 +2,10 @@
 const nock = require('nock');
 const user = require('./user.json');
 
-function nockGetAprofiel(apiHost) {
+function nockGetAprofiel(apiHost, status) {
   nock(apiHost)
-    .log(console.log)
     .get('/astad/aprofiel/v1/v1/me')
-    .reply(200, {
+    .reply(status || 200, {
       data: user
     });
 }

@@ -4,10 +4,33 @@ const uuid = require('uuid');
 module.exports = {
   oauthHost: 'https://api-oauth2-o.antwerpen.be',
   apiHost: 'https://api-gw-o.antwerpen.be',
-  domain: 'http://localhost:8000',
+  errorRedirect: '/',
+  basePath: '/auth',
   auth: {
-    clientId: uuid.v4(),
-    clientSecret: uuid.v4()
+    clientId: 'your-client-id',
+    clientSecret: 'your-client-secret',
+    apiKey: 'my-api-string', // required if fetchPermissions == true
   },
-  refresh: false
-};
+  serviceProviders: {
+    aprofiel: {
+      scopes: '',
+      url: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/v1/me',
+      identifier:'astad.aprofiel.v1',
+      tokenEndpoint: '/astad/aprofiel/v1/oauth2/token',
+      hooks: {
+        authSuccess: []
+      }
+    },
+    mprofiel: {
+      scopes: 'all',
+      url: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/v1/me',
+      identifier: 'astad.mprofiel.v1',
+      fetchPermissions: false,
+      applicationName: 'this-is-my-app',
+      tokenEndpoint: '/astad/mprofiel/v1/oauth2/token',
+      hooks: {
+        authSuccess: []
+      }
+    },
+  }
+}

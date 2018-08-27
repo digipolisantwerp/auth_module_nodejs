@@ -31,6 +31,7 @@ Be sure to load this middleware before your other routes, otherwise the automati
     - **scopes** *string*: The scopes you want of the profile (space separated identifiers)
     - **url** *string*: the url where to fetch the aprofile after the login succeeded
     - **identifier** *string*: the service identifier, used to create login url.
+    - **tokenEndpoint** *string*: where the service should get the accesstoken
     - **hooks (optional)**: async execution is supported
       - **authSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
   - **mprofiel** (optional if not needed):
@@ -39,6 +40,7 @@ Be sure to load this middleware before your other routes, otherwise the automati
     - **fetchPermissions=false** *boolean*: whether to fetch permissions in the User Man. engine
     - **applicationname** *string*: required if permissions need to be fetched 
     - **identifier=astad.mprofiel.v1** *string*: the service identifier, used to create the login url.
+     - **tokenEndpoint** *string*: where the service should get the accesstoken
     - **hooks (optional)**: async execution is supported
       - **authSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
 
@@ -64,22 +66,21 @@ const authSuccessHook = (req, res, next) => {
 app.use(profileLogin(app, {
   oauthHost: 'https://api-oauth2-o.antwerpen.be',
   apiHost: 'https://api-gw-o.antwerpen.be',
-  errorRedirect: '/'
-  basePath: '/auth'
+  errorRedirect: '/',
+  basePath: '/auth',
   auth: {
     clientId: 'your-client-id',
     clientSecret: 'your-client-secret',
-    apiKey: 'my-api-string, // required if fetchPermissions == true
+    apiKey: 'my-api-string', // required if fetchPermissions == true
   },
   serviceProviders: {
     aprofiel: {
       scopes: '',
       url: '',
-      identifier:'astad.aprofiel.v1'
+      identifier:'astad.aprofiel.v1',
+      tokenEndpoint: '/astad/aprofiel/v1/oauth2/token',
       hooks: {
-        authSuccess: [
-          authSuccessHook
-        ]
+        authSuccess: []
       }
     },
     mprofiel: {
@@ -88,11 +89,9 @@ app.use(profileLogin(app, {
       identifier: 'astad.mprofiel.v1',
       fetchPermissions: false,
       applicationName: 'this-is-my-app',
-      url,
+      tokenEndpoint: '/astad/mprofiel/v1/oauth2/token',
       hooks: {
-        authSuccess: [
-          authSuccessHook
-        ]
+        authSuccess: []
       }
     },
   }
