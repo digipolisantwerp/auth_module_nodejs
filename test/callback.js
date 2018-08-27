@@ -222,4 +222,96 @@ describe('test #callback', function onDescribe() {
 
     router.handle(req, res);
   });
+
+  it('should call hooks', (done) => {
+    user.nockGetAprofiel(correctConfig.apiHost);
+    const hookTest = 'blabla'
+    const aprofielConfig = Object.assign({}, correctConfig.serviceProviders.aprofiel);
+    aprofielConfig.hooks = {
+      authSuccess: [
+        (req, res, next) => {
+          req.session.hookTest = hookTest;
+          return req.session.save(() => next());
+        },
+        (req, res, next) => {
+          req.session.hookTest2 = hookTest;
+          return req.session.save(() => next());
+        }
+      ]
+    }
+
+    const config = Object.assign({}, correctConfig);
+    config.serviceProviders.aprofiel = aprofielConfig;
+
+    const router = createRouter(mockExpress, config);
+    const key = 'aprofiel_1234'
+    const req = reqres.req({
+      url: '/auth/callback',
+      query: {
+        code: 'blabla',
+        state: key
+      },
+      session: {
+        save: cb => cb(),
+        aprofiel_key: key
+      }
+    });
+
+    const res = reqres.res();
+
+    res.on('end', () => {
+      assert.equal(req.session.hookTest, hookTest);
+      assert.equal(req.session.hookTest2, hookTest);
+      return done();
+    });
+    try {
+      router.handle(req, res);
+    } catch (e) {
+      console.log(e);
+      return done(e);
+    }
+  });
+
+  it('should redirect to error page if hooks fail', (done) => {
+    user.nockGetAprofiel(correctConfig.apiHost);
+    const aprofielConfig = Object.assign({}, correctConfig.serviceProviders.aprofiel);
+    aprofielConfig.hooks = {
+      authSuccess: [
+        (req, res, next) => {
+          return next({message: 'this is an error'})
+        }
+      ]
+    }
+
+    const config = Object.assign({}, correctConfig);
+    config.serviceProviders.aprofiel = aprofielConfig;
+
+    const router = createRouter(mockExpress, config);
+    const key = 'aprofiel_1234'
+    const req = reqres.req({
+      url: '/auth/callback',
+      query: {
+        code: 'blabla',
+        state: key
+      },
+      session: {
+        save: cb => cb(),
+        aprofiel_key: key
+      }
+    });
+
+    const res = reqres.res();
+
+    res.on('end', () => {
+      console.log(req.session);
+      assert(res.redirect.calledWith(config.errorRedirect));
+      return done();
+    });
+    try {
+      router.handle(req, res);
+    } catch (e) {
+      console.log(e);
+      return done(e);
+    }
+  });
 });

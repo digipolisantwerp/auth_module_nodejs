@@ -76,7 +76,7 @@ app.use(profileLogin(app, {
   serviceProviders: {
     aprofiel: {
       scopes: '',
-      url: '',
+      url: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/v1/me',
       identifier:'astad.aprofiel.v1',
       tokenEndpoint: '/astad/aprofiel/v1/oauth2/token',
       hooks: {
@@ -85,7 +85,7 @@ app.use(profileLogin(app, {
     },
     mprofiel: {
       scopes: 'all',
-      url: '',
+      url: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/v1/me',
       identifier: 'astad.mprofiel.v1',
       fetchPermissions: false,
       applicationName: 'this-is-my-app',
@@ -98,20 +98,27 @@ app.use(profileLogin(app, {
 }));
 ```
 
+## Session 
+Only one kind of profile can be logged in at any given moment. User information is available on `req.session.user`, the access token is available on `req.session.token`
+
+```
+{
+  accessToken: 'D20A4360-EDD3-4983-8383-B64F46221115'
+  refreshToken: '469FDDA4-7352-4E3E-A810-D0830881AA02'
+  expiresIn: '2020-12-31T23.59.59.999Z'
+}
+```
+To identify which service is used for the current loggedIn user, you can use 
+`req.session.currentServiceProvider`. This property can come in handy in your hooks.
 ## Available Routes
 
 Each route is prepended with the configured `basePath`, if no basePath is given,
 default basePaths will be used. /api/aprofile if the package is used for aprofiel login,
 api/mprofile for mprofiel login.
 
-### GET {basePath}/login?fromUrl={thisiswheretoredirectafterlogin}
-This endpoints tries to redirect the user to the login page of the corresponding service.
-(this will not work if the endpoint is called with an AJAX call)
 
-the `fromUrl` query parameter can be used to redirect the user to a given page after login.
-
-### GET {basePath}/login/redirect?fromUrl={thisiswheretoredirectafterlogin}
-This endpoints tries to redirect the user to the login page of the corresponding service.
+### GET {basePath}/login/{serviceName}?fromUrl={thisiswheretoredirectafterlogin}
+This endpoints tries to redirect the user to the login page of the service corresponding to the serviceName (aprofiel, mprofiel).
 (this will not work if the endpoint is called with an AJAX call)
 
 the `fromUrl` query parameter can be used to redirect the user to a given page
@@ -141,22 +148,13 @@ Endpoint that you should not use manually, is used to return from the identity s
 
 If a redirect url was given through the `fromUrl` in the `login` or `login/redirect` endpoint, the user will be redirected to this url after the callback has executed successfully.
 
-
 If the callback is does not originate from the login flow triggered from the application,
 it will trigger a 401. (this is checked with the state param).
+
+Hooks defined in the `serviceProviders[serviceName].hooks.authSuccess` will be called here.
+Session data can be modified in such a hook.
 
 ### POST {basePath}/logout
 
 Destroys the session in the application.
 
-## Refresh
-
-When the `refresh` option is enabled, the following (example) token object will be available on the session:
-```js
-{
-  accessToken: 'D20A4360-EDD3-4983-8383-B64F46221115'
-  refreshToken: '469FDDA4-7352-4E3E-A810-D0830881AA02'
-  expiresIn: '2020-12-31T23.59.59.999Z'
-}
-```
-The access token will be refreshed automatically.
