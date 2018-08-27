@@ -8,6 +8,11 @@ mockery.enable({
 });
 
 let createdInstance;
+let errorToReturn = false;
+
+function setError(err) {
+  errorToReturn = err;
+}
 
 function getCreatedInstance() {
   return createdInstance;
@@ -27,6 +32,12 @@ class OAuth2 {
     this.accessTokenOptions = options;
     const token = uuid.v4();
     const refresh = uuid.v4();
+    if(errorToReturn) {
+      callback(errorToReturn);
+      errorToReturn = false;
+      return;
+    }
+
     setTimeout(() => callback(null, token, refresh, {
       access_token: token,
       expires_in: 2 * 60 * 60
@@ -39,6 +50,7 @@ mockery.registerMock('oauth', {
 });
 
 module.exports = {
-  getCreatedInstance
+  getCreatedInstance,
+  setError
 };
 

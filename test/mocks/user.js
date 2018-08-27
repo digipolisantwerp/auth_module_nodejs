@@ -1,13 +1,15 @@
 'use strict';
 const nock = require('nock');
-const user = require('./user');
+const user = require('./user.json');
 
-function nockGetUser(apiHost) {
+function nockGetAprofiel(apiHost, status) {
   nock(apiHost)
-    .get('/astad/mprofiel/v1/v1/me')
-    .reply(200, user);
+    .get('/astad/aprofiel/v1/v1/me')
+    .reply(status || 200, {
+      data: user
+    });
 }
 
 module.exports = {
-  nockGetUser
+  nockGetAprofiel
 };

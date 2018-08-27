@@ -7,8 +7,6 @@ const expect = require('chai').expect;
 const reqres = require('reqres');
 const oauth = require('./mocks/oauth');
 
-oauth.getCreatedInstance();
-
 const copy = (o) => {
   let output;
   let v;
@@ -28,7 +26,10 @@ describe('test refresh', function onDescribe() {
     const config = copy(correctConfig);
     const controller = createController(config);
     const req = reqres.req({
-      session: {}
+      session: {
+        currentServiceProvider: 'aprofiel'
+      },
+      save: (cb) => cb()
     });
     const res = reqres.req({});
 
@@ -45,10 +46,12 @@ describe('test refresh', function onDescribe() {
     const controller = createController(config);
     const req = reqres.req({
       session: {
+        currentServiceProvider: 'aprofiel',
         token: {
           accessToken: "abc",
           expiresIn: new Date(new Date().getTime() + (1000 * 60))
-        }
+        },
+        save: (cb) => cb()
       }
     });
     const res = reqres.req({});
@@ -66,9 +69,10 @@ describe('test refresh', function onDescribe() {
     const controller = createController(config);
     const req = reqres.req({
       session: {
+        currentServiceProvider: 'aprofiel',
         token: {
           accessToken: "abc",
-          expiresIn: new Date(new Date().getTime() - (1000 * 60))
+          expiresIn: new Date(new Date().getTime() + 1000)
         },
         save: (cb) => cb()
       }

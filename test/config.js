@@ -4,7 +4,7 @@ const expect = require('chai').expect;
 const correctConfig = require('./mocks/correctConfig');
 
 describe('test config', function onDescribe() {
-  it('should throw error when apiBaseUrl is not present', function onIt() {
+  it('should throw error when apiBasePath is not present', function onIt() {
     try {
       config.createConfig({});
       expect(true).to.equal(false);
