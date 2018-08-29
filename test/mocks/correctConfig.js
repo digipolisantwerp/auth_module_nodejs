@@ -16,7 +16,7 @@ module.exports = {
       scopes: '',
       url: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/v1/me',
       identifier:'astad.aprofiel.v1',
-      tokenEndpoint: '/astad/aprofiel/v1/oauth2/token',
+      tokenUrl: 'https://api-gw-o.antwerpen.be//astad/aprofiel/v1/oauth2/token',
       hooks: {
         authSuccess: []
       }
@@ -27,7 +27,7 @@ module.exports = {
       identifier: 'astad.mprofiel.v1',
       fetchPermissions: false,
       applicationName: 'this-is-my-app',
-      tokenEndpoint: '/astad/mprofiel/v1/oauth2/token',
+      tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
       hooks: {
         authSuccess: []
       }

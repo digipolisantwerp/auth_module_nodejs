@@ -303,7 +303,6 @@ describe('test #callback', function onDescribe() {
     const res = reqres.res();
 
     res.on('end', () => {
-      console.log(req.session);
       assert(res.redirect.calledWith(config.errorRedirect));
       return done();
     });

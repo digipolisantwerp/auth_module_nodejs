@@ -49,6 +49,7 @@ describe('GET /login/:serviceProvider', function onDescribe() {
     res.redirect.bind(res);
 
     res.on('end', () => {
+      console.log(redirectUrl);
       assert(redirectUrl);
       assert(req.session.fromUrl === fromUrl);
       assert(redirectUrl.includes(encodeURIComponent(host)));
