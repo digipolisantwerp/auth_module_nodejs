@@ -62,7 +62,7 @@ describe('test #callback', function onDescribe() {
     router.handle(req, res);
   });
 
-  it('callback should 400 when state is unknown', (done) => {
+  it('callback should 404 when serviceProvider is unknown', (done) => {
     const errorRedirect = '/error';
     const config = Object.assign(correctConfig, {
       errorRedirect
@@ -82,7 +82,7 @@ describe('test #callback', function onDescribe() {
     const res = reqres.res();
 
     res.on('end', () => {
-      assert(res.sendStatus.calledWith(400))
+      assert(res.sendStatus.calledWith(404));
       return done();
     });
 

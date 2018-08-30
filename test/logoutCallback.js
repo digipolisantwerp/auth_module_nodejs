@@ -14,7 +14,7 @@ describe('GET /logout/:serviceProvider/callback', function onDescribe() {
     let redirectUrl = false;
     const req = reqres.req({
       url: '/auth/logout/aprofiel/callback',
-      method: 'POST',
+      method: 'GET',
       query: {
         state: '1234'
       },
@@ -41,6 +41,78 @@ describe('GET /logout/:serviceProvider/callback', function onDescribe() {
       assert(!req.session.userToken);
       assert(!req.session.user);
       assert(redirectUrl === '/');
+      return done();
+    });
+
+    router.handle(req, res);
+  });
+
+  it('should 401 when state incorrect', function onIt(done) {
+    const router = createRouter(mockExpress, correctConfig);
+
+    let redirectUrl = false;
+    const req = reqres.req({
+      url: '/auth/logout/aprofiel/callback',
+      method: 'GET',
+      query: {
+        state: '12345'
+      },
+      get: () => host,
+      session: {
+        save: (cb) => cb(),
+        user: {},
+        userToken: {},
+        aprofiel_logoutKey: '1234',
+        regenerate: (cb) => cb()
+      },
+    });
+    const res = reqres.res({
+      redirect(val) {
+        redirectUrl = val
+        this.emit('end');
+      }
+    });
+
+    res.redirect.bind(res);
+
+    res.on('end', () => {
+      assert(res.sendStatus.calledWith(401));
+      return done();
+    });
+
+    router.handle(req, res);
+  });
+
+  it('should 401 when serviceprovider unknown', function onIt(done) {
+    const router = createRouter(mockExpress, correctConfig);
+
+    let redirectUrl = false;
+    const req = reqres.req({
+      url: '/auth/logout/dprof/callback',
+      method: 'GET',
+      query: {
+        state: '12345'
+      },
+      get: () => host,
+      session: {
+        save: (cb) => cb(),
+        user: {},
+        userToken: {},
+        aprofiel_logoutKey: '1234',
+        regenerate: (cb) => cb()
+      },
+    });
+    const res = reqres.res({
+      redirect(val) {
+        redirectUrl = val
+        this.emit('end');
+      }
+    });
+
+    res.redirect.bind(res);
+
+    res.on('end', () => {
+      assert(res.sendStatus.calledWith(401));
       return done();
     });
 
