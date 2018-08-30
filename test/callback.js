@@ -145,7 +145,7 @@ describe('test #callback', function onDescribe() {
 
     res.on('end', () => {
       assert(req.session.user);
-      assert(req.session.token);
+      assert(req.session.userToken);
       assert(req.session.currentServiceProvider);
       assert(res.redirect.calledWith(fromUrl));
       return done();
