@@ -69,7 +69,9 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
         user: {
           id: 'this-is-my-id'
         },
-        token: {}
+        userToken: {
+          access_token: {}
+        }
       },
     });
     const res = reqres.res({
