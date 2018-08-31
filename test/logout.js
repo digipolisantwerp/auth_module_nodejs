@@ -11,7 +11,6 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
 
     const req = reqres.req({
       url: '/auth/logout/aprofile',
-      method: 'POST',
       session: {}
     });
     const res = reqres.res();
@@ -31,7 +30,6 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
     let redirectUrl = false;
     const req = reqres.req({
       url: '/auth/logout/aprofiel',
-      method: 'POST',
       query: {
       },
       get: () => host,
@@ -63,7 +61,6 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
     let redirectUrl = false;
     const req = reqres.req({
       url: '/auth/logout/aprofiel',
-      method: 'POST',
       query: {
       },
       get: () => host,
