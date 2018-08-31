@@ -1,6 +1,3 @@
-## todo
-- token documentatie
-- meer uitleg over de hooks
 # digipolis-login
 
 Digipolis-login is implemented as an `Express` router. It exposes a couple of endpoints
@@ -119,8 +116,9 @@ app.use(profileLogin(app, {
 ```
 
 ## Session 
-Only one kind of profile can be logged in at any given moment. User information is available on `req.session.user`, the access token is available on `req.session.token`
+Multiple profile can be logged in at the same time, if a key is configured inside the serviceProvider configuration. If no key is given, the default key `user` (`req.session.user`) is used, and the possibility exists that a previous user is overwritten by another when logging in.
 
+The token can be found under `req.session.userToken` if the default key is used, otherwise it can be found under `req.session[configuredKey + Token]` e.g: token configured is `aprofiel` , the access token will be found under `req.session.aprofielToken`
 ```
 {
   accessToken: 'D20A4360-EDD3-4983-8383-B64F46221115'
@@ -128,17 +126,15 @@ Only one kind of profile can be logged in at any given moment. User information 
   expiresIn: '2020-12-31T23.59.59.999Z'
 }
 ```
-To identify which service is used for the current loggedIn user, you can use 
-`req.session.currentServiceProvider`. This property can come in handy in your hooks.
+
 ## Available Routes
 
 Each route is prepended with the configured `basePath`, if no basePath is given,
-default basePaths will be used. /api/aprofile if the package is used for aprofiel login,
-api/mprofile for mprofiel login.
+default basePath `auth` will be used.
 
 
 ### GET {basePath}/login/{serviceName}?fromUrl={thisiswheretoredirectafterlogin}
-This endpoints tries to redirect the user to the login page of the service corresponding to the serviceName (aprofiel, mprofiel).
+This endpoints tries to redirect the user to the login page of the service corresponding to the serviceName (aprofiel, mprofiel, eid).
 (this will not work if the endpoint is called with an AJAX call)
 
 the `fromUrl` query parameter can be used to redirect the user to a given page
@@ -146,16 +142,33 @@ after login.
 
 ### GET {basePath}/isloggedin
 
-The `isloggedin` endpoint can be used to check if a user currently has a session. If a user is logged in, it returns:
+The `isloggedin` endpoint can be used to check if the user is currently loggedIn in any of the configured services if he is logged in in some services, the following payload will be returned: 
 ```js
 {
   isLoggedin: true,
-  user: { ... }
+  user: { ... },
+  mprofiel: {...} // this corresponds to the key that is configured in the serviceProvider
 }
 ```
-If fetchPermissions is set to `true`, `user.permissions` contains the permissions.  
 
-If the user is not logged in, the following payload is returned.
+If the user is not logged in in any of the services, the following payload is returned.
+```js
+{
+  isLoggedin: false
+}
+```
+
+### GET {basePath}/isloggedin/:service
+
+check whether the user is logged in in the specified service. If he is logged in:
+
+{
+  isLoggedin: true,
+  [serviceKey]: {...} // this corresponds to the key that is configured in the serviceProvider, defaults to user
+}
+```
+
+If the user is not logged in int the service, the following payload is returned.
 ```js
 {
   isLoggedin: false
@@ -174,7 +187,12 @@ it will trigger a 401. (this is checked with the state param).
 Hooks defined in the `serviceProviders[serviceName].hooks.authSuccess` will be called here.
 Session data can be modified in such a hook.
 
-### POST {basePath}/logout
+### POST {basePath}/logout/:service
 
-Destroys the session in the application.
+Redirects the user to the logout for the specified service. This will cause the session to be destroyed on the
+IDP.
+
+### GET {basePath}/logout/:service/callback
+
+Cleans up the session after the initial logout.
 
