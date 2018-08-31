@@ -23,6 +23,7 @@ module.exports = {
     },
     mprofiel: {
       scopes: 'all',
+      key: 'mprofiel',
       url: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/v1/me',
       identifier: 'astad.mprofiel.v1',
       fetchPermissions: false,
