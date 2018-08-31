@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test ./node_modules/.bin/istanbul cover --dir ./coverage ./node_modules/.bin/_mocha -- -R spec -t 15000 --recursive --slow 2"
+    "test": "cross-env NODE_ENV=test ./node_modules/.bin/istanbul cover --dir ./coverage ./node_modules/mocha/bin/_mocha -- -R spec -t 15000 --recursive --slow 2"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "chai": "~4.1.1",
+    "cross-env": "^5.2.0",
     "istanbul": "~0.4.5",
     "mocha": "~3.5.2",
     "mock-express": "1.2.0",
