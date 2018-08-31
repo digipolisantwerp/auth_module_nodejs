@@ -27,7 +27,6 @@ describe('test refresh', function onDescribe() {
     const controller = createController(config);
     const req = reqres.req({
       session: {
-        currentServiceProvider: 'aprofiel'
       },
       save: (cb) => cb()
     });
@@ -46,10 +45,10 @@ describe('test refresh', function onDescribe() {
     const controller = createController(config);
     const req = reqres.req({
       session: {
-        currentServiceProvider: 'aprofiel',
-        token: {
+        userToken: {
           accessToken: "abc",
-          expiresIn: new Date(new Date().getTime() + (1000 * 60))
+          serviceName: 'aprofiel',
+          expiresIn: new Date(new Date().getTime())
         },
         save: (cb) => cb()
       }

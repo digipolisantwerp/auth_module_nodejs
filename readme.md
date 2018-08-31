@@ -1,6 +1,3 @@
-## todo
-- token documentatie
-- meer uitleg over de hooks
 # digipolis-login
 
 Digipolis-login is implemented as an `Express` router. It exposes a couple of endpoints
@@ -31,23 +28,26 @@ Be sure to load this middleware before your other routes, otherwise the automati
     - **scopes** *string*: The scopes you want of the profile (space separated identifiers)
     - **url** *string*: the url where to fetch the aprofile after the login succeeded
     - **identifier** *string*: the service identifier, used to create login url.
-    - **tokenEndpoint** *string*: where the service should get the accesstoken
+    - **tokenUrl** *string*: where the service should get the accesstoken
+    - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **hooks (optional)**: async execution is supported
       - **authSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
   - **mprofiel** (optional if not needed):
     - **scopes** *string*: the scopes you want for the profile
     - **url** *string*: url where to fetch the profile
+    - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **fetchPermissions=false** *boolean*: whether to fetch permissions in the User Man. engine
     - **applicationname** *string*: required if permissions need to be fetched 
     - **identifier=astad.mprofiel.v1** *string*: the service identifier, used to create the login url.
-     - **tokenEndpoint** *string*: where the service should get the accesstoken
+     - **tokenUrl** *string*: where the service should get the accesstoken
     - **hooks (optional)**: async execution is supported
       - **authSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
   - **eid** (optional if not needed):
     - **scopes** *string*: the scopes you want for the profile
     - **url** *string*: url where to fetch the profile
+    - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **identifier=acpaas.fasdatastore.v1** *string*: the service identifier, used to create the login url.
-     - **tokenEndpoint** *string*: where the service should get the accesstoken
+     - **tokenUrl** *string*: where the service should get the accesstoken
     - **hooks (optional)**: async execution is supported
       - **authSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
 
@@ -85,7 +85,7 @@ app.use(profileLogin(app, {
       scopes: '',
       url: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/v1/me',
       identifier:'astad.aprofiel.v1',
-      tokenEndpoint: '/astad/aprofiel/v1/oauth2/token',
+      tokenUrl: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/oauth2/token',
       hooks: {
         authSuccess: []
       }
@@ -96,7 +96,7 @@ app.use(profileLogin(app, {
       identifier: 'astad.mprofiel.v1',
       fetchPermissions: false,
       applicationName: 'this-is-my-app',
-      tokenEndpoint: '/astad/mprofiel/v1/oauth2/token',
+      tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
       hooks: {
         authSuccess: []
       }
@@ -104,8 +104,9 @@ app.use(profileLogin(app, {
     eid: {
       scopes: 'name nationalregistrationnumber',
       url: 'https://api-gw-o.antwerpen.be/acpaas/fasdatastore/v1/me',
+      key: 'eid'
       identifier:'acpaas.fasdatastore.v1',
-      tokenEndpoint: '/acpaas/fasdatastore/v1/oauth2/token',
+      tokenUrl: 'https://api-gw-o.antwerpen.be//acpaas/fasdatastore/v1/oauth2/token',
       hooks: {
         authSuccess: []
       }
@@ -115,8 +116,9 @@ app.use(profileLogin(app, {
 ```
 
 ## Session 
-Only one kind of profile can be logged in at any given moment. User information is available on `req.session.user`, the access token is available on `req.session.token`
+Multiple profile can be logged in at the same time, if a key is configured inside the serviceProvider configuration. If no key is given, the default key `user` (`req.session.user`) is used, and the possibility exists that a previous user is overwritten by another when logging in.
 
+The token can be found under `req.session.userToken` if the default key is used, otherwise it can be found under `req.session[configuredKey + Token]` e.g: token configured is `aprofiel` , the access token will be found under `req.session.aprofielToken`
 ```
 {
   accessToken: 'D20A4360-EDD3-4983-8383-B64F46221115'
@@ -124,17 +126,15 @@ Only one kind of profile can be logged in at any given moment. User information 
   expiresIn: '2020-12-31T23.59.59.999Z'
 }
 ```
-To identify which service is used for the current loggedIn user, you can use 
-`req.session.currentServiceProvider`. This property can come in handy in your hooks.
+
 ## Available Routes
 
 Each route is prepended with the configured `basePath`, if no basePath is given,
-default basePaths will be used. /api/aprofile if the package is used for aprofiel login,
-api/mprofile for mprofiel login.
+default basePath `auth` will be used.
 
 
 ### GET {basePath}/login/{serviceName}?fromUrl={thisiswheretoredirectafterlogin}
-This endpoints tries to redirect the user to the login page of the service corresponding to the serviceName (aprofiel, mprofiel).
+This endpoints tries to redirect the user to the login page of the service corresponding to the serviceName (aprofiel, mprofiel, eid).
 (this will not work if the endpoint is called with an AJAX call)
 
 the `fromUrl` query parameter can be used to redirect the user to a given page
@@ -142,23 +142,40 @@ after login.
 
 ### GET {basePath}/isloggedin
 
-The `isloggedin` endpoint can be used to check if a user currently has a session. If a user is logged in, it returns:
+The `isloggedin` endpoint can be used to check if the user is currently loggedIn in any of the configured services if he is logged in in some services, the following payload will be returned: 
 ```js
 {
   isLoggedin: true,
-  user: { ... }
+  user: { ... },
+  mprofiel: {...} // this corresponds to the key that is configured in the serviceProvider
 }
 ```
-If fetchPermissions is set to `true`, `user.permissions` contains the permissions.  
 
-If the user is not logged in, the following payload is returned.
+If the user is not logged in in any of the services, the following payload is returned.
 ```js
 {
   isLoggedin: false
 }
 ```
 
-### GET {basePath}/callback
+### GET {basePath}/isloggedin/:service
+
+check whether the user is logged in in the specified service. If he is logged in:
+
+{
+  isLoggedin: true,
+  [serviceKey]: {...} // this corresponds to the key that is configured in the serviceProvider, defaults to user
+}
+```
+
+If the user is not logged in int the service, the following payload is returned.
+```js
+{
+  isLoggedin: false
+}
+```
+
+### GET {basePath}/login/callback
 
 Endpoint that you should not use manually, is used to return from the identity server and fetches a user corresponding to the login and stores it on the session.
 
@@ -170,7 +187,12 @@ it will trigger a 401. (this is checked with the state param).
 Hooks defined in the `serviceProviders[serviceName].hooks.authSuccess` will be called here.
 Session data can be modified in such a hook.
 
-### POST {basePath}/logout
+### POST {basePath}/logout/:service
 
-Destroys the session in the application.
+Redirects the user to the logout for the specified service. This will cause the session to be destroyed on the
+IDP.
+
+### GET {basePath}/logout//callback/:service
+
+Cleans up the session after the initial logout.
 

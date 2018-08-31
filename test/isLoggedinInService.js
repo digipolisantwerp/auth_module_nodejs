@@ -7,12 +7,12 @@ const assert = require('assert');
 const reqres = require('reqres');
 const user = require('./mocks/user.json');
 
-describe('test #isLoggedin', function onDescribe() {
-  it('#isLoggedin() should return user of session', function onIt(done) {
+describe('test #isLoggedinInService', function onDescribe() {
+  it('#isLoggedinInService() should return user of session for service', function onIt(done) {
     const router = createRouter(mockExpress, correctConfig);
 
     const req = reqres.req({
-      url: '/auth/isloggedin',
+      url: '/auth/isloggedin/mprofiel',
       session: {
         user: user,
         mprofiel: user
@@ -25,7 +25,6 @@ describe('test #isLoggedin', function onDescribe() {
 
       assert(
         res.json.calledWith({
-          user: user,
           mprofiel: user,
           isLoggedin: true
         })
@@ -37,11 +36,12 @@ describe('test #isLoggedin', function onDescribe() {
     router.handle(req, res);
   });
 
-  it('#isLoggedin() should return false when no user', function onIt(done) {
+  it('#isLoggedinInService() should return false when no user', function onIt(done) {
     const router = createRouter(mockExpress, correctConfig);
     const req = reqres.req({
-      url: '/auth/isloggedin',
+      url: '/auth/isloggedin/mprofiel',
       session: {
+        user: user,
         save: cb => cb()
       }
     });

@@ -20,7 +20,7 @@ describe('test #callback', function onDescribe() {
     })
     const router = createRouter(mockExpress, config);
     const req = reqres.req({
-      url: '/auth/callback',
+      url: '/auth/login/callback',
       session: {
         save: cb => cb()
       }
@@ -43,7 +43,7 @@ describe('test #callback', function onDescribe() {
     })
     const router = createRouter(mockExpress, config);
     const req = reqres.req({
-      url: '/auth/callback',
+      url: '/auth/login/callback',
       query: {
         code: 'blabla'
       },
@@ -62,14 +62,14 @@ describe('test #callback', function onDescribe() {
     router.handle(req, res);
   });
 
-  it('callback should 400 when state is unknown', (done) => {
+  it('callback should 404 when serviceProvider is unknown', (done) => {
     const errorRedirect = '/error';
     const config = Object.assign(correctConfig, {
       errorRedirect
     })
     const router = createRouter(mockExpress, config);
     const req = reqres.req({
-      url: '/auth/callback',
+      url: '/auth/login/callback',
       query: {
         code: 'blabla',
         state: 'nonExisting_1234'
@@ -82,7 +82,7 @@ describe('test #callback', function onDescribe() {
     const res = reqres.res();
 
     res.on('end', () => {
-      assert(res.sendStatus.calledWith(400))
+      assert(res.sendStatus.calledWith(404));
       return done();
     });
 
@@ -98,7 +98,7 @@ describe('test #callback', function onDescribe() {
     const router = createRouter(mockExpress, config);
 
     const req = reqres.req({
-      url: '/auth/callback',
+      url: '/auth/login/callback',
       query: {
         code: 'blabla',
         state: 'aprofiel_1234'
@@ -129,7 +129,7 @@ describe('test #callback', function onDescribe() {
     const router = createRouter(mockExpress, config);
     const key = 'aprofiel_1234'
     const req = reqres.req({
-      url: '/auth/callback',
+      url: '/auth/login/callback',
       query: {
         code: 'blabla',
         state: key
@@ -145,8 +145,7 @@ describe('test #callback', function onDescribe() {
 
     res.on('end', () => {
       assert(req.session.user);
-      assert(req.session.token);
-      assert(req.session.currentServiceProvider);
+      assert(req.session.userToken);
       assert(res.redirect.calledWith(fromUrl));
       return done();
     });
@@ -167,7 +166,7 @@ describe('test #callback', function onDescribe() {
     const router = createRouter(mockExpress, config);
     const key = 'aprofiel_1234'
     const req = reqres.req({
-      url: '/auth/callback',
+      url: '/auth/login/callback',
       query: {
         code: 'blabla',
         state: key
@@ -203,7 +202,7 @@ describe('test #callback', function onDescribe() {
     const router = createRouter(mockExpress, config);
     const key = 'aprofiel_1234'
     const req = reqres.req({
-      url: '/auth/callback',
+      url: '/auth/login/callback',
       query: {
         code: 'blabla',
         state: key
@@ -246,7 +245,7 @@ describe('test #callback', function onDescribe() {
     const router = createRouter(mockExpress, config);
     const key = 'aprofiel_1234'
     const req = reqres.req({
-      url: '/auth/callback',
+      url: '/auth/login/callback',
       query: {
         code: 'blabla',
         state: key
@@ -289,7 +288,7 @@ describe('test #callback', function onDescribe() {
     const router = createRouter(mockExpress, config);
     const key = 'aprofiel_1234'
     const req = reqres.req({
-      url: '/auth/callback',
+      url: '/auth/login/callback',
       query: {
         code: 'blabla',
         state: key
@@ -303,7 +302,6 @@ describe('test #callback', function onDescribe() {
     const res = reqres.res();
 
     res.on('end', () => {
-      console.log(req.session);
       assert(res.redirect.calledWith(config.errorRedirect));
       return done();
     });

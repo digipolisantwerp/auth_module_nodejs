@@ -6,7 +6,7 @@ const mockExpress = require('mock-express')();
 const correctConfig = require('./mocks/correctConfig');
 
 describe('GET /login/:serviceProvider', function onDescribe() {
-  it('should 401 if provider is not known', function onIt(done) {
+  it('should 404 if provider is not known', function onIt(done) {
     const router = createRouter(mockExpress, correctConfig);
 
     const req = reqres.req({
@@ -17,7 +17,7 @@ describe('GET /login/:serviceProvider', function onDescribe() {
     const res = reqres.res();
 
     res.on('end', () => {
-      assert(res.sendStatus.calledWith(401));
+      assert(res.sendStatus.calledWith(404));
       return done();
     });
 
