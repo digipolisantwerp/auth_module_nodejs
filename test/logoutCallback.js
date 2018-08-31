@@ -13,7 +13,7 @@ describe('GET /logout/:serviceProvider/callback', function onDescribe() {
 
     let redirectUrl = false;
     const req = reqres.req({
-      url: '/auth/logout/aprofiel/callback',
+      url: '/auth/logout/callback/aprofiel',
       method: 'GET',
       query: {
         state: '1234'
@@ -52,7 +52,7 @@ describe('GET /logout/:serviceProvider/callback', function onDescribe() {
 
     let redirectUrl = false;
     const req = reqres.req({
-      url: '/auth/logout/aprofiel/callback',
+      url: '/auth/logout/callback/aprofiel',
       method: 'GET',
       query: {
         state: '12345'
@@ -88,7 +88,7 @@ describe('GET /logout/:serviceProvider/callback', function onDescribe() {
 
     let redirectUrl = false;
     const req = reqres.req({
-      url: '/auth/logout/dprof/callback',
+      url: '/auth/logout/callback/dprof',
       method: 'GET',
       query: {
         state: '12345'

@@ -175,7 +175,7 @@ If the user is not logged in int the service, the following payload is returned.
 }
 ```
 
-### GET {basePath}/callback
+### GET {basePath}/login/callback
 
 Endpoint that you should not use manually, is used to return from the identity server and fetches a user corresponding to the login and stores it on the session.
 
@@ -192,7 +192,7 @@ Session data can be modified in such a hook.
 Redirects the user to the logout for the specified service. This will cause the session to be destroyed on the
 IDP.
 
-### GET {basePath}/logout/:service/callback
+### GET {basePath}/logout//callback/:service
 
 Cleans up the session after the initial logout.
 
