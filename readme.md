@@ -31,7 +31,9 @@ Be sure to load this middleware before your other routes, otherwise the automati
     - **tokenUrl** *string*: where the service should get the accesstoken
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **hooks (optional)**: async execution is supported
-      - **authSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
+      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
+      - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
+
   - **mprofiel** (optional if not needed):
     - **scopes** *string*: the scopes you want for the profile
     - **url** *string*: url where to fetch the profile
@@ -41,7 +43,8 @@ Be sure to load this middleware before your other routes, otherwise the automati
     - **identifier=astad.mprofiel.v1** *string*: the service identifier, used to create the login url.
      - **tokenUrl** *string*: where the service should get the accesstoken
     - **hooks (optional)**: async execution is supported
-      - **authSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
+      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
+      - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
   - **eid** (optional if not needed):
     - **scopes** *string*: the scopes you want for the profile
     - **url** *string*: url where to fetch the profile
@@ -49,7 +52,9 @@ Be sure to load this middleware before your other routes, otherwise the automati
     - **identifier=acpaas.fasdatastore.v1** *string*: the service identifier, used to create the login url.
      - **tokenUrl** *string*: where the service should get the accesstoken
     - **hooks (optional)**: async execution is supported
-      - **authSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
+      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
+      - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
+
 
 
 ## Example implementation
@@ -62,7 +67,7 @@ app.use(session({
 
 const profileLogin = require('digipolis-login');
 // load session with corresponding persistence (postgres, mongo....)
-const authSuccessHook = (req, res, next) => {
+const loginSuccessHook = (req, res, next) => {
   req.session.isEmployee = false;
   if(req.digipolisLogin && req.digipolisLogin.serviceName === 'mprofiel') {
     req.session.isEmployee = true;
@@ -87,7 +92,8 @@ app.use(profileLogin(app, {
       identifier:'astad.aprofiel.v1',
       tokenUrl: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/oauth2/token',
       hooks: {
-        authSuccess: []
+        loginSuccess: [],
+        logoutSuccess: []
       }
     },
     mprofiel: {
@@ -98,7 +104,8 @@ app.use(profileLogin(app, {
       applicationName: 'this-is-my-app',
       tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
       hooks: {
-        authSuccess: []
+        loginSuccess: [],
+        logoutSuccess: []
       }
     },
     eid: {
@@ -108,7 +115,8 @@ app.use(profileLogin(app, {
       identifier:'acpaas.fasdatastore.v1',
       tokenUrl: 'https://api-gw-o.antwerpen.be//acpaas/fasdatastore/v1/oauth2/token',
       hooks: {
-        authSuccess: []
+        loginSuccess: [],
+        logoutSuccess: []
       }
     },
   }
@@ -184,7 +192,7 @@ If a redirect url was given through the `fromUrl` in the `login` or `login/redir
 If the callback is does not originate from the login flow triggered from the application,
 it will trigger a 401. (this is checked with the state param).
 
-Hooks defined in the `serviceProviders[serviceName].hooks.authSuccess` will be called here.
+Hooks defined in the `serviceProviders[serviceName].hooks.loginSuccess` will be called here.
 Session data can be modified in such a hook.
 
 ### POST {basePath}/logout/:service
