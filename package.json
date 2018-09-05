@@ -15,6 +15,7 @@
     "lodash.get": "~4.4.2",
     "oauth": "~0.9.15",
     "request": "~2.81.0",
+    "url-parse": "^1.4.3",
     "uuid": "~3.1.0"
   },
   "devDependencies": {
