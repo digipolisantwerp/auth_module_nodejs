@@ -227,7 +227,7 @@ describe('test #callback', function onDescribe() {
     const hookTest = 'blabla'
     const aprofielConfig = Object.assign({}, correctConfig.serviceProviders.aprofiel);
     aprofielConfig.hooks = {
-      authSuccess: [
+      loginSuccess: [
         (req, res, next) => {
           req.session.hookTest = hookTest;
           return req.session.save(() => next());
@@ -275,7 +275,7 @@ describe('test #callback', function onDescribe() {
     user.nockGetAprofiel(correctConfig.apiHost);
     const aprofielConfig = Object.assign({}, correctConfig.serviceProviders.aprofiel);
     aprofielConfig.hooks = {
-      authSuccess: [
+      loginSuccess: [
         (req, res, next) => {
           return next({message: 'this is an error'})
         }

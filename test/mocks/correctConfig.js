@@ -18,7 +18,7 @@ module.exports = {
       identifier:'astad.aprofiel.v1',
       tokenUrl: 'https://api-gw-o.antwerpen.be//astad/aprofiel/v1/oauth2/token',
       hooks: {
-        authSuccess: []
+        loginSuccess: []
       }
     },
     mprofiel: {
@@ -30,7 +30,7 @@ module.exports = {
       applicationName: 'this-is-my-app',
       tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
       hooks: {
-        authSuccess: []
+        loginSuccess: []
       }
     },
   }
