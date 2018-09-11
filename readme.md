@@ -29,6 +29,7 @@ Be sure to load this middleware before your other routes, otherwise the automati
     - **url** *string*: the url where to fetch the aprofile after the login succeeded
     - **identifier** *string*: the service identifier, used to create login url.
     - **tokenUrl** *string*: where the service should get the accesstoken
+    - **refresh** *boolean*: whether or not to refresh the access token (experimental) 
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **hooks (optional)**: async execution is supported
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
@@ -42,6 +43,7 @@ Be sure to load this middleware before your other routes, otherwise the automati
     - **applicationname** *string*: required if permissions need to be fetched 
     - **identifier=astad.mprofiel.v1** *string*: the service identifier, used to create the login url.
      - **tokenUrl** *string*: where the service should get the accesstoken
+     - **refresh** *boolean*: whether or not to refresh the access token (experimental)
     - **hooks (optional)**: async execution is supported
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
       - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
@@ -50,7 +52,8 @@ Be sure to load this middleware before your other routes, otherwise the automati
     - **url** *string*: url where to fetch the profile
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **identifier=acpaas.fasdatastore.v1** *string*: the service identifier, used to create the login url.
-     - **tokenUrl** *string*: where the service should get the accesstoken
+    - **tokenUrl** *string*: where the service should get the accesstoken
+    - **refresh** *boolean*: whether or not to refresh the access token (experimental)
     - **hooks (optional)**: async execution is supported
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
       - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
