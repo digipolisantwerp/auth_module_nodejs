@@ -67,4 +67,81 @@ describe('GET /login/:serviceProvider', function onDescribe() {
 
     router.handle(req, res);
   });
+
+  it('should redirect to login with language if supplied', function onIt(done) {
+    const router = createRouter(mockExpress, correctConfig);
+    const host = 'http://www.app.com';
+    const fromUrl = 'test.com/d';
+    const lng = 'de';
+    let redirectUrl = false;
+    const req = reqres.req({
+      url: '/auth/login/aprofiel?fromUrl',
+      query: {
+        fromUrl,
+        lng
+      },
+      get: () => host,
+      session: {
+        save: (cb) => cb(),
+      },
+    });
+    const res = reqres.res({
+      redirect(val) {
+        redirectUrl = val
+        this.emit('end');
+      }
+    });
+    res.redirect.bind(res);
+
+    res.on('end', () => {
+      assert(redirectUrl);
+      assert(redirectUrl.includes(encodeURIComponent(lng)));
+      return done();
+    });
+
+    router.handle(req, res);
+  });
+
+  it('should supply authenticationType if configured', function onIt(done) {
+    const authenticationType = 'so';
+    const soProvider = Object.assign({}, correctConfig.serviceProviders.mprofiel, {
+      authenticationType
+    });
+
+    const configuration = Object.assign({}, correctConfig, {
+      serviceProviders: {
+        'mprofiel-so': soProvider
+      }
+    });
+    const router = createRouter(mockExpress, configuration);
+    const host = 'http://www.app.com';
+    const fromUrl = 'test.com/d';
+    const lng = 'de';
+    let redirectUrl = false;
+    const req = reqres.req({
+      url: '/auth/login/mprofiel-so?fromUrl',
+      query: {
+        fromUrl,
+      },
+      get: () => host,
+      session: {
+        save: (cb) => cb(),
+      },
+    });
+    const res = reqres.res({
+      redirect(val) {
+        redirectUrl = val
+        this.emit('end');
+      }
+    });
+    res.redirect.bind(res);
+
+    res.on('end', () => {
+      assert(redirectUrl);
+      assert(redirectUrl.includes(`auth_type=${authenticationType}`));
+      return done();
+    });
+
+    router.handle(req, res);
+  });
 });
