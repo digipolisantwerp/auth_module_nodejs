@@ -125,7 +125,7 @@ app.use(profileLogin(app, {
         loginSuccess: [],
         logoutSuccess: []
       }
-    }
+    },
     eid: {
       scopes: 'name nationalregistrationnumber',
       url: 'https://api-gw-o.antwerpen.be/acpaas/fasdatastore/v1/me',
