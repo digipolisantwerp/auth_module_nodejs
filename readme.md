@@ -40,7 +40,8 @@ Be sure to load this middleware before your other routes, otherwise the automati
     - **url** *string*: url where to fetch the profile
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **fetchPermissions=false** *boolean*: whether to fetch permissions in the User Man. engine
-    - **applicationname** *string*: required if permissions need to be fetched 
+    - **applicationname** *string*: required if permissions need to be fetched
+    - **authenticationType=form** *string*: `form` or `so`, can be used together, see example
     - **identifier=astad.mprofiel.v1** *string*: the service identifier, used to create the login url.
      - **tokenUrl** *string*: where the service should get the accesstoken
      - **refresh** *boolean*: whether or not to refresh the access token (experimental)
@@ -77,7 +78,8 @@ const loginSuccessHook = (req, res, next) => {
   }
 
   req.session.save(() => next());
-} 
+}
+
 app.use(profileLogin(app, {
   oauthHost: 'https://api-oauth2-o.antwerpen.be',
   apiHost: 'https://api-gw-o.antwerpen.be',
@@ -111,6 +113,19 @@ app.use(profileLogin(app, {
         logoutSuccess: []
       }
     },
+    mprofiel-so: {
+      scopes: 'all',
+      url: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/v1/me',
+      identifier: 'astad.mprofiel.v1',
+      fetchPermissions: false,
+      applicationName: 'this-is-my-app',
+      authenticationType: 'so'
+      tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
+      hooks: {
+        loginSuccess: [],
+        logoutSuccess: []
+      }
+    }
     eid: {
       scopes: 'name nationalregistrationnumber',
       url: 'https://api-gw-o.antwerpen.be/acpaas/fasdatastore/v1/me',
@@ -144,12 +159,14 @@ Each route is prepended with the configured `basePath`, if no basePath is given,
 default basePath `auth` will be used.
 
 
-### GET {basePath}/login/{serviceName}?fromUrl={thisiswheretoredirectafterlogin}
+### GET {basePath}/login/{serviceName}?fromUrl={thisiswheretoredirectafterlogin}&lng={language}
 This endpoints tries to redirect the user to the login page of the service corresponding to the serviceName (aprofiel, mprofiel, eid).
 (this will not work if the endpoint is called with an AJAX call)
 
 the `fromUrl` query parameter can be used to redirect the user to a given page
 after login.
+
+the `lng` query parameter can be used to define the language. Currently supported: `nl`, `de`, `fr` and `en`
 
 ### GET {basePath}/isloggedin
 
@@ -169,7 +186,7 @@ If the user is not logged in in any of the services, the following payload is re
 }
 ```
 
-### GET {basePath}/isloggedin/:service
+### GET {basePath}/isloggedin/{service}
 
 check whether the user is logged in in the specified service. If he is logged in:
 
@@ -190,7 +207,7 @@ If the user is not logged in int the service, the following payload is returned.
 
 Endpoint that you should not use manually, is used to return from the identity server and fetches a user corresponding to the login and stores it on the session.
 
-If a redirect url was given through the `fromUrl` in the `login` or `login/redirect` endpoint, the user will be redirected to this url after the callback has executed successfully.
+If a redirect url was given through the `fromUrl` in the `login`  endpoint, the user will be redirected to this url after the callback has executed successfully.
 
 If the callback is does not originate from the login flow triggered from the application,
 it will trigger a 401. (this is checked with the state param).
@@ -198,12 +215,14 @@ it will trigger a 401. (this is checked with the state param).
 Hooks defined in the `serviceProviders[serviceName].hooks.loginSuccess` will be called here.
 Session data can be modified in such a hook.
 
-### POST {basePath}/logout/:service
+### POST {basePath}/logout/{service}?fromUrl={thisiswheretoredirectafterlogout}
 
-Redirects the user to the logout for the specified service. This will cause the session to be destroyed on the
-IDP.
+Redirects the user to the logout for the specified service. This will cause the session to be destroyed on the IDP.
 
-### GET {basePath}/logout//callback/:service
+the `fromUrl` query parameter can be used to redirect the user to a given page
+after logout.
+
+### GET {basePath}/logout//callback/{service}
 
 Cleans up the session after the initial logout.
 

@@ -92,4 +92,40 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
 
     router.handle(req, res);
   });
+
+  it('should store logoutFromUrl', function onIt(done) {
+    const router = createRouter(mockExpress, correctConfig);
+    const host = 'http://www.app.com';
+    const fromUrl = 'http://from.com';
+    const req = reqres.req({
+      url: '/auth/logout/aprofiel',
+      query: {
+        fromUrl
+      },
+      get: () => host,
+      session: {
+        save: (cb) => cb(),
+        user: {
+          id: 'this-is-my-id'
+        },
+        userToken: {
+          access_token: {}
+        }
+      },
+    });
+    const res = reqres.res({
+      redirect() {
+        this.emit('end');
+      }
+    });
+
+    res.redirect.bind(res);
+    
+    res.on('end', () => {
+      assert.equal(req.session.logoutFromUrl, fromUrl);
+      return done();
+    });
+
+    router.handle(req, res);
+  });
 });
