@@ -33,5 +33,18 @@ module.exports = {
         loginSuccess: []
       }
     },
+    mprofielso: {
+      scopes: 'all',
+      key: 'mprofielso',
+      url: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/v1/me',
+      identifier: 'astad.mprofiel.v1',
+      fetchPermissions: false,
+      applicationName: 'this-is-my-app',
+      tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
+      authenticationType: 'so',
+      hooks: {
+        loginSuccess: []
+      }
+    }
   }
 }
