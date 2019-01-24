@@ -82,7 +82,7 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
     });
 
     res.redirect.bind(res);
-    
+
     res.on('end', () => {
       assert(redirectUrl);
       assert(redirectUrl.includes(correctConfig.auth.clientId));
@@ -120,9 +120,45 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
     });
 
     res.redirect.bind(res);
-    
+
     res.on('end', () => {
       assert.equal(req.session.logoutFromUrl, fromUrl);
+      return done();
+    });
+
+    router.handle(req, res);
+  });
+
+  it('should add authentication type to logout redirect', function onIt(done) {
+    const router = createRouter(mockExpress, correctConfig);
+    const host = 'http://www.app.com';
+    let redirectUrl = false;
+    const req = reqres.req({
+      url: '/auth/logout/mprofielso',
+      query: {
+      },
+      get: () => host,
+      session: {
+        save: (cb) => cb(),
+        mprofielso: {
+          id: 'this-is-my-id'
+        },
+        mprofielsoToken: {
+          access_token: {}
+        }
+      },
+    });
+    const res = reqres.res({
+      redirect(val) {
+        redirectUrl = val
+        this.emit('end');
+      }
+    });
+
+    res.redirect.bind(res);
+
+    res.on('end', () => {
+      console.log(redirectUrl.includes('auth_type'));
       return done();
     });
 
