@@ -1,14 +1,14 @@
-# digipolis-login
+# @digipolis/auth
 
-Digipolis-login is implemented as an `Express` router. It exposes a couple of endpoints
+@digipolis/auth is implemented as an `Express` router. It exposes a couple of endpoints
 that can be used in your application to handle the process of logging into a user's 
 AProfile, mprofile or eid via oAuth.
 
 ## Setup
 You should use `express-session` in your application to enable session-storage.
-After this step, you can load the `digipolis-login` middleware
+After this step, you can load the `@digipolis/auth` middleware
 
-`app.use(require('digipolis-login)(app, configuration));`
+`app.use(require('@digipolis/auth')(app, configuration));`
 
 Be sure to load this middleware before your other routes, otherwise the automatic refresh of the user's token won't work properly.
 
@@ -32,7 +32,7 @@ Be sure to load this middleware before your other routes, otherwise the automati
     - **refresh** *boolean*: whether or not to refresh the access token (experimental) 
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **hooks (optional)**: async execution is supported
-      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
+      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
       - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
 
   - **mprofiel** (optional if not needed):
@@ -46,7 +46,7 @@ Be sure to load this middleware before your other routes, otherwise the automati
      - **tokenUrl** *string*: where the service should get the accesstoken
      - **refresh** *boolean*: whether or not to refresh the access token (experimental)
     - **hooks (optional)**: async execution is supported
-      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
+      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
       - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
   - **eid** (optional if not needed):
     - **scopes** *string*: the scopes you want for the profile
@@ -56,7 +56,7 @@ Be sure to load this middleware before your other routes, otherwise the automati
     - **tokenUrl** *string*: where the service should get the accesstoken
     - **refresh** *boolean*: whether or not to refresh the access token (experimental)
     - **hooks (optional)**: async execution is supported
-      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of digipolis-login: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
+      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
       - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
 
 
@@ -69,7 +69,7 @@ app.use(session({
   secret: 'blabla'
 }))
 
-const profileLogin = require('digipolis-login');
+const profileLogin = require('@digipolis/auth');
 // load session with corresponding persistence (postgres, mongo....)
 const loginSuccessHook = (req, res, next) => {
   req.session.isEmployee = false;
