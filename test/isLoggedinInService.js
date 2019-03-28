@@ -19,7 +19,9 @@ describe('test #isLoggedinInService', function onDescribe() {
       }
     });
 
-    const res = reqres.res();
+    const res = reqres.res({
+        header: () => {}
+    });
 
     res.on('end', () => {
 
@@ -46,7 +48,9 @@ describe('test #isLoggedinInService', function onDescribe() {
       }
     });
 
-    const res = reqres.res();
+    const res = reqres.res({
+        header: () => {}
+    });
 
     res.on('end', () => {
       assert(

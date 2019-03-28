@@ -26,7 +26,9 @@ describe('test #callback', function onDescribe() {
       }
     });
 
-    const res = reqres.res();
+      const res = reqres.res({
+          header: () => {}
+      });
 
     res.on('end', () => {
       assert(res.redirect.calledWith(errorRedirect));
@@ -52,7 +54,9 @@ describe('test #callback', function onDescribe() {
       }
     });
 
-    const res = reqres.res();
+      const res = reqres.res({
+          header: () => {}
+      });
 
     res.on('end', () => {
       assert(res.redirect.calledWith(errorRedirect));
@@ -79,7 +83,9 @@ describe('test #callback', function onDescribe() {
       }
     });
 
-    const res = reqres.res();
+    const res = reqres.res({
+        header: () => {}
+    });
 
     res.on('end', () => {
       assert(res.sendStatus.calledWith(404));
@@ -109,7 +115,9 @@ describe('test #callback', function onDescribe() {
       }
     });
 
-    const res = reqres.res();
+    const res = reqres.res({
+        header: () => {}
+    });
 
     res.on('end', () => {
       assert(res.sendStatus.calledWith(401))
@@ -141,7 +149,9 @@ describe('test #callback', function onDescribe() {
       }
     });
 
-    const res = reqres.res();
+    const res = reqres.res({
+        header: () => {}
+    });
 
     res.on('end', () => {
       assert(req.session.user);
@@ -177,7 +187,9 @@ describe('test #callback', function onDescribe() {
       }
     });
 
-    const res = reqres.res();
+    const res = reqres.res({
+        header: () => {}
+    });
 
     res.on('end', () => {
       assert(res.redirect.calledWith('/'));
@@ -213,7 +225,9 @@ describe('test #callback', function onDescribe() {
       },
     });
 
-    const res = reqres.res();
+    const res = reqres.res({
+        header: () => {}
+    });
     res.on('end', () => {
       assert(res.redirect.calledWith(config.errorRedirect));
       return done();
@@ -256,7 +270,9 @@ describe('test #callback', function onDescribe() {
       }
     });
 
-    const res = reqres.res();
+    const res = reqres.res({
+        header: () => {}
+    });
 
     res.on('end', () => {
       assert.equal(req.session.hookTest, hookTest);
@@ -299,7 +315,9 @@ describe('test #callback', function onDescribe() {
       }
     });
 
-    const res = reqres.res();
+    const res = reqres.res({
+        header: () => {}
+    });
 
     res.on('end', () => {
       assert(res.redirect.calledWith(config.errorRedirect));
