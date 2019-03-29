@@ -28,6 +28,7 @@ describe('GET /logout/:serviceProvider/callback', function onDescribe() {
       },
     });
     const res = reqres.res({
+      header: () => {},
       redirect(val) {
         redirectUrl = val
         this.emit('end');
@@ -67,6 +68,7 @@ describe('GET /logout/:serviceProvider/callback', function onDescribe() {
       },
     });
     const res = reqres.res({
+      header: () => {},
       redirect(val) {
         redirectUrl = val
         this.emit('end');
@@ -103,6 +105,7 @@ describe('GET /logout/:serviceProvider/callback', function onDescribe() {
       },
     });
     const res = reqres.res({
+      header: () => {},
       redirect(val) {
         redirectUrl = val
         this.emit('end');
@@ -140,6 +143,7 @@ describe('GET /logout/:serviceProvider/callback', function onDescribe() {
       },
     });
     const res = reqres.res({
+      header: () => {},
       redirect(val) {
         redirectUrl = val;
         this.emit('end');

@@ -13,7 +13,10 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
       url: '/auth/logout/aprofile',
       session: {}
     });
-    const res = reqres.res();
+
+    const res = reqres.res({
+        header: () => {}
+    });
 
     res.on('end', () => {
       assert(res.sendStatus.calledWith(404));
@@ -37,7 +40,8 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
         save: (cb) => cb(),
       },
     });
-    const res = reqres.res({
+      const res = reqres.res({
+      header: () => {},
       redirect(val) {
         redirectUrl = val
         this.emit('end');
@@ -75,6 +79,7 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
       },
     });
     const res = reqres.res({
+      header: () => {},
       redirect(val) {
         redirectUrl = val
         this.emit('end');
@@ -114,6 +119,7 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
       },
     });
     const res = reqres.res({
+      header: () => {},
       redirect() {
         this.emit('end');
       }
@@ -149,6 +155,7 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
       },
     });
     const res = reqres.res({
+      header: () => {},
       redirect(val) {
         redirectUrl = val
         this.emit('end');

@@ -14,7 +14,10 @@ describe('GET /login/:serviceProvider', function onDescribe() {
       session: {
       }
     });
-    const res = reqres.res();
+
+    const res = reqres.res({
+        header: () => {}
+    });
 
     res.on('end', () => {
       assert(res.sendStatus.calledWith(404));
@@ -41,12 +44,13 @@ describe('GET /login/:serviceProvider', function onDescribe() {
       },
     });
     const res = reqres.res({
+        header: () => {},
       redirect(val) {
         redirectUrl = val
         this.emit('end');
       }
     });
-    res.redirect.bind(res);
+
 
     res.on('end', () => {
       assert(redirectUrl);
@@ -86,6 +90,7 @@ describe('GET /login/:serviceProvider', function onDescribe() {
       },
     });
     const res = reqres.res({
+      header: () => {},
       redirect(val) {
         redirectUrl = val
         this.emit('end');
@@ -129,6 +134,7 @@ describe('GET /login/:serviceProvider', function onDescribe() {
       },
     });
     const res = reqres.res({
+      header: () => {},
       redirect(val) {
         redirectUrl = val
         this.emit('end');
