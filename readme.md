@@ -8,9 +8,18 @@ AProfile, mprofile or eid via oAuth.
 You should use `express-session` in your application to enable session-storage.
 After this step, you can load the `@digipolis/auth` middleware
 
-`app.use(require('@digipolis/auth')(app, configuration));`
+```js
+app.use(require('@digipolis/auth')(app, configuration));
+```
 
 Be sure to load this middleware before your other routes, otherwise the automatic refresh of the user's token won't work properly.
+
+Also set the `trust proxy` application variable to `true`. Otherwise the callback URL might be constructed with protocol `http` instead of `https`.
+
+```js
+// Trust proxy to make sure the @digipolis/auth module can construct the correct OAuth2 callback URL
+app.enable('trust proxy');
+```
 
 **Configuration:**
 
