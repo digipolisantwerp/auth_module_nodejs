@@ -14,7 +14,7 @@ app.use(require('@digipolis/auth')(app, configuration));
 
 Be sure to load this middleware before your other routes, otherwise the automatic refresh of the user's token won't work properly.
 
-Also set the `trust proxy` variable to `true` in Express. Otherwise the callback URL might be constructed with protocol `http` instead of `https`.
+Also set the `trust proxy` application variable to `true`. Otherwise the callback URL might be constructed with protocol `http` instead of `https`.
 
 ```js
 // Trust proxy to make sure the @digipolis/auth module can construct the correct OAuth2 callback URL
