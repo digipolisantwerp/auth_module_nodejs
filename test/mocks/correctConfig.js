@@ -19,7 +19,7 @@ module.exports = {
       tokenUrl: 'https://api-gw-o.antwerpen.be//astad/aprofiel/v1/oauth2/token',
       hooks: {
         loginSuccess: []
-      }
+      },
     },
     mprofiel: {
       scopes: 'all',

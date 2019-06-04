@@ -330,4 +330,48 @@ describe('test #callback', function onDescribe() {
       return done(e);
     }
   });
+
+
+  it('should use a custom redirect uri', (done) => {
+    user.nockGetAprofiel(correctConfig.apiHost);
+    const errorRedirect = '/error';
+    const config = Object.assign({}, correctConfig, {
+      errorRedirect,
+      serviceProviders: {
+        aprofiel: Object.assign({}, correctConfig.serviceProviders.aprofiel, {redirectUri: '/custom/callback'})
+      }
+    })
+    const router = createRouter(mockExpress, config);
+    router.get('/custom/callback', (req, res, next) => {
+      return res.send('ok');
+    });
+
+    const key = 'aprofiel_1234'
+    const req = reqres.req({
+      url: '/custom/callback',
+      query: {
+        code: 'blabla',
+        state: key
+      },
+      session: {
+        save: cb => cb(),
+        aprofiel_key: key,
+      }
+    });
+
+    const res = reqres.res({
+        header: () => {}
+    });
+
+    res.on('end', () => {
+      assert(res.send.calledOnce);
+      return done();
+    });
+    try {
+      router.handle(req, res);
+    } catch (e) {
+      console.log(e);
+      return done(e);
+    }
+  });
 });
