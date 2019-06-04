@@ -1,7 +1,7 @@
 # @digipolis/auth
 
 @digipolis/auth is implemented as an `Express` router. It exposes a couple of endpoints
-that can be used in your application to handle the process of logging into a user's 
+that can be used in your application to handle the process of logging into a user's
 AProfile, mprofile or eid via oAuth.
 
 ## Setup
@@ -23,7 +23,7 @@ app.enable('trust proxy');
 
 **Configuration:**
 
-- **oauthHost** *string*: The domain corresponding to the oauth implementation 
+- **oauthHost** *string*: The domain corresponding to the oauth implementation
   (e.g: https://api-oauth2-o.antwerpen.be').
 - **apiHost** *string*: the hostname corresponding to the API gateway (e.g: https://api-gw-o.antwerpen.be).
 - **basePath=/auth (optional)** *string*: the basePath which is appended to the exposed endpoints.
@@ -33,12 +33,13 @@ app.enable('trust proxy');
   - **clientSecret** *string*: client secret of your application
   - **apiKey** *string*: required to fetch permissions (not needed otherwise)
 - **serviceProviders**: object of the available oauth login services (currently aprofiel & MProfiel). You only need to configure the ones that you need.
-  - **aprofiel** (optional if not needed): 
+  - **aprofiel** (optional if not needed):
     - **scopes** *string*: The scopes you want of the profile (space separated identifiers)
     - **url** *string*: the url where to fetch the aprofile after the login succeeded
     - **identifier** *string*: the service identifier, used to create login url.
     - **tokenUrl** *string*: where the service should get the accesstoken
-    - **refresh** *boolean*: whether or not to refresh the access token (experimental) 
+    - **redirectUri** *string*: custom redirect callback uri
+    - **refresh** *boolean*: whether or not to refresh the access token (experimental)
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **hooks (optional)**: async execution is supported
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
@@ -53,6 +54,7 @@ app.enable('trust proxy');
     - **authenticationType=form** *string*: `form` or `so`, can be used together, see example
     - **identifier=astad.mprofiel.v1** *string*: the service identifier, used to create the login url.
      - **tokenUrl** *string*: where the service should get the accesstoken
+     - **redirectUri** *string*: custom redirect callback uri
      - **refresh** *boolean*: whether or not to refresh the access token (experimental)
     - **hooks (optional)**: async execution is supported
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
@@ -63,6 +65,7 @@ app.enable('trust proxy');
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **identifier=acpaas.fasdatastore.v1** *string*: the service identifier, used to create the login url.
     - **tokenUrl** *string*: where the service should get the accesstoken
+    - **redirectUri** *string*: custom redirect callback uri
     - **refresh** *boolean*: whether or not to refresh the access token (experimental)
     - **hooks (optional)**: async execution is supported
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
@@ -105,6 +108,7 @@ app.use(profileLogin(app, {
       url: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/v1/me',
       identifier:'astad.aprofiel.v1',
       tokenUrl: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/oauth2/token',
+      redirectUri: 'https://custom.antwerpen.be/auth/callback',
       hooks: {
         loginSuccess: [],
         logoutSuccess: []
@@ -150,7 +154,7 @@ app.use(profileLogin(app, {
 }));
 ```
 
-## Session 
+## Session
 Multiple profile can be logged in at the same time, if a key is configured inside the serviceProvider configuration. If no key is given, the default key `user` (`req.session.user`) is used, and the possibility exists that a previous user is overwritten by another when logging in.
 
 The token can be found under `req.session.userToken` if the default key is used, otherwise it can be found under `req.session[configuredKey + Token]` e.g: token configured is `aprofiel` , the access token will be found under `req.session.aprofielToken`
@@ -179,7 +183,7 @@ the `lng` query parameter can be used to define the language. Currently supporte
 
 ### GET {basePath}/isloggedin
 
-The `isloggedin` endpoint can be used to check if the user is currently loggedIn in any of the configured services if he is logged in in some services, the following payload will be returned: 
+The `isloggedin` endpoint can be used to check if the user is currently loggedIn in any of the configured services if he is logged in in some services, the following payload will be returned:
 ```js
 {
   isLoggedin: true,
