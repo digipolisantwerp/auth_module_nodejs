@@ -228,7 +228,7 @@ it will trigger a 401. (this is checked with the state param).
 Hooks defined in the `serviceProviders[serviceName].hooks.loginSuccess` will be called here.
 Session data can be modified in such a hook.
 
-### POST {basePath}/logout/{service}?fromUrl={thisiswheretoredirectafterlogout}
+### GET {basePath}/logout/{service}?fromUrl={thisiswheretoredirectafterlogout}
 
 Redirects the user to the logout for the specified service. This will cause the session to be destroyed on the IDP.
 
