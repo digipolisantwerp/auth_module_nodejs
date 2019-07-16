@@ -96,7 +96,7 @@ describe('test #callback', function onDescribe() {
   });
 
 
-  it('callback should 401 when state does not matches key', (done) => {
+  it('callback should redirect to login url when state does not matches key', (done) => {
     const errorRedirect = '/error';
     const config = Object.assign(correctConfig, {
       errorRedirect
@@ -120,7 +120,7 @@ describe('test #callback', function onDescribe() {
     });
 
     res.on('end', () => {
-      assert(res.sendStatus.calledWith(401))
+      assert(res.redirect.called);
       return done();
     });
 
