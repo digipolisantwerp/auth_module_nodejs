@@ -1,3 +1,6 @@
+## [1.2.2] - 2019-07-18
+- Redirect to login url including fromUrl if states don't match in callback
+
 ## [1.2.1] - 2019-07-18
 - Remove prevent browser cache on app.use and use it as a middleware on auth routes
 
