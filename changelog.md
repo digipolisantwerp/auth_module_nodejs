@@ -1,3 +1,6 @@
+## [1.2.1] - 2019-07-18
+- Remove prevent browser cache on app.use and use it as a middleware on auth routes
+
 ## [1.2.0] - 2019-07-16
 - Redirect to internal login url when states don't match in callback method
 
