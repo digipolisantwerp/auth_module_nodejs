@@ -1,3 +1,6 @@
+## [1.2.3] - 2019-07-18
+- Typo fix formUrl to fromUrl
+
 ## [1.2.2] - 2019-07-18
 - Redirect to login url including fromUrl if states don't match in callback
 
