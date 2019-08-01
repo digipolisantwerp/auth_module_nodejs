@@ -21,6 +21,29 @@ Also set the `trust proxy` application variable to `true`. Otherwise the callbac
 app.enable('trust proxy');
 ```
 
+### API Store configuration
+
+For this module to fully work, some configuration on the API store is required.
+After creating your application on the api store, you should create a contract with the Aprofiel/Mprofiel
+
+![Create Contract](/assets/create-contract.png "Create contract")
+
+The next step is to navigate to your applications and clicking on actions
+
+![actions](/assets/oauth-config.png "actions")
+
+
+Click on oauth2 config. You'll find your clientId and secret here.
+
+![configure callback](/assets/callback.png "callback")
+
+You'll need to configure your callback path here
+normally, it will be `<protocol>://<your-domain>/auth/login/callback`
+(this module exposes  this endpoint)
+
+**Unless you configured a custom redirectUri. in this case, you should enter this one**
+
+
 **Configuration:**
 
 - **oauthHost** *string*: The domain corresponding to the oauth implementation
@@ -38,7 +61,7 @@ app.enable('trust proxy');
     - **url** *string*: the url where to fetch the aprofile after the login succeeded
     - **identifier** *string*: the service identifier, used to create login url.
     - **tokenUrl** *string*: where the service should get the accesstoken
-    - **redirectUri** *string*: custom redirect callback uri
+    - **redirectUri** *string*: custom redirect callback uri, do not use unless absolutely necessary
     - **refresh** *boolean*: whether or not to refresh the access token (experimental)
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **hooks (optional)**: async execution is supported
@@ -108,7 +131,6 @@ app.use(profileLogin(app, {
       url: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/v1/me',
       identifier:'astad.aprofiel.v1',
       tokenUrl: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/oauth2/token',
-      redirectUri: 'https://custom.antwerpen.be/auth/callback',
       hooks: {
         loginSuccess: [],
         logoutSuccess: []

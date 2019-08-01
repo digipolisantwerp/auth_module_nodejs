@@ -17,3 +17,5 @@ GET http://localhost:2000/auth/isloggedin
 GET http://localhost:2000/auth/isloggedin/aprofiel
 GET http://localhost:2000/auth/login/aprofiel
 GET http://localhost:2000/auth/logout/aprofiel
+
+
