@@ -24,7 +24,7 @@ app.enable('trust proxy');
 ### API Store configuration
 
 For this module to fully work, some configuration on the API store is required.
-After creating your application on the api store, you should create a contract with the Aprofiel/Mprofiel
+After creating your application on the api store, you should create a contract with the Aprofiel/Mprofiel API.
 
 ![Create Contract](/assets/create-contract.png "Create contract")
 
@@ -61,7 +61,7 @@ normally, it will be `<protocol>://<your-domain>/auth/login/callback`
     - **url** *string*: the url where to fetch the aprofile after the login succeeded
     - **identifier** *string*: the service identifier, used to create login url.
     - **tokenUrl** *string*: where the service should get the accesstoken
-    - **redirectUri** *string*: custom redirect callback uri, do not use unless absolutely necessary
+    - **redirectUri (optional)** *string*: custom redirect callback uri, do not use unless absolutely necessary
     - **refresh** *boolean*: whether or not to refresh the access token (experimental)
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **hooks (optional)**: async execution is supported
@@ -77,7 +77,7 @@ normally, it will be `<protocol>://<your-domain>/auth/login/callback`
     - **authenticationType=form** *string*: `form` or `so`, can be used together, see example
     - **identifier=astad.mprofiel.v1** *string*: the service identifier, used to create the login url.
      - **tokenUrl** *string*: where the service should get the accesstoken
-     - **redirectUri** *string*: custom redirect callback uri
+     - **redirectUri (optional)** *string*: custom redirect callback uri
      - **refresh** *boolean*: whether or not to refresh the access token (experimental)
     - **hooks (optional)**: async execution is supported
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
@@ -88,7 +88,7 @@ normally, it will be `<protocol>://<your-domain>/auth/login/callback`
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **identifier=acpaas.fasdatastore.v1** *string*: the service identifier, used to create the login url.
     - **tokenUrl** *string*: where the service should get the accesstoken
-    - **redirectUri** *string*: custom redirect callback uri
+    - **redirectUri (optional)** *string*: custom redirect callback uri
     - **refresh** *boolean*: whether or not to refresh the access token (experimental)
     - **hooks (optional)**: async execution is supported
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
