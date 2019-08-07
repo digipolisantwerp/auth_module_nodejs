@@ -45,7 +45,7 @@ normally, it will be `<protocol>://<your-domain>/auth/login/callback`
 
 ### Event Handler configuration (only needed for Single log out)
 
-Navigate to the eventhandler and go to the oauth namespace`
+Navigate to the eventhandler and go to the oauth namespace
 ![oauth namespace](/assets/oauth-namespace.png "oauth namespace")
 
 Click on the topic related to your login methodology and click on + (add subscription)
@@ -54,7 +54,7 @@ Click on the topic related to your login methodology and click on + (add subscri
 Configure your endpoint with the correct params:
 
 ![subscription configuration](/assets/sub-config.png "subscription configuration")
-the push url is `<protocol>://<hostname>{basePath}/event/loggedout/{service}
+the push url is `<protocol>://<hostname>{basePath}/event/loggedout/{service}`
 (basePath defaults to auth).
 
 You should add a custom header which corresponds to the headerKey in your logout configuration (defaults to `x-logout-token). Add your token.
@@ -74,7 +74,7 @@ save your subscription.
 - **logout** (optional, but needed for SLO with the event handler)
   - **headerKey** *string*: the name of the http header where the key is located (defaults to `x-logout-token`)
   - **securityHash** *string* bcrypt hash of the token that will be placed in the http header.
-  - **sessionStoreLogoutAdapter** *Function*: function that returns a promise when the sessionStore has been successfully updated and rejects otherwise. This adapter is responsible for  removing the session. [More information](#creating-and-using- sessionstorelogoutadapters)
+  - **sessionStoreLogoutAdapter** *Function*: function that returns a promise when the sessionStore has been successfully updated and rejects otherwise. This adapter is responsible for  removing the session. [More information](#creating-and-using-sessionstorelogoutadapters)
 - **auth** (credentials can be acquired from the api store)
   - **clientId** *string*: client id of your application
   - **clientSecret** *string*: client secret of your application
