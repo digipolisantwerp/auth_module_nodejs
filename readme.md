@@ -57,7 +57,7 @@ Configure your endpoint with the correct params:
 the push url is `<protocol>://<hostname>{basePath}/event/loggedout/{service}`
 (basePath defaults to auth).
 
-You should add a custom header which corresponds to the headerKey in your logout configuration (defaults to `x-logout-token). Add your token.
+You should add a custom header which corresponds to the headerKey in your logout configuration (defaults to `x-logout-token`). Add your token.
 (this token will not be known to your application, only the hashed version)
 
 save your subscription.
