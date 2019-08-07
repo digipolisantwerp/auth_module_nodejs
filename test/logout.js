@@ -2,7 +2,7 @@
 const assert = require('assert');
 const createRouter = require('../lib/router');
 const reqres = require('reqres');
-const mockExpress = require('mock-express')();
+const mockExpress = require('express')();
 const correctConfig = require('./mocks/correctConfig');
 
 describe('GET /logout/:serviceProvider', function onDescribe() {
