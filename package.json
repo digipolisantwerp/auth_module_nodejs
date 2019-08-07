@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test nyc --reporter=lcov mocha -- -R spec -t 15000 --recursive --slow 2"
+    "test": "cross-env NODE_ENV=test nyc mocha -- -R spec -t 15000 --recursive --slow 2"
   },
   "repository": {
     "type": "git",
@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "async": "~2.5.0",
+    "bcryptjs": "^2.4.3",
     "express": "^4.16.4",
     "lodash.get": "~4.4.2",
     "oauth": "~0.9.15",
