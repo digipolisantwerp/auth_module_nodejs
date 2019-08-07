@@ -1,7 +1,7 @@
 'use strict';
 const assert = require('assert');
-
 const reqres = require('reqres');
+
 const correctConfig = require('./mocks/correctConfig');
 const createController = require('../lib/controller');
 require('./mocks/oauth');

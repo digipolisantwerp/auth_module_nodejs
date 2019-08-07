@@ -27,7 +27,7 @@ describe('test #loggedout', function onDescribe() {
 
     const req = reqres.req({
       url: '/auth/event/loggedout/blaprofiel',
-      method: 'GET'
+      method: 'POST'
     });
 
     const res = reqres.res({});
@@ -51,7 +51,7 @@ describe('test #loggedout', function onDescribe() {
 
     const req = reqres.req({
       url: '/auth/event/loggedout/aprofiel',
-      method: 'GET'
+      method: 'POST'
     });
 
     const res = reqres.res({});
@@ -76,14 +76,14 @@ describe('test #loggedout', function onDescribe() {
       logout: {
         headerKey: 'key',
         securityHash: bcrypt.hashSync(key),
-        adapter: adapterPromiseResolve
+        sessionStoreLogoutAdapter: adapterPromiseResolve
       }
     });
     const router = createRouter(mockExpress, config);
 
     const req = reqres.req({
       url: '/auth/event/loggedout/aprofiel',
-      method: 'GET',
+      method: 'POST',
       headers: {
         [config.logout.headerKey] : 'nonematching'
       },
@@ -113,14 +113,14 @@ describe('test #loggedout', function onDescribe() {
       logout: {
         headerKey: 'key',
         securityHash: bcrypt.hashSync(token),
-        adapter: adapterPromiseResolve
+        sessionStoreLogoutAdapter: adapterPromiseResolve
       }
     });
     const router = createRouter(mockExpress, config);
 
     const req = reqres.req({
       url: '/auth/event/loggedout/aprofiel',
-      method: 'GET',
+      method: 'POST',
       headers: {
         [config.logout.headerKey] : token
       },
@@ -151,14 +151,14 @@ describe('test #loggedout', function onDescribe() {
       logout: {
         headerKey: 'key',
         securityHash: bcrypt.hashSync(token),
-        adapter: adapterPromiseReject
+        sessionStoreLogoutAdapter: adapterPromiseReject
       }
     });
     const router = createRouter(mockExpress, config);
 
     const req = reqres.req({
       url: '/auth/event/loggedout/aprofiel',
-      method: 'GET',
+      method: 'POST',
       headers: {
         [config.logout.headerKey] : token
       },
