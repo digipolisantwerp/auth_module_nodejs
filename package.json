@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test nyc mocha -- -R spec -t 15000 --recursive --slow 2"
+    "test": "cross-env NODE_ENV=test nyc --reporter=lcov mocha -- -R spec -t 15000 --recursive --slow 2"
   },
   "repository": {
     "type": "git",
