@@ -121,7 +121,7 @@ save your subscription.
 
 ## Creating and using SessionStoreLogoutAdapters
 
-Your sessionstore can be backed by you server's memory or a database system like postgres, mongodb. Because we have no generic way to query each type of store,
+Your sessionstore can be backed by your server's memory or a database system like postgres, mongodb. Because we have no generic way to query each type of store,
 we introduce the concept of adapters.
 
 `function adapter(sessionKey: String, accessTokenKey: String, userInformation: Object): Promise`
