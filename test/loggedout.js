@@ -1,10 +1,14 @@
+const assert = require('assert');
+const bcrypt = require('bcryptjs');
+const reqres = require('reqres');
+const uuid = require('uuid');
+
+
 const mockExpress = require('express')();
 const createRouter = require('../lib/router');
 const correctConfig = require('./mocks/correctConfig');
-const assert = require('assert');
-const reqres = require('reqres');
 
-describe.skip('test #loggedout', function onDescribe() {
+describe('test #loggedout', function onDescribe() {
   const adapterPromiseResolve = () => {
     return new Promise((resolve) => {
       setTimeout(() => resolve(), 1000);
@@ -30,8 +34,8 @@ describe.skip('test #loggedout', function onDescribe() {
 
     res.on('end', () => {
       assert(
-         res.sendStatus.calledWith(404)
-       );
+        res.sendStatus.calledWith(404)
+      );
 
       return done();
     });
@@ -40,5 +44,143 @@ describe.skip('test #loggedout', function onDescribe() {
     } catch (e) {
       console.log('e', e.stack);
     }
-  })
+  });
+
+  it('should 200 when no suitable adapter present', (done) => {
+    const router = createRouter(mockExpress, correctConfig);
+
+    const req = reqres.req({
+      url: '/auth/event/loggedout/aprofiel',
+      method: 'GET'
+    });
+
+    const res = reqres.res({});
+
+    res.on('end', () => {
+      assert(
+        res.sendStatus.calledWith(200)
+      );
+
+      return done();
+    });
+    try {
+      router.handle(req, res);
+    } catch (e) {
+      console.log('e', e.stack);
+    }
+  });
+
+  it('should 401 when key does not match hash', (done) => {
+    const key = 'thisispass'
+    const config = Object.assign({}, correctConfig, {
+      logout: {
+        headerKey: 'key',
+        securityHash: bcrypt.hashSync(key),
+        adapter: adapterPromiseResolve
+      }
+    });
+    const router = createRouter(mockExpress, config);
+
+    const req = reqres.req({
+      url: '/auth/event/loggedout/aprofiel',
+      method: 'GET',
+      headers: {
+        [config.logout.headerKey] : 'nonematching'
+      },
+
+      get: (key) => req.headers[key]
+    });
+
+    const res = reqres.res({});
+
+    res.on('end', () => {
+      assert(
+        res.sendStatus.calledWith(401)
+      );
+
+      return done();
+    });
+    try {
+      router.handle(req, res);
+    } catch (e) {
+      console.log('e', e.stack);
+    }
+  });
+
+  it('should 200 when key matches hash and adapter resolves', (done) => {
+    const token = uuid.v4();
+    const config = Object.assign({}, correctConfig, {
+      logout: {
+        headerKey: 'key',
+        securityHash: bcrypt.hashSync(token),
+        adapter: adapterPromiseResolve
+      }
+    });
+    const router = createRouter(mockExpress, config);
+
+    const req = reqres.req({
+      url: '/auth/event/loggedout/aprofiel',
+      method: 'GET',
+      headers: {
+        [config.logout.headerKey] : token
+      },
+
+      get: (key) => req.headers[key]
+    });
+
+    const res = reqres.res({});
+
+    res.on('end', () => {
+      assert(
+        res.sendStatus.calledWith(200)
+      );
+
+      return done();
+    });
+    try {
+      router.handle(req, res);
+    } catch (e) {
+      console.log('e', e.stack);
+    }
+  });
+
+
+  it('should 500 when key matches hash and adapter rejects', (done) => {
+    const token = uuid.v4();
+    const config = Object.assign({}, correctConfig, {
+      logout: {
+        headerKey: 'key',
+        securityHash: bcrypt.hashSync(token),
+        adapter: adapterPromiseReject
+      }
+    });
+    const router = createRouter(mockExpress, config);
+
+    const req = reqres.req({
+      url: '/auth/event/loggedout/aprofiel',
+      method: 'GET',
+      headers: {
+        [config.logout.headerKey] : token
+      },
+
+      get: (key) => req.headers[key]
+    });
+
+    const res = reqres.res({});
+
+    res.on('end', () => {
+      assert(
+        res.sendStatus.calledWith(500)
+      );
+
+      return done();
+    });
+    try {
+      router.handle(req, res);
+    } catch (e) {
+      console.log('e', e.stack);
+    }
+  });
+
+
 })

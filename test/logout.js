@@ -165,7 +165,7 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
     res.redirect.bind(res);
 
     res.on('end', () => {
-      console.log(redirectUrl.includes('auth_type'));
+      assert(redirectUrl.includes('auth_type'));
       return done();
     });
 

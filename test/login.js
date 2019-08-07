@@ -1,8 +1,9 @@
 'use strict';
 const assert = require('assert');
-const createRouter = require('../lib/router');
-const reqres = require('reqres');
 const mockExpress = require('express')();
+const reqres = require('reqres');
+
+const createRouter = require('../lib/router');
 const correctConfig = require('./mocks/correctConfig');
 
 describe('GET /login/:serviceProvider', function onDescribe() {
