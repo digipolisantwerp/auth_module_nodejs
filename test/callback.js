@@ -1,13 +1,13 @@
 'use strict';
+const assert = require('assert');
+const mockExpress = require('express')();
+const reqres = require('reqres');
 
 const correctConfig = require('./mocks/correctConfig');
 const oauth = require('./mocks/oauth');
 const createRouter = require('../lib/router');
-const reqres = require('reqres');
-const mockExpress = require('express')();
-const assert = require('assert');
+
 const user = require('./mocks/user');
-const userJSON = require('./mocks/user.json');
 
 oauth.getCreatedInstance();
 

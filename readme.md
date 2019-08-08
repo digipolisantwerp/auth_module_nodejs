@@ -43,14 +43,38 @@ normally, it will be `<protocol>://<your-domain>/auth/login/callback`
 
 **Unless you configured a custom redirectUri. in this case, you should enter this one**
 
+### Event Handler configuration (only needed for Single log out)
 
-**Configuration:**
+Navigate to the eventhandler and go to the oauth namespace
+![oauth namespace](/assets/oauth-namespace.png "oauth namespace")
+
+Click on the topic related to your login methodology and click on + (add subscription)
+![add subscription](/assets/add-subscription.png "add  subscription")
+
+Configure your endpoint with the correct params:
+
+![subscription configuration](/assets/sub-config.png "subscription configuration")
+the push url is `<protocol>://<hostname>{basePath}/event/loggedout/{service}`
+(basePath defaults to auth).
+
+You should add a custom header which corresponds to the headerKey in your logout configuration (defaults to `x-logout-token`). Add your token.
+(this token will not be known to your application, only the hashed version)
+
+save your subscription.
+
+
+
+### Module Configuration
 
 - **oauthHost** *string*: The domain corresponding to the oauth implementation
   (e.g: https://api-oauth2-o.antwerpen.be').
 - **apiHost** *string*: the hostname corresponding to the API gateway (e.g: https://api-gw-o.antwerpen.be).
 - **basePath=/auth (optional)** *string*: the basePath which is appended to the exposed endpoints.
 - **errorRedirect=/ (optional)** *string*: where to redirect if the login fails (e.g: /login)
+- **logout** (optional, but needed for SLO with the event handler)
+  - **headerKey** *string*: the name of the http header where the key is located (defaults to `x-logout-token`)
+  - **securityHash** *string* bcrypt hash of the token that will be placed in the http header.
+  - **sessionStoreLogoutAdapter** *Function*: function that returns a promise when the sessionStore has been successfully updated and rejects otherwise. This adapter is responsible for  removing the session. [More information](#creating-and-using-sessionstorelogoutadapters)
 - **auth** (credentials can be acquired from the api store)
   - **clientId** *string*: client id of your application
   - **clientSecret** *string*: client secret of your application
@@ -95,6 +119,66 @@ normally, it will be `<protocol>://<your-domain>/auth/login/callback`
       - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
 
 
+## Creating and using SessionStoreLogoutAdapters
+
+Your sessionstore can be backed by your server's memory or a database system like postgres, mongodb. Because we have no generic way to query each type of store,
+we introduce the concept of adapters.
+
+`function adapter(sessionKey: String, accessTokenKey: String, userInformation: Object): Promise`
+
+An adapter should return a promise which resolves if it succeeds in altering the session or rejects when it fails.
+
+It has 3 arguments:
+
+- **sessionKey**: this is the key under which your user is stored in the session (this is the same as the key property in your serviceProvider, defaults to `user`). essentially,
+this is the property that should be removed from your session to remove the user's information
+- **accessTokenKey**:  this is the key of the accessToken property inside your session, which should also be removed.
+- **userInformation**: this is an object that contains the information of the user that has been loggedout.
+  - **user**: the id of the user,
+  - **timestamp**: timestamp of logout. Could be used to ignore the request if the logout was long ago.
+
+
+### Available adapters
+Existing adapters will be added here.
+
+### Example of an adapter implementation 
+```
+// this is a non functional example,
+function createAdapter(options) {
+  const {
+    connectionString
+  } = options;
+
+  const db = createConnection(connectionString);
+
+  return function adapter(sessionKey, accessTokenKey, userInformation) {
+    return new Promise((resolve, reject) => {
+          const session = db.query({
+        [`session.${sessionKey}.id]: userInformation.user
+    });
+
+     // alter record and resave or do it in one query.
+     // be aware that multiple sessions could have the same userId,
+     // maybe we should also check whether the session is currently valid.
+
+      return resolve();
+    })
+  }
+
+  const authConfig = require(./authConfig);
+
+  const adapter = createAdapter({
+    connectionString: process.env.connectionString
+  });
+
+  Object.assign(authConfig, {
+    logout: {
+      adapter,
+      securityHash: 'blabla
+    }
+  });
+}
+```
 
 ## Example implementation
 ```js
@@ -257,7 +341,11 @@ Redirects the user to the logout for the specified service. This will cause the 
 the `fromUrl` query parameter can be used to redirect the user to a given page
 after logout.
 
-### GET {basePath}/logout//callback/{service}
+### GET {basePath}/logout/callback/{service}
 
 Cleans up the session after the initial logout.
+
+### POST {basePath}/event/loggedout/{service}
+
+Endpoint which can be used to logout events from the eventhandler. This is used to remove a user's session when the user has logged out in an other application.
 

@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "async": "~2.5.0",
+    "bcryptjs": "^2.4.3",
     "express": "^4.16.4",
     "lodash.get": "~4.4.2",
     "oauth": "~0.9.15",
@@ -23,7 +24,6 @@
     "uuid": "~3.1.0"
   },
   "devDependencies": {
-    "chai": "~4.1.1",
     "cross-env": "~5.2.0",
     "mocha": "^6.2.0",
     "mockery": "~2.1.0",

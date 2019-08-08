@@ -1,11 +1,10 @@
 'use strict';
+const assert = require('assert');
+const reqres = require('reqres');
 
 const correctConfig = require('./mocks/correctConfig');
-const config = require('../lib/config');
 const createController = require('../lib/controller');
-const expect = require('chai').expect;
-const reqres = require('reqres');
-const oauth = require('./mocks/oauth');
+require('./mocks/oauth');
 
 const copy = (o) => {
   let output;
@@ -35,7 +34,7 @@ describe('test refresh', function onDescribe() {
     config.refresh = true;
 
     controller.refresh(req, res, (err) => {
-      expect(err).to.be.undefined;
+      assert(!err);
       done();
     });
   });
@@ -58,7 +57,7 @@ describe('test refresh', function onDescribe() {
     config.refresh = true;
 
     controller.refresh(req, res, (err) => {
-      expect(err).to.be.undefined;
+      assert(!err);
       done();
     });
   });
@@ -82,8 +81,8 @@ describe('test refresh', function onDescribe() {
     config.refresh = true;
 
     controller.refresh(req, res, (err) => {
-      expect(err).to.be.undefined;
-      expect(req.session.token.expiresIn).to.be.greaterThan(new Date());
+      assert(!err);
+      assert(req.session.token.expiresIn > new Date());
       done();
     });
   });
