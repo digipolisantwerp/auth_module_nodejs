@@ -170,7 +170,7 @@ describe('test #loggedout', function onDescribe() {
 
     res.on('end', () => {
       assert(
-        res.sendStatus.calledWith(500)
+        res.status.calledWith(500)
       );
 
       return done();
