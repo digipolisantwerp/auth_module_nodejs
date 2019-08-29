@@ -118,6 +118,48 @@ save your subscription.
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
       - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
 
+### Authentication 2.0
+If you want to use authentication 2.0 you can do so by adding `version: 'v2'` to your config and add the necessary config.
+
+  - **auth2aprofiel** (optional if not needed):
+    - **version** *string*: authentication version you want to use. Defaults to v1.
+    - **minimalAssuranceLevel** *string*: Minimal Assurance Level. For now we only support `low` and `substantial`.
+    - **authMethods** *string*: the authentication methods you want to allow. (e.g. `iam-aprofiel-userpass` for simple username/password based authentication) 
+    - **scopes** *string*: the scopes you want for the profile
+    - **url** *string*: url where to fetch the profile
+    - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
+    - **tokenUrl** *string*: where the service should get the accesstoken
+    - **redirectUri (optional)** *string*: custom redirect callback uri
+    - **refresh** *boolean*: whether or not to refresh the access token (experimental)
+    - **hooks (optional)**: async execution is supported
+      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
+      - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
+
+Concerning the authentication methods, we support:
+| Name                  | Description                                                    |
+| --------------------- | -------------------------------------------------------------- |
+| fas-citizen-bmid      | Belgian Mobile ID (e.g. Itsme)                                 |
+| fas-citizen-eid       | Authentication with eID-card and pin-code                      |
+| fas-citizen-otp       | Authentication with one time password      (e.g. sms)          |
+| fas-citizen-totp      | Time-based one time password   (e.g. Google Authenticator)     |
+| iam-aprofiel-userpass | Our default aprofiel authentication with username and password |
+
+#### Authentication 2.0 example config
+```js
+    auth2eid: {
+      version: 'v2',
+      scopes: 'astad.aprofiel.v1.username astad.aprofiel.v1.name astad.aprofiel.v1.avatar astad.aprofiel.v1.email astad.aprofiel.v1.phone crspersoon.givenName',
+      url: 'https://api-gw-o.antwerpen.be/acpaas/shared-identity-data/v1/me',
+      key: 'auth2eid',
+      authMethods: 'fas-citizen-bmid,fas-citizen-totp,fas-citizen-otp,iam-aprofiel-userpass',
+      minimalAssuranceLevel: 'low',
+      tokenUrl: 'https://api-gw-o.antwerpen.be/acpaas/shared-identity-data/v1/oauth2/token',
+      hooks: {
+        loginSuccess: [],
+        logoutSuccess: []
+      }
+    }
+```
 
 ## Creating and using SessionStoreLogoutAdapters
 
