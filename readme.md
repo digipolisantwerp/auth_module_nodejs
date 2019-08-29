@@ -119,7 +119,7 @@ save your subscription.
       - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
 
 ### Authentication 2.0
-If you want to use authentication 2.0 you can do so by adding `version: 'v2'` to your config and add the necessary config.
+If you want to use authentication 2.0 you can do so by adding `version: 'v2'` and add the necessary extra config.
 
   - **auth2aprofiel** (optional if not needed):
     - **version** *string*: authentication version you want to use. Defaults to v1.
@@ -136,6 +136,8 @@ If you want to use authentication 2.0 you can do so by adding `version: 'v2'` to
       - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
 
 Concerning the authentication methods, we support:
+
+
 | Name                  | Description                                                    |
 | --------------------- | -------------------------------------------------------------- |
 | fas-citizen-bmid      | Belgian Mobile ID (e.g. Itsme)                                 |
@@ -143,6 +145,7 @@ Concerning the authentication methods, we support:
 | fas-citizen-otp       | Authentication with one time password      (e.g. sms)          |
 | fas-citizen-totp      | Time-based one time password   (e.g. Google Authenticator)     |
 | iam-aprofiel-userpass | Our default aprofiel authentication with username and password |
+
 
 #### Authentication 2.0 example config
 ```js
