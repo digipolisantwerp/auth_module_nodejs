@@ -123,7 +123,7 @@ If you want to use authentication 2.0 you can do so by adding `version: 'v2'` an
 
   - **auth2aprofiel** (optional if not needed):
     - **version** *string*: authentication version you want to use. Defaults to v1.
-    - **minimalAssuranceLevel** *string*: Minimal Assurance Level. For now we only support `low` and `substantial`.
+    - **minimalAssuranceLevel** *string*: Minimal Assurance Level. We support `low`, `substantial` and `high`.
     - **authMethods** *string*: the authentication methods you want to allow. (e.g. `iam-aprofiel-userpass` for simple username/password based authentication) 
     - **scopes** *string*: the scopes you want for the profile
     - **url** *string*: url where to fetch the profile
@@ -137,15 +137,19 @@ If you want to use authentication 2.0 you can do so by adding `version: 'v2'` an
 
 Concerning the authentication methods, we support:
 
+| Name                  | Assurance level | Description                                                    |
+| --------------------- | --------------- | -------------------------------------------------------------- |
+| fas-citizen-bmid      | substantial     | Belgian Mobile ID (e.g. Itsme)                                 |
+| fas-citizen-eid       | high            | Authentication with eID-card and pin-code                      |
+| fas-citizen-otp       | substantial     | Authentication with one time password      (e.g. sms)          |
+| fas-citizen-totp      | substantial     | Time-based one time password   (e.g. Google Authenticator)     |
+| iam-aprofiel-userpass | low             | Our default aprofiel authentication with username and password |
 
-| Name                  | Description                                                    |
-| --------------------- | -------------------------------------------------------------- |
-| fas-citizen-bmid      | Belgian Mobile ID (e.g. Itsme)                                 |
-| fas-citizen-eid       | Authentication with eID-card and pin-code                      |
-| fas-citizen-otp       | Authentication with one time password      (e.g. sms)          |
-| fas-citizen-totp      | Time-based one time password   (e.g. Google Authenticator)     |
-| iam-aprofiel-userpass | Our default aprofiel authentication with username and password |
+`iam-aprofiel-userpass` will only work when `minimalAssuranceLevel` is `low`.
 
+`minimalAssuranceLevel` `high` will only show the `fas-citizen-eid` authentication method.
+
+In general; if your `minimalAssuranceLevel` is set to `substantial` you can only use `substantial` and above (`high`).
 
 #### Authentication 2.0 example config
 ```js
@@ -163,6 +167,33 @@ Concerning the authentication methods, we support:
       }
     }
 ```
+
+#### Authentication 2.0 available scopes
+
+| Scope                           | Alias             |
+| ------------------------------- | ----------------- |
+| astad.aprofiel.v1.address       | aprofiel.address  |
+| astad.aprofiel.v1.all           | aprofiel.all      |
+| astad.aprofiel.v1.avatar        | aprofiel.avatar   |
+| astad.aprofiel.v1.email         | aprofiel.email    |
+| astad.aprofiel.v1.name          | aprofiel.name     |
+| astad.aprofiel.v1.phone         | aprofiel.phone    |
+| astad.aprofiel.v1.username      | aprofiel.username |
+| crspersoon.birthdate            |                   |
+| crspersoon.death                |                   |
+| crspersoon.deathdate            |                   |
+| crspersoon.familyname           |                   |
+| crspersoon.gendercode           |                   |
+| crspersoon.givenName            |                   |
+| crspersoon.housenumber          |                   |
+| crspersoon.housenumberextension |                   |
+| crspersoon.municipalityname     |                   |
+| crspersoon.municipalityniscode  |                   |
+| crspersoon.nationality          |                   |
+| crspersoon.nationalnumber       |                   |
+| crspersoon.postalcode           |                   |
+| crspersoon.registrationstate    |                   |
+| crspersoon.streetname           |                   |
 
 ## Creating and using SessionStoreLogoutAdapters
 
