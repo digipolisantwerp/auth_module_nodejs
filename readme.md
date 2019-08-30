@@ -139,11 +139,11 @@ Concerning the authentication methods, we support:
 
 | Name                  | Assurance level | Description                                                    |
 | --------------------- | --------------- | -------------------------------------------------------------- |
+| iam-aprofiel-userpass | low             | Our default aprofiel authentication with username and password |
 | fas-citizen-bmid      | substantial     | Belgian Mobile ID (e.g. Itsme)                                 |
-| fas-citizen-eid       | high            | Authentication with eID-card and pin-code                      |
 | fas-citizen-otp       | substantial     | Authentication with one time password      (e.g. sms)          |
 | fas-citizen-totp      | substantial     | Time-based one time password   (e.g. Google Authenticator)     |
-| iam-aprofiel-userpass | low             | Our default aprofiel authentication with username and password |
+| fas-citizen-eid       | high            | Authentication with eID-card and pin-code                      |
 
 `iam-aprofiel-userpass` will only work when `minimalAssuranceLevel` is `low`.
 
