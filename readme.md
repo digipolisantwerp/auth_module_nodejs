@@ -120,6 +120,7 @@ save your subscription.
 
 ### Authentication 2.0
 If you want to use authentication 2.0 you can do so by adding `version: 'v2'` and add the necessary extra config.
+Your application needs a contract with the Shared Identity Data API (Similar to the [API Store configuration](#api-store-configuration))
 
   - **auth2aprofiel** (optional if not needed):
     - **version** *string*: authentication version you want to use. Defaults to v1.
@@ -128,6 +129,7 @@ If you want to use authentication 2.0 you can do so by adding `version: 'v2'` an
     - **scopes** *string*: the scopes you want for the profile
     - **url** *string*: url where to fetch the profile
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
+    - **identifier=acpaas.fasdatastore.v1** *string*: the service identifier, used to log out.
     - **tokenUrl** *string*: where the service should get the accesstoken
     - **redirectUri (optional)** *string*: custom redirect callback uri
     - **refresh** *boolean*: whether or not to refresh the access token (experimental)
@@ -157,6 +159,7 @@ In general; if your `minimalAssuranceLevel` is set to `substantial` you can only
       version: 'v2',
       scopes: 'astad.aprofiel.v1.username astad.aprofiel.v1.name astad.aprofiel.v1.avatar astad.aprofiel.v1.email astad.aprofiel.v1.phone crspersoon.givenName',
       url: 'https://api-gw-o.antwerpen.be/acpaas/shared-identity-data/v1/me',
+      identifier: 'astad.aprofiel.v1',
       key: 'auth2eid',
       authMethods: 'fas-citizen-bmid,fas-citizen-totp,fas-citizen-otp,iam-aprofiel-userpass',
       minimalAssuranceLevel: 'low',
