@@ -68,6 +68,7 @@ save your subscription.
 
 - **oauthHost** *string*: The domain corresponding to the oauth implementation
   (e.g: https://api-oauth2-o.antwerpen.be').
+- **applicationname** *string*: required if permissions need to be fetched (name known in UM)
 - **apiHost** *string*: the hostname corresponding to the API gateway (e.g: https://api-gw-o.antwerpen.be).
 - **basePath=/auth (optional)** *string*: the basePath which is appended to the exposed endpoints.
 - **errorRedirect=/ (optional)** *string*: where to redirect if the login fails (e.g: /login)
@@ -91,13 +92,11 @@ save your subscription.
     - **hooks (optional)**: async execution is supported
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
       - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
-
   - **mprofiel** (optional if not needed):
     - **scopes** *string*: the scopes you want for the profile
     - **url** *string*: url where to fetch the profile
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **fetchPermissions=false** *boolean*: whether to fetch permissions in the User Man. engine
-    - **applicationname** *string*: required if permissions need to be fetched
     - **authenticationType=form** *string*: `form` or `so`, can be used together, see example
     - **identifier=astad.mprofiel.v1** *string*: the service identifier, used to create the login url.
      - **tokenUrl** *string*: where the service should get the accesstoken
@@ -279,6 +278,7 @@ app.use(profileLogin(app, {
   oauthHost: 'https://api-oauth2-o.antwerpen.be',
   apiHost: 'https://api-gw-o.antwerpen.be',
   errorRedirect: '/',
+  applicationName: 'this-is-my-app',
   basePath: '/auth',
   auth: {
     clientId: 'your-client-id',
@@ -301,19 +301,18 @@ app.use(profileLogin(app, {
       url: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/v1/me',
       identifier: 'astad.mprofiel.v1',
       fetchPermissions: false,
-      applicationName: 'this-is-my-app',
+
       tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
       hooks: {
         loginSuccess: [],
         logoutSuccess: []
       }
     },
-    mprofiel-so: {
+    'mprofiel-so': {
       scopes: 'all',
       url: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/v1/me',
       identifier: 'astad.mprofiel.v1',
       fetchPermissions: false,
-      applicationName: 'this-is-my-app',
       authenticationType: 'so'
       tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
       hooks: {
