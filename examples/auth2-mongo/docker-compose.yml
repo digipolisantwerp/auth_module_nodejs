@@ -1,0 +1,14 @@
+version: '2'
+services:
+  app:
+    build: .
+    tty: true
+    environment:
+      - PORT=2000
+      - MONGO_CONNECTIONSTRING=mongodb://mongo:27017/basic-mongo-auth
+    ports:
+      - 2000:2000
+    links:
+      - mongo
+  mongo:
+    image: mongo:3.6
