@@ -357,7 +357,7 @@ Each route is prepended with the configured `basePath`, if no basePath is given,
 default basePath `auth` will be used.
 
 
-### GET {basePath}/login/{serviceName}?fromUrl={thisiswheretoredirectafterlogin}&lng={language}&auth_type={auth_type}
+### GET {basePath}/login/{serviceName}?fromUrl={thisiswheretoredirectafterlogin}&lng={language}&auth_type={auth_type}&auth_methods={auth_methods}
 This endpoints tries to redirect the user to the login page of the service corresponding to the serviceName (aprofiel, mprofiel, eid).
 (this will not work if the endpoint is called with an AJAX call)
 
@@ -366,7 +366,8 @@ This endpoints tries to redirect the user to the login page of the service corre
   - *fromUrl*: query parameter can be used to redirect the user to a given page
 after login.
   - *lng*: can be used to define the language. Currently supported: `nl`, `de`, `fr` and `en`
-  - * auth_type*: can be used if you want to restrict the authentication types to others than defined in your service provider.
+  - *auth_type*: can be used if you want to restrict the authentication types to others than defined in your service provider.
+  - *auth_methods*: can be used to override the default defined authMethods. to limit the number of available methods or to enable true SSO. (comma seperated list)
 
 
 ### GET {basePath}/isloggedin
