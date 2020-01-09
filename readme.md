@@ -68,6 +68,7 @@ save your subscription.
 
 - **oauthHost** *string*: The domain corresponding to the oauth implementation
   (e.g: https://api-oauth2-o.antwerpen.be').
+- **applicationname** *string*: required if permissions need to be fetched (name known in UM)
 - **apiHost** *string*: the hostname corresponding to the API gateway (e.g: https://api-gw-o.antwerpen.be).
 - **basePath=/auth (optional)** *string*: the basePath which is appended to the exposed endpoints.
 - **errorRedirect=/ (optional)** *string*: where to redirect if the login fails (e.g: /login)
@@ -91,13 +92,11 @@ save your subscription.
     - **hooks (optional)**: async execution is supported
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
       - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
-
   - **mprofiel** (optional if not needed):
     - **scopes** *string*: the scopes you want for the profile
     - **url** *string*: url where to fetch the profile
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **fetchPermissions=false** *boolean*: whether to fetch permissions in the User Man. engine
-    - **applicationname** *string*: required if permissions need to be fetched
     - **authenticationType=form** *string*: `form` or `so`, can be used together, see example
     - **identifier=astad.mprofiel.v1** *string*: the service identifier, used to create the login url.
      - **tokenUrl** *string*: where the service should get the accesstoken
@@ -120,16 +119,14 @@ save your subscription.
 
 ### Authentication 2.0
 If you want to use authentication 2.0 you can do so by adding `version: 'v2'` and add the necessary extra config.
-Your application needs a contract with the Shared Identity Data API (Similar to the [API Store configuration](#api-store-configuration))
 
   - **auth2aprofiel** (optional if not needed):
-    - **version** *string*: authentication version you want to use (`v2` in this case). Defaults to v1.
+    - **version** *string*: authentication version you want to use. Defaults to v1.
     - **minimalAssuranceLevel** *string*: Minimal Assurance Level. We support `low`, `substantial` and `high`.
     - **authMethods** *string*: the authentication methods you want to allow. (e.g. `iam-aprofiel-userpass` for simple username/password based authentication) 
     - **scopes** *string*: the scopes you want for the profile
     - **url** *string*: url where to fetch the profile
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
-    - **identifier=astad.aprofiel.v1** *string*: the service identifier, used to log out.
     - **tokenUrl** *string*: where the service should get the accesstoken
     - **redirectUri (optional)** *string*: custom redirect callback uri
     - **refresh** *boolean*: whether or not to refresh the access token (experimental)
@@ -159,7 +156,6 @@ In general; if your `minimalAssuranceLevel` is set to `substantial` you can only
       version: 'v2',
       scopes: 'astad.aprofiel.v1.username astad.aprofiel.v1.name astad.aprofiel.v1.avatar astad.aprofiel.v1.email astad.aprofiel.v1.phone crspersoon.givenName',
       url: 'https://api-gw-o.antwerpen.be/acpaas/shared-identity-data/v1/me',
-      identifier: 'astad.aprofiel.v1',
       key: 'auth2eid',
       authMethods: 'fas-citizen-bmid,fas-citizen-totp,fas-citizen-otp,iam-aprofiel-userpass',
       minimalAssuranceLevel: 'low',
@@ -282,6 +278,7 @@ app.use(profileLogin(app, {
   oauthHost: 'https://api-oauth2-o.antwerpen.be',
   apiHost: 'https://api-gw-o.antwerpen.be',
   errorRedirect: '/',
+  applicationName: 'this-is-my-app',
   basePath: '/auth',
   auth: {
     clientId: 'your-client-id',
@@ -304,19 +301,18 @@ app.use(profileLogin(app, {
       url: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/v1/me',
       identifier: 'astad.mprofiel.v1',
       fetchPermissions: false,
-      applicationName: 'this-is-my-app',
+
       tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
       hooks: {
         loginSuccess: [],
         logoutSuccess: []
       }
     },
-    mprofiel-so: {
+    'mprofiel-so': {
       scopes: 'all',
       url: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/v1/me',
       identifier: 'astad.mprofiel.v1',
       fetchPermissions: false,
-      applicationName: 'this-is-my-app',
       authenticationType: 'so'
       tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
       hooks: {
@@ -357,18 +353,14 @@ Each route is prepended with the configured `basePath`, if no basePath is given,
 default basePath `auth` will be used.
 
 
-### GET {basePath}/login/{serviceName}?fromUrl={thisiswheretoredirectafterlogin}&lng={language}&auth_type={auth_type}&auth_methods={auth_methods}
+### GET {basePath}/login/{serviceName}?fromUrl={thisiswheretoredirectafterlogin}&lng={language}
 This endpoints tries to redirect the user to the login page of the service corresponding to the serviceName (aprofiel, mprofiel, eid).
 (this will not work if the endpoint is called with an AJAX call)
 
-#### query params
-
-  - *fromUrl*: query parameter can be used to redirect the user to a given page
+the `fromUrl` query parameter can be used to redirect the user to a given page
 after login.
-  - *lng*: can be used to define the language. Currently supported: `nl`, `de`, `fr` and `en`
-  - *auth_type*: can be used if you want to restrict the authentication types to others than defined in your service provider.
-  - *auth_methods*: can be used to override the default defined authMethods. to limit the number of available methods or to enable true SSO. (comma seperated list)
 
+the `lng` query parameter can be used to define the language. Currently supported: `nl`, `de`, `fr` and `en`
 
 ### GET {basePath}/isloggedin
 
