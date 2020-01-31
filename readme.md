@@ -119,16 +119,14 @@ save your subscription.
 
 ### Authentication 2.0
 If you want to use authentication 2.0 you can do so by adding `version: 'v2'` and add the necessary extra config.
-Your application needs a contract with the Shared Identity Data API (Similar to the [API Store configuration](#api-store-configuration))
 
   - **auth2aprofiel** (optional if not needed):
-    - **version** *string*: authentication version you want to use (`v2` in this case). Defaults to v1.
+    - **version** *string*: authentication version you want to use. Defaults to v1.
     - **minimalAssuranceLevel** *string*: Minimal Assurance Level. We support `low`, `substantial` and `high`.
     - **authMethods** *string*: the authentication methods you want to allow. (e.g. `iam-aprofiel-userpass` for simple username/password based authentication) 
     - **scopes** *string*: the scopes you want for the profile
     - **url** *string*: url where to fetch the profile
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
-    - **identifier=astad.aprofiel.v1** *string*: the service identifier, used to log out.
     - **tokenUrl** *string*: where the service should get the accesstoken
     - **redirectUri (optional)** *string*: custom redirect callback uri
     - **refresh** *boolean*: whether or not to refresh the access token (experimental)
@@ -158,7 +156,6 @@ In general; if your `minimalAssuranceLevel` is set to `substantial` you can only
       version: 'v2',
       scopes: 'astad.aprofiel.v1.username astad.aprofiel.v1.name astad.aprofiel.v1.avatar astad.aprofiel.v1.email astad.aprofiel.v1.phone crspersoon.givenName',
       url: 'https://api-gw-o.antwerpen.be/acpaas/shared-identity-data/v1/me',
-      identifier: 'astad.aprofiel.v1',
       key: 'auth2eid',
       authMethods: 'fas-citizen-bmid,fas-citizen-totp,fas-citizen-otp,iam-aprofiel-userpass',
       minimalAssuranceLevel: 'low',
@@ -356,18 +353,14 @@ Each route is prepended with the configured `basePath`, if no basePath is given,
 default basePath `auth` will be used.
 
 
-### GET {basePath}/login/{serviceName}?fromUrl={thisiswheretoredirectafterlogin}&lng={language}&auth_type={auth_type}&auth_methods={auth_methods}
+### GET {basePath}/login/{serviceName}?fromUrl={thisiswheretoredirectafterlogin}&lng={language}
 This endpoints tries to redirect the user to the login page of the service corresponding to the serviceName (aprofiel, mprofiel, eid).
 (this will not work if the endpoint is called with an AJAX call)
 
-#### query params
-
-  - *fromUrl*: query parameter can be used to redirect the user to a given page
+the `fromUrl` query parameter can be used to redirect the user to a given page
 after login.
-  - *lng*: can be used to define the language. Currently supported: `nl`, `de`, `fr` and `en`
-  - *auth_type*: can be used if you want to restrict the authentication types to others than defined in your service provider.
-  - *auth_methods*: can be used to override the default defined authMethods. to limit the number of available methods or to enable true SSO. (comma seperated list)
 
+the `lng` query parameter can be used to define the language. Currently supported: `nl`, `de`, `fr` and `en`
 
 ### GET {basePath}/isloggedin
 
