@@ -48,7 +48,7 @@ describe('GET /logout/:serviceProvider/callback', function onDescribe() {
     router.handle(req, res);
   });
 
-  it('should 401 when serviceprovider unknown', function onIt(done) {
+  it('should 404 when serviceprovider unknown', function onIt(done) {
     const router = createRouter(mockExpress, correctConfig);
 
     let redirectUrl = false;
