@@ -9,7 +9,7 @@ let {
   auth: authConfig,
   mongoConnectionString,
   port = 2000
-} = require('./config');
+} = require('./old-config');
 
 
 const app = express();
