@@ -3,7 +3,7 @@ const assert = require('assert');
 const reqres = require('reqres');
 
 const correctConfig = require('./mocks/correctConfig');
-const createController = require('../lib/controller');
+const createController = require('../src/controller');
 require('./mocks/oauth');
 
 const copy = (o) => {

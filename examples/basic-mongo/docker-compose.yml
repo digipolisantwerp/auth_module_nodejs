@@ -6,6 +6,8 @@ services:
     environment:
       - PORT=2000
       - MONGO_CONNECTIONSTRING=mongodb://mongo:27017/basic-mongo-auth
+      - CLIENT_SECRET=
+      - CLIENT_ID
     ports:
       - 2000:2000
     links:

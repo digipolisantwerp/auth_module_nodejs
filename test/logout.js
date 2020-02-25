@@ -1,6 +1,6 @@
 'use strict';
 const assert = require('assert');
-const createRouter = require('../lib/router');
+const createRouter = require('../src/router');
 const reqres = require('reqres');
 const mockExpress = require('express')();
 const correctConfig = require('./mocks/correctConfig');

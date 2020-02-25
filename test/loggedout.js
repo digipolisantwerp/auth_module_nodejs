@@ -5,7 +5,7 @@ const uuid = require('uuid');
 
 
 const mockExpress = require('express')();
-const createRouter = require('../lib/router');
+const createRouter = require('../src/router');
 const correctConfig = require('./mocks/correctConfig');
 
 describe('test #loggedout', function onDescribe() {

@@ -1,20 +1,13 @@
-'use strict';
-const mockery = require('mockery');
-const uuid = require('uuid');
+import mockery from 'mockery';
+import uuid from 'uuid';
+
 mockery.enable({
   useCleanCache: true,
   warnOnReplace: false,
   warnOnUnregistered: false
 });
 
-let createdInstance;
-let errorToReturn = false;
-
-function setError(err) {
-  errorToReturn = err;
-}
-
-function getCreatedInstance() {
+export function getCreatedInstance() {
   return createdInstance;
 }
 
@@ -48,9 +41,3 @@ class OAuth2 {
 mockery.registerMock('oauth', {
   OAuth2: OAuth2
 });
-
-module.exports = {
-  getCreatedInstance,
-  setError
-};
-

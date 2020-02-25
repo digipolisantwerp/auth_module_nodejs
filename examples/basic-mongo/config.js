@@ -9,13 +9,12 @@ module.exports = {
     consentUrl: 'https://api-gw-a.antwerpen.be/acpaas/consent/v1',
     scopeGroups: {
       personalInformation: [
-        'astad.aprofiel.v1.name',
         'astad.aprofiel.v1.avatar',
         'astad.aprofiel.v1.email',
       ],
       high: ['crspersoon.nationalnumber']
     },
-    defaultScopes: ['username'],
+    defaultScopes: ['astad.aprofiel.v1.name',],
     url: 'https://api-gw-a.antwerpen.be/acpaas/shared-identity-data/v1',
     hooks: {
       loginSuccess: [

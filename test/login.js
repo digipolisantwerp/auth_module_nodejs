@@ -3,7 +3,7 @@ const assert = require('assert');
 const mockExpress = require('express')();
 const reqres = require('reqres');
 
-const createRouter = require('../lib/router');
+const createRouter = require('../src/router');
 const correctConfig = require('./mocks/correctConfig');
 
 describe('GET /login/:serviceProvider', function onDescribe() {
