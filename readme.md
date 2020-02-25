@@ -33,6 +33,8 @@ app.use(Session({
   cookie: { secure: true }
 }));
 
+app.enable('trust proxy');
+
 
 const authConfig = {
   clientId: 'client-id',
