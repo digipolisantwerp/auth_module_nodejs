@@ -229,7 +229,7 @@ after logout.
 
 
 | Name                  | Assurance level | context    | Description                                                    |
-| --------------------- | --------------- | --------------------------------------------------------------------------- |
+| --------------------- | --------------- | -----------|--------------------------------------------------------------- |
 | iam-aprofiel-userpass | low             | citizen    | Our default aprofiel authentication with username and password |
 | fas-citizen-bmid      | substantial     | citizen    | Belgian Mobile ID (e.g. Itsme)                                 |
 | fas-citizen-otp       | substantial     | citizen    | Authentication with one time password      (e.g. sms)          |
