@@ -2,7 +2,7 @@
 
 This package contains two components:
 
-1. a router which exposes a couple of endpoints which can be used to implement login in your application.
+1. A router which exposes a couple of endpoints which can be used to implement login in your application.
 2. A middleware that can be used to enable single sign-on (SSO) between different apps inside the antwerp/digipolis ecosystem.
 
 In this version aprofiel with assurance levels and different authentication methods is supported (for mprofiel support, check out version 1.X.X).
@@ -13,7 +13,7 @@ You should use `express-session` in your application to enable session storage.
 
 Be sure to load this middleware before other routes in your application, this enables the automatic refresh of the user's access token.
 
-`trust proxy` should also be set to true to enable automatic generation of the applications login callback.
+`trust proxy` should also be set to true to enable automatic generation of the application's login callback.
 
 ### Basic example
 
@@ -80,7 +80,7 @@ The login router & the SSO middleware use the same configuration.
   The url of the consent api, is necessary to enable SSO
   (also see section api store).  
   (e.g. https://api-gw-a.antwerpen.be/acpaas/consent/v1)
-- **defaultScopes**: *string[]*
+- **defaultScopes**: *string[]*  
   list of scopes you will always use (see section scopes)
   Should be compatible with assurance level = low
 - **errorRedirect**: *string* (default: '/')  
@@ -228,7 +228,7 @@ after logout.
 # Available authentication methods
 
 
-| Name                  | Assurance level | context | Description                                                       |
+| Name                  | Assurance level | context    | Description                                                    |
 | --------------------- | --------------- | --------------------------------------------------------------------------- |
 | iam-aprofiel-userpass | low             | citizen    | Our default aprofiel authentication with username and password |
 | fas-citizen-bmid      | substantial     | citizen    | Belgian Mobile ID (e.g. Itsme)                                 |
