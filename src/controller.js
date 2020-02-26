@@ -4,7 +4,8 @@ import uuid from 'uuid';
 import authMethodsConfig from './authMethods';
 import createService from './service';
 import {getHost, logoutEncrypt, runHooks} from './helpers';
-
+import createDeleteSessionsHook from './hooks/deleteSessions';
+import createAssuranceLevelAndAuthMethodHook from './hooks/assuranceLevelAndAuthMethod';
 const EXPIRY_MARGIN = 5 * 60 * 1000;
 export default function createController(config) {  
   const {
@@ -20,6 +21,17 @@ export default function createController(config) {
     key: objectKey = 'user'
   } = config;
   
+  let {
+    preLogin: preLoginHooks = [],
+    preLogout: preLogoutHooks = [],
+    loginSuccess: loginSuccessHooks = [],
+    logoutSuccess: logoutSuccessHooks = [],
+  } = hooks;
+
+  loginSuccessHooks.push(createAssuranceLevelAndAuthMethodHook(config));
+  preLogoutHooks.push(createDeleteSessionsHook(config));
+
+
   const service = createService(config);
   
   function determineScopes(options) {
@@ -92,7 +104,7 @@ export default function createController(config) {
     return `${oauthHost}/v2/authorize?${qs.stringify(query)}`;
   }
 
-  function createLogoutUrl({ userId, token, redirectUri }) {
+  function createLogoutUrl({ userId, token, redirectUri, service = 'iam-aprofiel-userpass'}) {
 
     const data = JSON.stringify({
       user_id: userId,
@@ -102,9 +114,8 @@ export default function createController(config) {
 
     const query = {
       client_id: clientId,
-      service: 'astad.aprofiel.v1',
+      service,
       data: logoutEncrypt(data, clientSecret),
-      auth
     };
 
     return `${oauthHost}/v2/logout/redirect/encrypted?${qs.stringify(query)}`;
@@ -118,7 +129,7 @@ export default function createController(config) {
     req.session[`loginKey`] = stateKey;
     req.session.fromUrl = req.query.fromUrl || '/';
 
-    runHooks(hooks.preLogin, req, res, () => {
+    runHooks(preLoginHooks, req, res, () => {
       return req.session.save(() => res.redirect(url));
     });
   }
@@ -155,7 +166,7 @@ export default function createController(config) {
     req.session[objectKey] = user;
     req.session[`${objectKey}Token`] = userToken;
 
-    runHooks(hooks.loginSuccess, req, res, (error) => {
+    runHooks(loginSuccessHooks, req, res, (error) => {
       if (error) {
         console.log(error);
         return res.redirect(errorRedirect);
@@ -165,7 +176,7 @@ export default function createController(config) {
   }
 
   function logoutCallback(req, res) {
-    runHooks(hooks.logoutSuccess, req, res, () => {
+    runHooks(logoutSuccessHooks, req, res, () => {
       delete req.session[objectKey];
       delete req.session[`${objectKey}Token`];
       const tempSession = req.session;
@@ -192,10 +203,11 @@ export default function createController(config) {
       redirectUri: `${helpers.getHost(req)}${basePath}/logout/callback`,
       token: token.accessToken,
       userId:  req.session[objectKey].profile.id,
+      service: req.session.authenticationMethod
     };
 
     const logoutUrl = createLogoutUrl(logoutParams);
-    runHooks(hooks.preLogout, req, res, () => {
+    runHooks(preLogoutHooks, req, res, () => {
       req.session.save(() => res.redirect(logoutUrl));
     });
   }

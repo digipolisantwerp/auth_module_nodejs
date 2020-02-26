@@ -2,7 +2,7 @@
 import { deleteSessions } from '../sessionStore';
 import { getAccessToken } from '../accessToken';
 
-export default function getDeleteSessionsHook(options) {
+export default function createDeleteSessionsHook(options) {
   const {
     clientId,
     clientSecret,

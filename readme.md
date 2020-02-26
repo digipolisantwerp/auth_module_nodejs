@@ -77,10 +77,10 @@ The login router & the SSO middleware use the same configuration.
 - **clienSecret**: *string*  
   Client credentials from the API gateway (see section api store)
 - **consentUrl**: *string*  
-  The url of the consent api, is necessary to enable SSO
+  The url of the consent api is necessary to enable SSO
   (also see section api store).  
   (e.g. https://api-gw-a.antwerpen.be/acpaas/consent/v1)
-- **defaultScopes**: *string[]*  
+- **defaultScopes**: *string[ ]*  
   list of scopes you will always use (see section scopes)
   Should be compatible with assurance level = low
 - **errorRedirect**: *string* (default: '/')  
@@ -89,33 +89,33 @@ The login router & the SSO middleware use the same configuration.
   Hooks can be used to add custom logic to the login process. Can be used to modify your session or clean up when logging out.  
   Each hook has the same signature as express middleware  
   `(req, res, next) => {})`
-  - **preLogin**: *function[]*  
+  - **preLogin**: *function[ ]*  
     List of functions that will be executed before login
-  - **preLogout**: *function[]*  
+  - **preLogout**: *function[ ]*  
     List of functions that will be executed before logout
-  - **loginSuccess**: *function[]*  
+  - **loginSuccess**: *function[ ]*  
     List of functions that will be executed when login has succeeded
-  - **logoutSuccess**: *function[]*  
+  - **logoutSuccess**: *function[ ]*  
     List of functions that will be executed when logout has succeeded
 - **key**: *string* (default: 'user')  
-  The loggedin user will be stored on `req.session`. This property defines where the user and his accessToken will be stored.  
-  for 'user', the user will be at `req.session.user` and the accesstoken will be at `req.session.userToken` 
-- **logout** (optional, but needed for SLO with the event handler)
-  - **headerKey** *string*:  
+  The loggedin user will be stored on `req.session`. This property defines where the user and his accesstoken will be stored.  
+  For 'user', the user will be at `req.session.user` and the accesstoken will be at `req.session.userToken` 
+- **logout** (optional, but needed for single logout(SLO) with the event handler)
+  - **headerKey** *string*  
     the name of the http header where the key is located (defaults to `x-logout-token`)
   - **securityHash** *string*  
     bcrypt hash of the token that will be placed in the http header.
-  - **sessionStoreLogoutAdapter** *Function*:  
+  - **sessionStoreLogoutAdapter** *Function*  
     function that returns a promise when the sessionStore has been successfully updated and rejects otherwise. This adapter is responsible for  removing the session. [More information](#creating-and-using-sessionstorelogoutadapters)
 - **oauthHost**: *string* 
-  this is where the actual login process starts after leaving your application. This is needed to generate a redirect url to the login page  
+  This is where the actual login process starts after leaving your application. This is needed to generate a redirect url to the login page  
   (e.g.: https://api-oauth2-a.antwerpen.be)
 - **refresh**: *boolean* (default false)  
   Enables automatic refresh of the user's access token
 - **scopeGroups**: *object*  
-  scopeGroups is an object where all keys should have an array of scopes as values. These can be used to request additional scopes when logging in through the use of the query parameter `scopeGroups` ([available scopes](#available-scopes)
+  scopeGroups is an object where all keys should have an array of scopes as values. These can be used to request additional scopes when logging in through the use of the query parameter `scopeGroups` ([available scopes](#available-scopes))
 - **url**: *String* 
-  url where the user will be retrieved with after login has succeeded  
+  Url where the user will be retrieved with after login has succeeded  
   (e.g.: https://api-gw-a.antwerpen.be/acpaas/shared-identity-data/v1)
 
 
@@ -123,7 +123,7 @@ The login router & the SSO middleware use the same configuration.
 
 For this module to fully work, some configuration on the API store is required.
 
-After creating your application on the api store, you should create a contract with the Shared Identity API.
+After creating your application on the api store, you should create a contract with the Shared Identity Data API.
 
 ![Create Contract shared identity](/assets/shared-identity.png "Create contract shared identity")
 
@@ -143,12 +143,11 @@ You'll need to configure your callback path here
 normally, it will be `<protocol>://<your-domain>/auth/login/callback`
 (this module exposes this endpoint) (change the basePath if you have configured another)
 
-### Eventhandler configuration (for single log-off)
+### Eventhandler configuration (for SLO)
 Navigate to the eventhandler and go to the oauth namespace
 ![oauth namespace](/assets/eventhandler.png "oauth namespace") 
 
-Add a new wildcard subscription (
-Configure your endpoint with the correct params:
+Add a new wildcard subscription
 
 ![subscription configuration](/assets/config-event.png "subscription configuration")
 the push url is `<protocol>://<hostname>{basePath}/event/loggedout/`
@@ -192,9 +191,8 @@ If the user is not logged in the following payload is returned.
 
 ### GET {basePath}/logout
 
-Redirects the user to the logout for the specified service. This will cause the session to be destroyed on the IDP.
-
-the `fromUrl` query parameter can be used to redirect the user to a given page
+Redirects the user to the logout. This will cause the session to be destroyed on the IDP.
+The `fromUrl` query parameter can be used to redirect the user to a given page
 after logout.
 
 
@@ -228,7 +226,7 @@ after logout.
 # Available authentication methods
 
 
-| Name                  | Assurance level | context    | Description                                                    |
+| Name                  | Assurance level | Context    | Description                                                    |
 | --------------------- | --------------- | -----------|--------------------------------------------------------------- |
 | iam-aprofiel-userpass | low             | citizen    | Our default aprofiel authentication with username and password |
 | fas-citizen-bmid      | substantial     | citizen    | Belgian Mobile ID (e.g. Itsme)                                 |
@@ -242,7 +240,7 @@ after logout.
 
 # Creating and using SessionStoreLogoutAdapters
 
-Your sessionstore can be backed by your server's memory or a database system like postgres, mongodb. Because we have no generic way to query each type of store,
+Your sessionstore can be backed by your server's memory or a database system like postgreSQL, mongodb. Because we have no generic way to query each type of store,
 we introduce the concept of adapters.
 
 `function adapter(sessionKey: String, accessTokenKey: String, userInformation: Object): Promise`
@@ -251,9 +249,9 @@ An adapter should return a promise which resolves if it succeeds in altering the
 
 It has 3 arguments:
 
-- **sessionKey**: this is the key under which your user is stored in the session (this is the same as the key property in your serviceProvider, defaults to `user`). essentially,
+- **sessionKey**: This is the key under which your user is stored in the session (this is the same as the key property in your serviceProvider, defaults to `user`). essentially,
 this is the property that should be removed from your session to remove the user's information
-- **accessTokenKey**:  this is the key of the accessToken property inside your session, which should also be removed.
+- **accessTokenKey**:  this is the key of the accesstoken property inside your session, which should also be removed.
 - **userInformation**: this is an object that contains the information of the user that has been loggedout.
   - **user**: the id of the user,
   - **timestamp**: timestamp of logout. Could be used to ignore the request if the logout was long ago.
@@ -275,7 +273,7 @@ function createAdapter(options) {
   return function adapter(sessionKey, accessTokenKey, userInformation) {
     return new Promise((resolve, reject) => {
           const session = db.query({
-        [`session.${sessionKey}.id]: userInformation.user
+        [`session.${sessionKey}.id`]: userInformation.user
     });
 
      // alter record and resave or do it in one query.
@@ -286,7 +284,7 @@ function createAdapter(options) {
     })
   }
 
-  const authConfig = require(./authConfig);
+  const authConfig = require('./authConfig');
 
   const adapter = createAdapter({
     connectionString: process.env.connectionString
@@ -295,7 +293,7 @@ function createAdapter(options) {
   Object.assign(authConfig, {
     logout: {
       adapter,
-      securityHash: 'blabla
+      securityHash: 'blabla'
     }
   });
 }
