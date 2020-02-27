@@ -19,7 +19,6 @@ module.exports = {
     hooks: {
       loginSuccess: [
         (req, res, next) => {
-          console.log('hello');
           req.session.user.hookTest = 'hello';
           return next();
         }

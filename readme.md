@@ -73,15 +73,15 @@ The login router & the SSO middleware use the same configuration.
 - **basePath**: *string* (default: '/auth')  
   Each of the routes in the auth router will be prepended with this property
 - **clientId**: *string*  
-  Client credentials from the API gateway (see section api store)
+  Client credentials from the API gateway (see section [api store](#api-store-configuration))
 - **clienSecret**: *string*  
-  Client credentials from the API gateway (see section api store)
+  Client credentials from the API gateway (see section [api store](#api-store-configuration))
 - **consentUrl**: *string*  
   The url of the consent api is necessary to enable SSO
-  (also see section api store).  
+  (also see section [api store](#api-store-configuration)).  
   (e.g. https://api-gw-a.antwerpen.be/acpaas/consent/v1)
 - **defaultScopes**: *string[ ]*  
-  list of scopes you will always use (see section scopes)
+  list of scopes you will always use (see section [scopes](#available-scopes))
   Should be compatible with assurance level = low
 - **errorRedirect**: *string* (default: '/')  
   Where your application should redirect when something goes wrong during the login process.
@@ -261,7 +261,7 @@ this is the property that should be removed from your session to remove the user
 Existing adapters will be added here.
 
 ### Example of an adapter implementation 
-```
+```js
 // this is a non functional example,
 function createAdapter(options) {
   const {

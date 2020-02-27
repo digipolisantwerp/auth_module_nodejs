@@ -7,7 +7,7 @@ import {getHost, logoutEncrypt, runHooks} from './helpers';
 import createDeleteSessionsHook from './hooks/deleteSessions';
 import createAssuranceLevelAndAuthMethodHook from './hooks/assuranceLevelAndAuthMethod';
 const EXPIRY_MARGIN = 5 * 60 * 1000;
-export default function createController(config) {  
+export default function createController(config) {
   const {
     basePath = '/auth',
     clientId,
@@ -40,13 +40,12 @@ export default function createController(config) {
       return scopes.join(' ');
     }
 
-    const groups = options.scopeGroups.split(',');
+    const groups = Array.isArray(options.scopeGroups) ? scopeGroups : options.scopeGroups.split(',');
     groups.forEach(group => {
       if(scopeGroups[group]) {
-        scopes.push(...scoupeGroups[group]);
+        scopes.push(...scopeGroups[group]);
       }
     })
-
     return scopes.join(' ');
   }
 
@@ -67,10 +66,10 @@ export default function createController(config) {
 
     if(!['low', 'substantial', 'high'].includes(minimal_assurance_level)) {
       console.log(`${minimal_assurance_level} not known, fallback to lowest available`);
-      // enterprise does not have low.
       minimal_assurance_level = 'low';
     }
-
+    
+    // enterprise does not have low. 
     if(context === 'enterprise' && minimal_assurance_level === 'low') {
       minimal_assurance_level = 'substantial';
     }
@@ -80,6 +79,7 @@ export default function createController(config) {
   }
 
   function createLoginUrl(host, stateKey, options) {
+    const fallbackAssuranceLevel = options.context === 'enterprise' ? 'substantial' : 'low';
     const query = {
       client_id: clientId,
       redirect_uri: `${host}${basePath}/login/callback`,
@@ -88,7 +88,7 @@ export default function createController(config) {
       save_consent: true,
       response_type: 'code',
       auth_methods: determineAuthMethods(options),
-      minimal_assurance_level: options.minimal_assurance_level || 'low'
+      minimal_assurance_level: options.minimal_assurance_level || fallbackAssuranceLevel
     }
 
     if (options.lng) {
@@ -125,10 +125,8 @@ export default function createController(config) {
     const host = getHost(req);
     const stateKey = uuid.v4();
     const url = createLoginUrl(host, stateKey, req.query);
-    console.log(url);
     req.session[`loginKey`] = stateKey;
     req.session.fromUrl = req.query.fromUrl || '/';
-
     runHooks(preLoginHooks, req, res, () => {
       return req.session.save(() => res.redirect(url));
     });
@@ -162,17 +160,24 @@ export default function createController(config) {
     }
 
     delete req.session[`loginKey`];
-    const {user, userToken} = await service.loginUser(req.query.code);
-    req.session[objectKey] = user;
-    req.session[`${objectKey}Token`] = userToken;
 
-    runHooks(loginSuccessHooks, req, res, (error) => {
-      if (error) {
-        console.log(error);
-        return res.redirect(errorRedirect);
-      }
-      req.session.save(() => res.redirect(req.session.fromUrl || '/'));
-    });
+    try {
+      const { user, userToken} = await service.loginUser(req.query.code);
+      req.session[objectKey] = user;
+      req.session[`${objectKey}Token`] = userToken;
+  
+      runHooks(loginSuccessHooks, req, res, (error) => {
+        if (error) {
+          console.log(error);
+          return res.redirect(errorRedirect);
+        }
+        req.session.save(() => res.redirect(req.session.fromUrl || '/'));
+      });
+    } catch (err) {
+      console.log('error during logincallback', err);
+      return res.redirect(errorRedirect);
+    }
+ 
   }
 
   function logoutCallback(req, res) {
@@ -198,21 +203,19 @@ export default function createController(config) {
     req.session.logoutFromUrl = logoutFromUrl;
     // used to prevent eventhandler from deleting this application
     req.session.isLogoutOrigin = true;
-
     const logoutParams = {
-      redirectUri: `${helpers.getHost(req)}${basePath}/logout/callback`,
+      redirectUri: `${getHost(req)}${basePath}/logout/callback`,
       token: token.accessToken,
       userId:  req.session[objectKey].profile.id,
-      service: req.session.authenticationMethod
+      service: req.session[objectKey].authenticationMethod
     };
-
     const logoutUrl = createLogoutUrl(logoutParams);
     runHooks(preLogoutHooks, req, res, () => {
       req.session.save(() => res.redirect(logoutUrl));
     });
   }
 
-  function loggedoutEvent(req, res) {
+  async function loggedoutEvent(req, res) {
     const {
       headerKey = 'x-logout-token',
       securityHash = '',
@@ -224,15 +227,18 @@ export default function createController(config) {
     if (!adapter) {
       return res.sendStatus(200);
     }
-
     if (!bcrypt.compareSync(token, securityHash)) {
       return res.sendStatus(401);
     }
 
     const accessTokenKey = `${objectKey}Token`;
-    return adapter(sessionKey, accessTokenKey, req.body)
-      .then(() => res.sendStatus(200))
-      .catch((err) => res.status(500).json(err));
+    try {
+      await adapter(objectKey, accessTokenKey, req.body);
+      return res.sendStatus(200);
+    } catch (err) {
+      console.log('error during logout event', err);
+      return res.status(500).json(err);
+    }
   }
 
   async function refreshToken(req, res, next) {
@@ -243,10 +249,14 @@ export default function createController(config) {
 
     const tokenKey = `${objectKey}Token`;
     const token = req.session[tokenKey];
+    if(!token) {
+      return next();
+    }
 
     if (new Date(token.expiresIn) >= new Date(Date.now() + EXPIRY_MARGIN)) {
       return next();
     }
+  
     const newToken = await service.refresh(token);
     req.session = Object.assign(req.session, { [tokenKey]: newToken });
     return req.session.save(() => next());

@@ -38,7 +38,6 @@ export default function sso(options) {
 
     const cookies = cookieParser.parse(cookieHeader);
     const ssoKey = cookies[ssoCookieName];
-    console.log('ssoKey', ssoKey);
     if (!ssoKey) {
       return next();
     }
@@ -46,25 +45,21 @@ export default function sso(options) {
     const user = req.session[key] || {};
     const assuranceLevel = user.assuranceLevel || 'none';
 
-
-    if(assuranceLevel === 'high') {
+    if (assuranceLevel === 'high') {
       return next();
     }
 
     try {
-      console.log('consentUrl', consentUrl);
       const accessToken = await getAccessToken(clientId, clientSecret, consentUrl);
-      console.log('has accesstoken', accessToken);
       const { sessions = [] } = await getSessions(consentUrl, ssoKey, accessToken);
-
       if (!sessions || sessions.length === 0) {
         return next();
       }
 
       const baseRedirectUrl = `${loginPath}?fromUrl=${getFromUrl(req, port)}`;
-
       const highSession = getSessionWithAssuranceLevel(sessions, 'high');
-      if(highSession) {
+  
+      if (highSession) {
         return res.redirect(`${baseRedirectUrl}&auth_methods=${highSession.authenticationMethod}`);
       }
 
@@ -81,13 +76,13 @@ export default function sso(options) {
         return next();
       }
 
-      if (getSessionWithAssuranceLevel(sessions, 'low')) {
-        return res.redirect(`${baseRedirectUrl}&auth_methods=iam-aprofiel-userpass`);
+      const lowSession = getSessionWithAssuranceLevel(sessions, 'low')
+      if (lowSession) {
+        return res.redirect(`${baseRedirectUrl}&auth_methods=${lowSession.authenticationMethod}`);
       }
 
     } catch (exception) {
       console.log(exception);
-      console.log(exception.cause);
     }
 
     return next();

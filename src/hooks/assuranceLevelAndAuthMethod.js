@@ -1,5 +1,6 @@
-import cookieParser from 'cookieparser';
+import cookieParser from 'cookie';
 import { getSessions } from '../sessionStore';
+import { getAccessToken } from '../accessToken';
 
 
 function getHighestAssuranceLevelSession(sessions = []) {
@@ -22,15 +23,16 @@ function getHighestAssuranceLevelSession(sessions = []) {
 }
 
 
-export default function createAssuranceLevelAndAuthMethodHook({key = 'user', ssoCookieName = 'dgp.auth.ssokey', consentUrl}) {
+export default function createAssuranceLevelAndAuthMethodHook({
+  clientId,
+  clientSecret,
+  consentUrl,
+  key = 'user', 
+  ssoCookieName = 'dgp.auth.ssokey',
+ }) {
+
   return async (req, res, next) => {
-    const { accessToken = false } = req.session[`${key}Token`] || {};
-    if (!accessToken) {
-      return next();
-    }
-
     const cookieHeader = req.get('cookie');
-
     if (!cookieHeader) {
       return next();
     }
@@ -43,8 +45,9 @@ export default function createAssuranceLevelAndAuthMethodHook({key = 'user', sso
     }
 
     try {
-      const { sessions = [] } = await getSessions(consentUrl, ssoKey, token.accessToken);
-      const {assuranceLevel, authenticationMethod } = getHighestAssuranceLevelSession(sessions);
+      const accessToken = await getAccessToken(clientId, clientSecret, consentUrl);
+      const { sessions = [] } = await getSessions(consentUrl, ssoKey, accessToken);
+      const { assuranceLevel, authenticationMethod } = getHighestAssuranceLevelSession(sessions);
       req.session[key].assuranceLevel = assuranceLevel;
       req.session[key].authenticationMethod = authenticationMethod;
 

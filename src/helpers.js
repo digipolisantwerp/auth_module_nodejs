@@ -33,27 +33,3 @@ export function runHooks(configuredHook, req, res, next) {
 
   async.series(hooks, next);
 }
-
-
-export function parseBody(response) {
-  const contentType = response.headers.get('content-type');
-
-  if (!contentType) {
-    return Promise.resolve();
-  }
-
-  if (contentType.includes('json')) {
-    return response.json();
-  }
-
-  if (contentType.includes('text')) {
-    return response.text();
-  }
-
-  if (contentType.includes('form-data') >= 0) {
-    return response.formData();
-  }
-
-
-  return response;
-}

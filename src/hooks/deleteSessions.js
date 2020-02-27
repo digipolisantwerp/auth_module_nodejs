@@ -1,4 +1,4 @@
-
+import cookieParser from 'cookie';
 import { deleteSessions } from '../sessionStore';
 import { getAccessToken } from '../accessToken';
 
@@ -6,8 +6,8 @@ export default function createDeleteSessionsHook(options) {
   const {
     clientId,
     clientSecret,
-    url,
-    consentUrl
+    consentUrl,
+    ssoCookieName = 'dgp.auth.ssokey',
   } = options;
   return async (req, res, next) => {
     const cookieHeader = req.get('cookie');
@@ -23,9 +23,12 @@ export default function createDeleteSessionsHook(options) {
     }
 
     try {
-      const accessToken = await getAccessToken(clientId, clientSecret, url);
+      console.log(clientId, clientSecret);
+      const accessToken = await getAccessToken(clientId, clientSecret, consentUrl);
+      console.log('accesstoken', accessToken);
       await deleteSessions(consentUrl, ssoKey, accessToken);
     } catch (exception) {
+      console.log('the exception is here');
       console.log(exception);
     }
 

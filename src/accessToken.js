@@ -22,7 +22,7 @@ function getNewAccessToken(clientId, clientSecret, url) {
 
       return resolve({
         accessToken,
-        expiry: Date.now() + (results.expires_in * 1000) - EXPIRY_MARGIN,
+        expiresIn: Date.now() + (results.expires_in * 1000) - EXPIRY_MARGIN,
       });
     });
   });
@@ -47,7 +47,7 @@ export function getUserTokenFromAuthorizationCode(code, clientId, clientSecret, 
   })
 }
 
-export function refreshToken(token) {
+export function refreshToken(token, clientId, clientSecret, url) {
   const oauth2 = new OAuth2(clientId, clientSecret, url, null, ACCESS_TOKEN_PATH);
   return new Promise((resolve, reject) => {
     oauth2.getOAuthAccessToken(
@@ -58,7 +58,7 @@ export function refreshToken(token) {
           return reject(err);
         }
 
-        const userToken = creatUserToken(results, refreshToken);
+        const userToken = createUserToken(results, refreshToken);
         return resolve(userToken)
       });
   });

@@ -5,10 +5,10 @@ const uuid = require('uuid');
 
 
 const mockExpress = require('express')();
-const createRouter = require('../src/router');
-const correctConfig = require('./mocks/correctConfig');
+import createRouter from '../src/router';
+import correctConfig from './mocks/correctConfig';
 
-describe('test #loggedout', function onDescribe() {
+describe('POST /event/loggedout', function onDescribe() {
   const adapterPromiseResolve = () => {
     return new Promise((resolve) => {
       setTimeout(() => resolve(), 1000);
@@ -21,36 +21,11 @@ describe('test #loggedout', function onDescribe() {
     })
   };
 
-
-  it('should 404 when service provider is not known', (done) => {
-    const router = createRouter(mockExpress, correctConfig);
-
-    const req = reqres.req({
-      url: '/auth/event/loggedout/blaprofiel',
-      method: 'POST'
-    });
-
-    const res = reqres.res({});
-
-    res.on('end', () => {
-      assert(
-        res.sendStatus.calledWith(404)
-      );
-
-      return done();
-    });
-    try {
-      router.handle(req, res);
-    } catch (e) {
-      console.log('e', e.stack);
-    }
-  });
-
   it('should 200 when no suitable adapter present', (done) => {
     const router = createRouter(mockExpress, correctConfig);
 
     const req = reqres.req({
-      url: '/auth/event/loggedout/aprofiel',
+      url: '/auth/event/loggedout',
       method: 'POST'
     });
 
@@ -82,7 +57,7 @@ describe('test #loggedout', function onDescribe() {
     const router = createRouter(mockExpress, config);
 
     const req = reqres.req({
-      url: '/auth/event/loggedout/aprofiel',
+      url: '/auth/event/loggedout',
       method: 'POST',
       headers: {
         [config.logout.headerKey] : 'nonematching'
@@ -119,7 +94,7 @@ describe('test #loggedout', function onDescribe() {
     const router = createRouter(mockExpress, config);
 
     const req = reqres.req({
-      url: '/auth/event/loggedout/aprofiel',
+      url: '/auth/event/loggedout',
       method: 'POST',
       headers: {
         [config.logout.headerKey] : token
@@ -157,7 +132,7 @@ describe('test #loggedout', function onDescribe() {
     const router = createRouter(mockExpress, config);
 
     const req = reqres.req({
-      url: '/auth/event/loggedout/aprofiel',
+      url: '/auth/event/loggedout',
       method: 'POST',
       headers: {
         [config.logout.headerKey] : token

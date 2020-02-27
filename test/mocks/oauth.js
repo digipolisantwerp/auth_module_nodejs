@@ -7,9 +7,6 @@ mockery.enable({
   warnOnUnregistered: false
 });
 
-export function getCreatedInstance() {
-  return createdInstance;
-}
 
 class OAuth2 {
   constructor(clientId, clientSecret, apiHost, irr1, endpoint) {
@@ -17,7 +14,6 @@ class OAuth2 {
     this.clientSecret = clientSecret;
     this.apiHost = apiHost;
     this.endpoint = endpoint;
-    createdInstance = this;
   }
 
   getOAuthAccessToken(code, options, callback) {
@@ -25,12 +21,6 @@ class OAuth2 {
     this.accessTokenOptions = options;
     const token = uuid.v4();
     const refresh = uuid.v4();
-    if(errorToReturn) {
-      callback(errorToReturn);
-      errorToReturn = false;
-      return;
-    }
-
     setTimeout(() => callback(null, token, refresh, {
       access_token: token,
       expires_in: 2 * 60 * 60
