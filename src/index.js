@@ -1,5 +1,5 @@
 import createRouter from './router';
-import CreateSsoMiddleware from './middleware/sso';
+import createSsoMiddleware from './middleware/sso';
 
 
 const REQUIRED_CONFIG_PROPS = [
@@ -22,9 +22,9 @@ const toExport =  {
     validateConfig(config);
     return createRouter(app, config);
   },
-  CreateSsoMiddleware: (config) => {
+  createSsoMiddleware: (config) => {
     validateConfig(config);
-    return CreateSsoMiddleware(config);
+    return createSsoMiddleware(config);
   }
 };
 
