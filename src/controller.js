@@ -13,7 +13,7 @@ export default function createController(config) {
     clientId,
     clientSecret,
     oauthHost,
-    defaultScopes = 'username',
+    defaultScopes = ['aprofiel.username'],
     scopeGroups = {},
     refresh = false,
     hooks = {},
