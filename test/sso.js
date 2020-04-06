@@ -210,7 +210,7 @@ describe('test sso middleware', function onDescribe() {
     });
 
     res.on('end', () => {
-      assert(redirectValue.includes(lowSession.authenticationMethod));
+      assert(redirectValue.includes('iam-aprofiel-userpass'));
       done();
     });
 

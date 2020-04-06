@@ -78,7 +78,7 @@ export default function sso(options) {
 
       const lowSession = getSessionWithAssuranceLevel(sessions, 'low')
       if (lowSession) {
-        return res.redirect(`${baseRedirectUrl}&auth_methods=${lowSession.authenticationMethod}`);
+        return res.redirect(`${baseRedirectUrl}&auth_methods=iam-aprofiel-userpass`);
       }
 
     } catch (exception) {
