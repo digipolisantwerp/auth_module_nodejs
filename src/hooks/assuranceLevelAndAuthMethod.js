@@ -15,7 +15,7 @@ function getHighestAssuranceLevelSession(sessions = []) {
     }
 
     if (sessions[i].assuranceLevel === 'substantial') {
-      highestAssuranceLevelSession = session[i];
+      highestAssuranceLevelSession = sessions[i];
     }
   }
 
