@@ -75,7 +75,6 @@ export default function createController(config) {
     }
 
     return authMethodsConfig[context][minimal_assurance_level].join(',');
-    
   }
 
   function createLoginUrl(host, stateKey, options) {
@@ -104,7 +103,7 @@ export default function createController(config) {
     return `${oauthHost}/v2/authorize?${qs.stringify(query)}`;
   }
 
-  function createLogoutUrl({ userId, token, redirectUri, service = 'iam-aprofiel-userpass'}) {
+  function createLogoutUrl({ userId, token, redirectUri, authenticationMethod = 'iam-aprofiel-userpass'}) {
 
     const data = JSON.stringify({
       user_id: userId,
@@ -114,7 +113,7 @@ export default function createController(config) {
 
     const query = {
       client_id: clientId,
-      service,
+      authenticationMethod,
       data: logoutEncrypt(data, clientSecret),
     };
 
@@ -207,7 +206,7 @@ export default function createController(config) {
       redirectUri: `${getHost(req)}${basePath}/logout/callback`,
       token: token.accessToken,
       userId:  req.session[objectKey].profile.id,
-      service: req.session[objectKey].authenticationMethod
+      authenticationMethod: req.session[objectKey].authenticationMethod
     };
     const logoutUrl = createLogoutUrl(logoutParams);
     runHooks(preLogoutHooks, req, res, () => {

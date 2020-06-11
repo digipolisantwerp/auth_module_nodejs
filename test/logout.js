@@ -153,7 +153,7 @@ describe('GET /logout', function onDescribe() {
     res.redirect.bind(res);
 
     res.on('end', () => {
-      assert(redirectUrl.includes('service=iam-user-pass'));
+      assert(redirectUrl.includes('authenticationMethod=iam-user-pass'));
       return done();
     });
 

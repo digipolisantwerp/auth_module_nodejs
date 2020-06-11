@@ -163,15 +163,36 @@ You should add a custom header which corresponds to the headerKey in your logout
 This endpoint can be used to login. There are some query parameters available to control in which ways the user can login and which scopes the user can use.
 
 #### Query parameters
+
 - **scopeGroups**  
   comma seperated list of the keys of the scopeGroups configured in your configuration. If none are given, only the default scopes from the configration are requested.
+
 - **minimal_assurance_level** (default: low for context citizen, substantial for context enterprise)  
-   possible values: low, substantial, high
-  determines which authentication methods are available to the user (see [Available authentication methods](available-authentication-methods))
+   possible values: low, substantial, high   
+  Determines which authentication methods are available to the user.   
+  If specified, only authentication methods corresponding with the specified assurance level will be available for the user to log in with. See [Available authentication methods](available-authentication-methods) for info about which authentication methods correspond to which assurance levels.
+
 - **fromUrl** (default /)  
-  Where the user should be redirected if the login process is successfull
+  Where the user should be redirected if the login process is successful.
+
 - **context** (enterprise or citizen) (default citizen)  
-  if the user should login as a citizen or as an enterprise user. Login in with context enterprise enables the application to fetch additional roles at the authz api with the access token of the user.
+  Specifies whether the user should log in as a citizen or as an enterprise user. Logging in with context enterprise enables the application to fetch additional enterprise related roles from the authz api with the access token of the user.
+
+- **auth_methods**  
+  A comma separated list of the auth methods to allow the user to log in with. 
+  This limits the list of authentication methods provided to the user by the minimal_assurance_level parameter (if specified) and the context.  
+
+  Note that you cannot provide conflicting auth methods with those determined by either the minimal_assurance_level parameter or the context parameter.  
+  
+  e.g.:
+  - auth_methods=iam-aprofiel-userpass&context=enterprise   
+   (enterprise context requires a minimal assurance level of substantial, iam-aprofiel-userpass has an assurance level of low)
+  
+  - auth_methods=iam-aprofiel-userpass&minimal_assurance_level=high   
+   (iam-aprofiel-userpass has an assurance level of low, which is not sufficient for the specified minimal assurance level)
+
+  See [Available authentication methods](available-authentication-methods) for a comprehensive list of available authentication methods.
+
 ### GET {basePath}/isloggedin
 
 The `isloggedin` endpoint can be used to check if the user is currently loggedIn
