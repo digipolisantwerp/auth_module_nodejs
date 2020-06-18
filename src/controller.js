@@ -29,7 +29,7 @@ export default function createController(config) {
   } = hooks;
 
   loginSuccessHooks.push(createAssuranceLevelAndAuthMethodHook(config));
-  preLogoutHooks.push(createDeleteSessionsHook(config));
+  logoutSuccessHooks.push(createDeleteSessionsHook(config));
 
 
   const service = createService(config);

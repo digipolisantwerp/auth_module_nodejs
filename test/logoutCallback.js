@@ -19,7 +19,7 @@ describe('GET /logout/callback', function onDescribe() {
       query: {
         state: '1234'
       },
-      get: () => host,
+      get: () => undefined,
       session: {
         save: (cb) => cb(),
         user: {},
@@ -59,7 +59,7 @@ describe('GET /logout/callback', function onDescribe() {
       query: {
         state: '1234'
       },
-      get: () => host,
+      get: () => undefined,
       session: {
         save: (cb) => cb(),
         user: {},
