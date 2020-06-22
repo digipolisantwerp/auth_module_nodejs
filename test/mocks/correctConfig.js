@@ -1,50 +1,20 @@
-'use strict';
-const uuid = require('uuid');
-
-module.exports = {
-  oauthHost: 'https://api-oauth2-o.antwerpen.be',
-  apiHost: 'https://api-gw-o.antwerpen.be',
-  errorRedirect: '/',
+const config = {
+  clientId: 'client-id',
+  clientSecret: 'client-secret',
+  oauthHost: 'https://api-oauth2-a.antwerpen.be',
   basePath: '/auth',
-  auth: {
-    clientId: 'your-client-id',
-    clientSecret: 'your-client-secret',
-    apiKey: 'my-api-string', // required if fetchPermissions == true
+  defaultScopes: [
+    'astad.aprofiel.v1.name',
+    'astad.aprofiel.v1.avatar',
+    'astad.aprofiel.v1.email',
+  ],
+  scopeGroups: {
+    address: ['crspersoon.housenumber', 'crspersoon.streetname'],
+    personal: ['crspersoon.nationalnumber', 'crspersoon.nationality']
   },
-  serviceProviders: {
-    aprofiel: {
-      scopes: '',
-      url: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/v1/me',
-      identifier:'astad.aprofiel.v1',
-      tokenUrl: 'https://api-gw-o.antwerpen.be//astad/aprofiel/v1/oauth2/token',
-      hooks: {
-        loginSuccess: []
-      },
-    },
-    mprofiel: {
-      scopes: 'all',
-      key: 'mprofiel',
-      url: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/v1/me',
-      identifier: 'astad.mprofiel.v1',
-      fetchPermissions: false,
-      applicationName: 'this-is-my-app',
-      tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
-      hooks: {
-        loginSuccess: []
-      }
-    },
-    mprofielso: {
-      scopes: 'all',
-      key: 'mprofielso',
-      url: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/v1/me',
-      identifier: 'astad.mprofiel.v1',
-      fetchPermissions: false,
-      applicationName: 'this-is-my-app',
-      tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
-      authenticationType: 'so',
-      hooks: {
-        loginSuccess: []
-      }
-    }
-  }
-}
+  url: 'https://api-gw-a.antwerpen.be/acpaas/shared-identity-data/v1',
+  consentUrl: 'https://api-gw-a.antwerpen.be/acpaas/consent/v1',
+  refresh: true
+};
+
+export default config;

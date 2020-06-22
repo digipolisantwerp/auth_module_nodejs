@@ -2,28 +2,14 @@
 const assert = require('assert');
 const reqres = require('reqres');
 
-const correctConfig = require('./mocks/correctConfig');
-const createController = require('../lib/controller');
+
+import correctConfig from './mocks/correctConfig';
+import createController from '../src/controller'
 require('./mocks/oauth');
 
-const copy = (o) => {
-  let output;
-  let v;
-  let key;
-
-  output = Array.isArray(o) ? [] : {};
-  for (key in o) {
-      v = o[key];
-      output[key] = (typeof v === "object") ? copy(v) : v;
-  }
-
-  return output;
-}
-
-describe('test refresh', function onDescribe() {
+describe('test #refresh middleware', function onDescribe() {
   it('refresh() should continue when no token was found on the session', function onIt(done) {
-    const config = copy(correctConfig);
-    const controller = createController(config);
+    const controller = createController(correctConfig);
     const req = reqres.req({
       session: {
       },
@@ -31,17 +17,15 @@ describe('test refresh', function onDescribe() {
     });
     const res = reqres.req({});
 
-    config.refresh = true;
 
-    controller.refresh(req, res, (err) => {
+    controller.refreshToken(req, res, (err) => {
       assert(!err);
       done();
     });
   });
 
   it('refresh() should call the refresh service and check if the token is expired', function onIt(done) {
-    const config = copy(correctConfig);
-    const controller = createController(config);
+    const controller = createController(correctConfig);
     const req = reqres.req({
       session: {
         userToken: {
@@ -54,21 +38,18 @@ describe('test refresh', function onDescribe() {
     });
     const res = reqres.req({});
 
-    config.refresh = true;
 
-    controller.refresh(req, res, (err) => {
+    controller.refreshToken(req, res, (err) => {
       assert(!err);
       done();
     });
   });
 
   it('refresh() should call the refresh service and refresh the token without errors', function onIt(done) {
-    const config = copy(correctConfig);
-    const controller = createController(config);
+    const controller = createController(correctConfig);
     const req = reqres.req({
       session: {
-        currentServiceProvider: 'aprofiel',
-        token: {
+        userToken: {
           accessToken: "abc",
           expiresIn: new Date(new Date().getTime() + 1000)
         },
@@ -77,12 +58,9 @@ describe('test refresh', function onDescribe() {
     });
     const res = reqres.res({});
 
-    config.auth.service = "aprofiel";
-    config.refresh = true;
-
-    controller.refresh(req, res, (err) => {
+    controller.refreshToken(req, res, (err) => {
       assert(!err);
-      assert(req.session.token.expiresIn > new Date());
+      assert(req.session.userToken.expiresIn > new Date());
       done();
     });
   });

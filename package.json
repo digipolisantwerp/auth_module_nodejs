@@ -1,10 +1,13 @@
 {
   "name": "@digipolis/auth",
-  "version": "1.5.0",
+  "version": "2.0.0-5",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.es.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test nyc --reporter=lcov mocha -- -R spec -t 15000 --recursive --slow 2"
+    "build": "npx rollup -c",
+    "prepublish": "npm run build",
+    "test": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text mocha"
   },
   "repository": {
     "type": "git",
@@ -16,19 +19,25 @@
   "dependencies": {
     "async": "~2.5.0",
     "bcryptjs": "^2.4.3",
+    "cookie": "^0.4.0",
     "express": "^4.16.4",
-    "lodash.get": "~4.4.2",
+    "isomorphic-fetch": "^2.2.1",
     "oauth": "~0.9.15",
-    "request": "^2.88.0",
-    "url-parse": "^1.4.3",
     "uuid": "~3.1.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
+    "@babel/register": "^7.8.3",
+    "@istanbuljs/nyc-config-babel": "^3.0.0",
+    "@rollup/plugin-node-resolve": "^7.1.1",
+    "babel-plugin-istanbul": "^6.0.0",
     "cross-env": "~5.2.0",
     "mocha": "^6.2.0",
     "mockery": "~2.1.0",
     "nock": "~9.0.14",
     "nyc": "^14.1.1",
-    "reqres": "~1.3.0"
+    "reqres": "~1.3.0",
+    "rollup-plugin-babel": "^4.3.3"
   }
 }

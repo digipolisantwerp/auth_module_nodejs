@@ -3,31 +3,10 @@ const assert = require('assert');
 const mockExpress = require('express')();
 const reqres = require('reqres');
 
-const createRouter = require('../lib/router');
-const correctConfig = require('./mocks/correctConfig');
+import createRouter from '../src/router';
+import correctConfig from './mocks/correctConfig';
 
-describe('GET /login/:serviceProvider', function onDescribe() {
-  it('should 404 if provider is not known', function onIt(done) {
-    const router = createRouter(mockExpress, correctConfig);
-
-    const req = reqres.req({
-      url: '/auth/login/dprofile, ',
-      session: {
-      }
-    });
-
-    const res = reqres.res({
-        header: () => {}
-    });
-
-    res.on('end', () => {
-      assert(res.sendStatus.calledWith(404));
-      return done();
-    });
-
-    router.handle(req, res);
-
-  });
+describe('GET /login', function onDescribe() {
 
   it('should redirect to login', function onIt(done) {
     const router = createRouter(mockExpress, correctConfig);
@@ -35,37 +14,35 @@ describe('GET /login/:serviceProvider', function onDescribe() {
     const fromUrl = 'test.com/d';
     let redirectUrl = false;
     const req = reqres.req({
-      url: '/auth/login/aprofiel?fromUrl',
+      url: '/auth/login',
       query: {
         fromUrl
       },
       get: () => host,
       session: {
-        save: (cb) => cb(),
+        save: (cb) => {
+          cb()
+        },
       },
     });
     const res = reqres.res({
-        header: () => {},
-      redirect(val) {
-        redirectUrl = val
+      header: () => { },
+      redirect: function (val) {
+        redirectUrl = val;
         this.emit('end');
       }
     });
 
 
-    res.on('end', () => {
+    res.on('end', function onEnd() {
       assert(redirectUrl);
       assert(req.session.fromUrl === fromUrl);
       assert(redirectUrl.includes(encodeURIComponent(host)));
-      assert(redirectUrl.includes(encodeURIComponent(correctConfig.auth.clientId)));
-      assert(redirectUrl.includes(encodeURIComponent('aprofiel_')));
+      assert(redirectUrl.includes(encodeURIComponent(correctConfig.clientId)));
+      const scopes = correctConfig.defaultScopes.join(' ');
       assert(
         redirectUrl
-          .includes(encodeURIComponent(correctConfig.serviceProviders.aprofiel.identifier))
-      );
-      assert(
-        redirectUrl
-          .includes(encodeURIComponent(correctConfig.serviceProviders.aprofiel.scopes))
+          .includes(encodeURIComponent(scopes))
       );
       return done();
     });
@@ -80,7 +57,7 @@ describe('GET /login/:serviceProvider', function onDescribe() {
     const lng = 'de';
     let redirectUrl = false;
     const req = reqres.req({
-      url: '/auth/login/aprofiel?fromUrl',
+      url: '/auth/login',
       query: {
         fromUrl,
         lng
@@ -91,12 +68,13 @@ describe('GET /login/:serviceProvider', function onDescribe() {
       },
     });
     const res = reqres.res({
-      header: () => {},
+      header: () => { },
       redirect(val) {
         redirectUrl = val
         this.emit('end');
       }
     });
+
     res.redirect.bind(res);
 
     res.on('end', () => {
@@ -108,26 +86,21 @@ describe('GET /login/:serviceProvider', function onDescribe() {
     router.handle(req, res);
   });
 
-  it('should supply authenticationType if configured', function onIt(done) {
-    const authenticationType = 'so';
-    const soProvider = Object.assign({}, correctConfig.serviceProviders.mprofiel, {
-      authenticationType
+  it('should redirect to login with extra scopes if scopeGroups query param is supplied', function onIt(done) {
+    const config = Object.assign({}, correctConfig, {
+      scopeGroups: {
+        address: ['crspersoon.housenumber', 'crspersoon.streetname'],
+        personal: ['crspersoon.nationalnumber', 'crspersoon.nationality'],
+      },
     });
 
-    const configuration = Object.assign({}, correctConfig, {
-      serviceProviders: {
-        'mprofiel-so': soProvider
-      }
-    });
-    const router = createRouter(mockExpress, configuration);
+    const router = createRouter(mockExpress,  config);
     const host = 'http://www.app.com';
-    const fromUrl = 'test.com/d';
-    const lng = 'de';
     let redirectUrl = false;
     const req = reqres.req({
-      url: '/auth/login/mprofiel-so?fromUrl',
+      url: '/auth/login',
       query: {
-        fromUrl,
+        scopeGroups: 'address,personal'
       },
       get: () => host,
       session: {
@@ -135,20 +108,202 @@ describe('GET /login/:serviceProvider', function onDescribe() {
       },
     });
     const res = reqres.res({
-      header: () => {},
+      header: () => { },
       redirect(val) {
         redirectUrl = val
         this.emit('end');
       }
     });
+
     res.redirect.bind(res);
 
     res.on('end', () => {
       assert(redirectUrl);
-      assert(redirectUrl.includes(`auth_type=${authenticationType}`));
+
+      const scopes = config.scopeGroups.address
+      .concat(config.scopeGroups.personal)
+      .join(' ');
+      assert(
+        redirectUrl
+          .includes(encodeURIComponent(scopes))
+      );
       return done();
     });
 
     router.handle(req, res);
+
+  });
+
+  describe('minimal_assurance_level query parameter', function onDescribe() {
+    it('no query param should result in low and associated auth methods(no context)', function onIt(done) {
+      const router = createRouter(mockExpress, correctConfig);
+      const host = 'http://www.app.com';
+      let redirectUrl = false;
+      const req = reqres.req({
+        url: '/auth/login',
+        query: {
+
+        },
+        get: () => host,
+        session: {
+          save: (cb) => cb(),
+        },
+      });
+      const res = reqres.res({
+        header: () => { },
+        redirect(val) {
+          redirectUrl = val
+          this.emit('end');
+        }
+      });
+  
+      res.redirect.bind(res);
+  
+      res.on('end', () => {
+        assert(redirectUrl);
+        assert(redirectUrl.includes('level=low'));
+        assert(redirectUrl.includes('iam-aprofiel-userpass'));
+        return done();
+      });
+  
+      router.handle(req, res);
+    });
+
+    it('no query param and context enterprise should result in substantial', function onIt(done) {
+      const router = createRouter(mockExpress, correctConfig);
+      const host = 'http://www.app.com';
+      let redirectUrl = false;
+      const req = reqres.req({
+        url: '/auth/login',
+        query: {
+          context: 'enterprise'
+        },
+        get: () => host,
+        session: {
+          save: (cb) => cb(),
+        },
+      });
+      const res = reqres.res({
+        header: () => { },
+        redirect(val) {
+          redirectUrl = val
+          this.emit('end');
+        }
+      });
+  
+      res.redirect.bind(res);
+  
+      res.on('end', () => {
+        assert(redirectUrl);
+        assert(redirectUrl.includes('level=substantial'));
+        assert(!redirectUrl.includes('iam-aprofiel-userpass'));
+        return done();
+      });
+  
+      router.handle(req, res);
+    });
+
+    it('substantial query param should result in associated auth methods', function onIt(done) {
+      const router = createRouter(mockExpress, correctConfig);
+      const host = 'http://www.app.com';
+      let redirectUrl = false;
+      const req = reqres.req({
+        url: '/auth/login',
+        query: {
+          minimal_assurance_level: 'substantial'
+        },
+        get: () => host,
+        session: {
+          save: (cb) => cb(),
+        },
+      });
+      const res = reqres.res({
+        header: () => { },
+        redirect(val) {
+          redirectUrl = val
+          this.emit('end');
+        }
+      });
+  
+      res.redirect.bind(res);
+  
+      res.on('end', () => {
+        assert(redirectUrl);
+        assert(redirectUrl.includes('level=substantial'));
+        assert(!redirectUrl.includes('iam-aprofiel-userpass'));
+        return done();
+      });
+  
+      router.handle(req, res);
+    });
+
+
+    it('high query param should result in associated auth methods', function onIt(done) {
+      const router = createRouter(mockExpress, correctConfig);
+      const host = 'http://www.app.com';
+      let redirectUrl = false;
+      const req = reqres.req({
+        url: '/auth/login',
+        query: {
+          minimal_assurance_level: 'high'
+        },
+        get: () => host,
+        session: {
+          save: (cb) => cb(),
+        },
+      });
+      const res = reqres.res({
+        header: () => { },
+        redirect(val) {
+          redirectUrl = val
+          this.emit('end');
+        }
+      });
+  
+      res.redirect.bind(res);
+  
+      res.on('end', () => {
+        assert(redirectUrl);
+        assert(redirectUrl.includes('level=high'));
+        assert(redirectUrl.includes('fas-citizen-eid'));
+        return done();
+      });
+
+      router.handle(req, res);
+    });
+
+    it('high and context enterprise should result in associated auth methods', function onIt(done) {
+      const router = createRouter(mockExpress, correctConfig);
+      const host = 'http://www.app.com';
+      let redirectUrl = false;
+      const req = reqres.req({
+        url: '/auth/login',
+        query: {
+          minimal_assurance_level: 'high',
+          context: 'enterprise'
+        },
+        get: () => host,
+        session: {
+          save: (cb) => cb(),
+        },
+      });
+      const res = reqres.res({
+        header: () => { },
+        redirect(val) {
+          redirectUrl = val
+          this.emit('end');
+        }
+      });
+  
+      res.redirect.bind(res);
+  
+      res.on('end', () => {
+        assert(redirectUrl);
+        assert(redirectUrl.includes('level=high'));
+        assert(redirectUrl.includes('fas-enterprise-eid'));
+        return done();
+      });
+      router.handle(req, res);
+    });
   });
 });

@@ -1,13 +1,14 @@
 'use strict';
 
+import createRouter from '../src/router';
+import correctConfig from './mocks/correctConfig';
+
 const mockExpress = require('express')();
-const createRouter = require('../lib/router');
-const correctConfig = require('./mocks/correctConfig');
 const assert = require('assert');
 const reqres = require('reqres');
 const user = require('./mocks/user.json');
 
-describe('test #isLoggedin', function onDescribe() {
+describe('GET /isLoggedin', function onDescribe() {
   it('#isLoggedin() should return user of session', function onIt(done) {
     const router = createRouter(mockExpress, correctConfig);
 
@@ -28,7 +29,6 @@ describe('test #isLoggedin', function onDescribe() {
       assert(
         res.json.calledWith({
           user: user,
-          mprofiel: user,
           isLoggedin: true
         })
       );

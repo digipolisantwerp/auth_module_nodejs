@@ -1,32 +1,134 @@
 # @digipolis/auth
 
-@digipolis/auth is implemented as an `Express` router. It exposes a couple of endpoints
-that can be used in your application to handle the process of logging into a user's
-AProfile, mprofile or eid via oAuth.
+This package contains two components:
+
+1. A router which exposes a couple of endpoints which can be used to implement login in your application.
+2. A middleware that can be used to enable single sign-on (SSO) between different apps inside the antwerp/digipolis ecosystem.
+
+In this version aprofiel with assurance levels and different authentication methods is supported (for mprofiel support, check out version 1.X.X).
 
 ## Setup
-You should use `express-session` in your application to enable session-storage.
-After this step, you can load the `@digipolis/auth` middleware
+
+You should use `express-session` in your application to enable session storage.
+
+Be sure to load this middleware before other routes in your application, this enables the automatic refresh of the user's access token.
+
+`trust proxy` should also be set to true to enable automatic generation of the application's login callback.
+
+### Basic example
 
 ```js
-app.use(require('@digipolis/auth')(app, configuration));
-```
+import {
+  createRouter, 
+  createSSOMiddleware
+} from '@digipolis/auth';
+import Express from 'express';
+import Session from 'express-session';
 
-Be sure to load this middleware before your other routes, otherwise the automatic refresh of the user's token won't work properly.
+const app = new Express();
+app.use(Session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true }
+}));
 
-Also set the `trust proxy` application variable to `true`. Otherwise the callback URL might be constructed with protocol `http` instead of `https`.
-
-```js
-// Trust proxy to make sure the @digipolis/auth module can construct the correct OAuth2 callback URL
 app.enable('trust proxy');
+
+
+const authConfig = {
+  clientId: 'client-id',
+  clientSecret: 'client-secret',
+  oauthHost: 'https://api-oauth2-a.antwerpen.be',
+  basePath: '/auth',
+  defaultScopes: [
+    'astad.aprofiel.v1.name',
+    'astad.aprofiel.v1.avatar',
+    'astad.aprofiel.v1.email',
+  ],
+  scopeGroups: {
+    address: ['crspersoon.housenumber', 'crspersoon.streetname'],
+    personal: ['crspersoon.nationalnumber', 'crspersoon.nationality']
+  },
+  url: 'https://api-gw-a.antwerpen.be/acpaas/shared-identity-data/v1' ,
+  consentUrl: 'https://api-gw-a.antwerpen.be/acpaas/consent/v1',
+};
+
+
+// This exposes endpoints to enable login 
+app.use(createRouter(app, authConfig));
+
+// This middleware enables SSO
+const sso = createSSOMiddleware(authConfig);
+
+// The sso middleware should be used where you serve your application
+// it relies on redirects, which cannot be used with ajax calls.
+router
+.get('/index', sso, (req, res) => res.send('hello world'));
 ```
+
+### Configuration
+The login router & the SSO middleware use the same configuration.
+
+- **basePath**: *string* (default: '/auth')  
+  Each of the routes in the auth router will be prepended with this property
+- **clientId**: *string*  
+  Client credentials from the API gateway (see section [api store](#api-store-configuration))
+- **clienSecret**: *string*  
+  Client credentials from the API gateway (see section [api store](#api-store-configuration))
+- **consentUrl**: *string*  
+  The url of the consent api is necessary to enable SSO
+  (also see section [api store](#api-store-configuration)).  
+  (e.g. https://api-gw-a.antwerpen.be/acpaas/consent/v1)
+- **defaultScopes**: *string[ ]*  
+  list of scopes you will always use (see section [scopes](#available-scopes))
+  Should be compatible with assurance level = low
+- **errorRedirect**: *string* (default: '/')  
+  Where your application should redirect when something goes wrong during the login process.
+- **hooks**: *object*
+  Hooks can be used to add custom logic to the login process. Can be used to modify your session or clean up when logging out.  
+  Each hook has the same signature as express middleware  
+  `(req, res, next) => {})`
+  - **preLogin**: *function[ ]*  
+    List of functions that will be executed before login
+  - **preLogout**: *function[ ]*  
+    List of functions that will be executed before logout
+  - **loginSuccess**: *function[ ]*  
+    List of functions that will be executed when login has succeeded
+  - **logoutSuccess**: *function[ ]*  
+    List of functions that will be executed when logout has succeeded
+- **key**: *string* (default: 'user')  
+  The loggedin user will be stored on `req.session`. This property defines where the user and his accesstoken will be stored.  
+  For 'user', the user will be at `req.session.user` and the accesstoken will be at `req.session.userToken` 
+- **logout** (optional, but needed for single logout(SLO) with the event handler)
+  - **headerKey** *string*  
+    the name of the http header where the key is located (defaults to `x-logout-token`)
+  - **securityHash** *string*  
+    bcrypt hash of the token that will be placed in the http header.
+  - **sessionStoreLogoutAdapter** *Function*  
+    function that returns a promise when the sessionStore has been successfully updated and rejects otherwise. This adapter is responsible for  removing the session. [More information](#creating-and-using-sessionstorelogoutadapters)
+- **oauthHost**: *string* 
+  This is where the actual login process starts after leaving your application. This is needed to generate a redirect url to the login page  
+  (e.g.: https://api-oauth2-a.antwerpen.be)
+- **refresh**: *boolean* (default false)  
+  Enables automatic refresh of the user's access token
+- **scopeGroups**: *object*  
+  scopeGroups is an object where all keys should have an array of scopes as values. These can be used to request additional scopes when logging in through the use of the query parameter `scopeGroups` ([available scopes](#available-scopes))
+- **url**: *String* 
+  Url where the user will be retrieved with after login has succeeded  
+  (e.g.: https://api-gw-a.antwerpen.be/acpaas/shared-identity-data/v1)
+
 
 ### API Store configuration
 
 For this module to fully work, some configuration on the API store is required.
-After creating your application on the api store, you should create a contract with the Aprofiel/Mprofiel API.
 
-![Create Contract](/assets/create-contract.png "Create contract")
+After creating your application on the api store, you should create a contract with the Shared Identity Data API.
+
+![Create Contract shared identity](/assets/shared-identity.png "Create contract shared identity")
+
+and the Consent API (if you want to enable SSO)
+![Create Contract consent](/assets/consent.png "Create contract consent")
 
 The next step is to navigate to your applications and clicking on actions
 
@@ -39,166 +141,127 @@ Click on oauth2 config. You'll find your clientId and secret here.
 
 You'll need to configure your callback path here
 normally, it will be `<protocol>://<your-domain>/auth/login/callback`
-(this module exposes  this endpoint)
+(this module exposes this endpoint) (change the basePath if you have configured another)
 
-**Unless you configured a custom redirectUri. in this case, you should enter this one**
-
-### Event Handler configuration (only needed for Single log out)
-
+### Eventhandler configuration (for SLO)
 Navigate to the eventhandler and go to the oauth namespace
-![oauth namespace](/assets/oauth-namespace.png "oauth namespace")
+![oauth namespace](/assets/eventhandler.png "oauth namespace") 
 
-Click on the topic related to your login methodology and click on + (add subscription)
-![add subscription](/assets/add-subscription.png "add  subscription")
+Add a new wildcard subscription
 
-Configure your endpoint with the correct params:
-
-![subscription configuration](/assets/sub-config.png "subscription configuration")
-the push url is `<protocol>://<hostname>{basePath}/event/loggedout/{service}`
+![subscription configuration](/assets/config-event.png "subscription configuration")
+the push url is `<protocol>://<hostname>{basePath}/event/loggedout/`
 (basePath defaults to auth).
 
 You should add a custom header which corresponds to the headerKey in your logout configuration (defaults to `x-logout-token`). Add your token.
-(this token will not be known to your application, only the hashed version)
-
-save your subscription.
+(this token will not be known to your application, only the hashed version) (don't forget to click the plus symbol)
 
 
+## How to use the Routes
 
-### Module Configuration
+### GET {basePath}/login
+This endpoint can be used to login. There are some query parameters available to control in which ways the user can login and which scopes the user can use.
 
-- **oauthHost** *string*: The domain corresponding to the oauth implementation
-  (e.g: https://api-oauth2-o.antwerpen.be').
-- **applicationname** *string*: required if permissions need to be fetched (name known in UM)
-- **apiHost** *string*: the hostname corresponding to the API gateway (e.g: https://api-gw-o.antwerpen.be).
-- **basePath=/auth (optional)** *string*: the basePath which is appended to the exposed endpoints.
-- **errorRedirect=/ (optional)** *string*: where to redirect if the login fails (e.g: /login)
-- **logout** (optional, but needed for SLO with the event handler)
-  - **headerKey** *string*: the name of the http header where the key is located (defaults to `x-logout-token`)
-  - **securityHash** *string* bcrypt hash of the token that will be placed in the http header.
-  - **sessionStoreLogoutAdapter** *Function*: function that returns a promise when the sessionStore has been successfully updated and rejects otherwise. This adapter is responsible for  removing the session. [More information](#creating-and-using-sessionstorelogoutadapters)
-- **auth** (credentials can be acquired from the api store)
-  - **clientId** *string*: client id of your application
-  - **clientSecret** *string*: client secret of your application
-  - **apiKey** *string*: required to fetch permissions (not needed otherwise)
-- **serviceProviders**: object of the available oauth login services (currently aprofiel & MProfiel). You only need to configure the ones that you need.
-  - **aprofiel** (optional if not needed):
-    - **scopes** *string*: The scopes you want of the profile (space separated identifiers)
-    - **url** *string*: the url where to fetch the aprofile after the login succeeded
-    - **identifier** *string*: the service identifier, used to create login url.
-    - **tokenUrl** *string*: where the service should get the accesstoken
-    - **redirectUri (optional)** *string*: custom redirect callback uri, do not use unless absolutely necessary
-    - **refresh** *boolean*: whether or not to refresh the access token (experimental)
-    - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
-    - **hooks (optional)**: async execution is supported
-      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
-      - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
-  - **mprofiel** (optional if not needed):
-    - **scopes** *string*: the scopes you want for the profile
-    - **url** *string*: url where to fetch the profile
-    - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
-    - **fetchPermissions=false** *boolean*: whether to fetch permissions in the User Man. engine
-    - **authenticationType=form** *string*: `form` or `so`, can be used together, see example
-    - **identifier=astad.mprofiel.v1** *string*: the service identifier, used to create the login url.
-     - **tokenUrl** *string*: where the service should get the accesstoken
-     - **redirectUri (optional)** *string*: custom redirect callback uri
-     - **refresh** *boolean*: whether or not to refresh the access token (experimental)
-    - **hooks (optional)**: async execution is supported
-      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
-      - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
-  - **eid** (optional if not needed):
-    - **scopes** *string*: the scopes you want for the profile
-    - **url** *string*: url where to fetch the profile
-    - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
-    - **identifier=acpaas.fasdatastore.v1** *string*: the service identifier, used to create the login url.
-    - **tokenUrl** *string*: where the service should get the accesstoken
-    - **redirectUri (optional)** *string*: custom redirect callback uri
-    - **refresh** *boolean*: whether or not to refresh the access token (experimental)
-    - **hooks (optional)**: async execution is supported
-      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
-      - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
+#### Query parameters
 
-### Authentication 2.0
-If you want to use authentication 2.0 you can do so by adding `version: 'v2'` and add the necessary extra config.
-Your application needs a contract with the Shared Identity Data API (Similar to the [API Store configuration](#api-store-configuration))
+- **scopeGroups**  
+  comma seperated list of the keys of the scopeGroups configured in your configuration. If none are given, only the default scopes from the configration are requested.
 
-  - **auth2aprofiel** (optional if not needed):
-    - **version** *string*: authentication version you want to use (`v2` in this case). Defaults to v1.
-    - **minimalAssuranceLevel** *string*: Minimal Assurance Level. We support `low`, `substantial` and `high`.
-    - **authMethods** *string*: the authentication methods you want to allow. (e.g. `iam-aprofiel-userpass` for simple username/password based authentication) 
-    - **scopes** *string*: the scopes you want for the profile
-    - **url** *string*: url where to fetch the profile
-    - **identifier=astad.aprofiel.v1** *string*: the service identifier, used to log out.
-    - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
-    - **tokenUrl** *string*: where the service should get the accesstoken
-    - **redirectUri (optional)** *string*: custom redirect callback uri
-    - **refresh** *boolean*: whether or not to refresh the access token (experimental)
-    - **hooks (optional)**: async execution is supported
-      - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
-      - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
+- **minimal_assurance_level** (default: low for context citizen, substantial for context enterprise)  
+   possible values: low, substantial, high   
+  Determines which authentication methods are available to the user.   
+  If specified, only authentication methods corresponding with the specified assurance level will be available for the user to log in with. See [Available authentication methods](available-authentication-methods) for info about which authentication methods correspond to which assurance levels.
 
-Concerning the authentication methods, we support:
+- **fromUrl** (default /)  
+  Where the user should be redirected if the login process is successful.
 
-| Name                  | Assurance level | Description                                                    |
-| --------------------- | --------------- | -------------------------------------------------------------- |
-| iam-aprofiel-userpass | low             | Our default aprofiel authentication with username and password |
-| fas-citizen-bmid      | substantial     | Belgian Mobile ID (e.g. Itsme)                                 |
-| fas-citizen-otp       | substantial     | Authentication with one time password      (e.g. sms)          |
-| fas-citizen-totp      | substantial     | Time-based one time password   (e.g. Google Authenticator)     |
-| fas-citizen-eid       | high            | Authentication with eID-card and pin-code                      |
+- **context** (enterprise or citizen) (default citizen)  
+  Specifies whether the user should log in as a citizen or as an enterprise user. Logging in with context enterprise enables the application to fetch additional enterprise related roles from the authz api with the access token of the user.
 
-`iam-aprofiel-userpass` will only work when `minimalAssuranceLevel` is `low`.
+- **auth_methods**  
+  A comma separated list of the auth methods to allow the user to log in with. 
+  This limits the list of authentication methods provided to the user by the minimal_assurance_level parameter (if specified) and the context.  
 
-`minimalAssuranceLevel` `high` will only show the `fas-citizen-eid` authentication method.
+  Note that you cannot provide conflicting auth methods with those determined by either the minimal_assurance_level parameter or the context parameter.  
+  
+  e.g.:
+  - auth_methods=iam-aprofiel-userpass&context=enterprise   
+   (enterprise context requires a minimal assurance level of substantial, iam-aprofiel-userpass has an assurance level of low)
+  
+  - auth_methods=iam-aprofiel-userpass&minimal_assurance_level=high   
+   (iam-aprofiel-userpass has an assurance level of low, which is not sufficient for the specified minimal assurance level)
 
-In general; if your `minimalAssuranceLevel` is set to `substantial` you can only use `substantial` and above (`high`).
+  See [Available authentication methods](available-authentication-methods) for a comprehensive list of available authentication methods.
 
-#### Authentication 2.0 example config
+### GET {basePath}/isloggedin
+
+The `isloggedin` endpoint can be used to check if the user is currently loggedIn
 ```js
-    auth2eid: {
-      version: 'v2',
-      scopes: 'astad.aprofiel.v1.username astad.aprofiel.v1.name astad.aprofiel.v1.avatar astad.aprofiel.v1.email astad.aprofiel.v1.phone crspersoon.givenName',
-      url: 'https://api-gw-o.antwerpen.be/acpaas/shared-identity-data/v1/me',
-      key: 'auth2eid',
-      authMethods: 'fas-citizen-bmid,fas-citizen-totp,fas-citizen-otp,iam-aprofiel-userpass',
-      minimalAssuranceLevel: 'low',
-      tokenUrl: 'https://api-gw-o.antwerpen.be/acpaas/shared-identity-data/v1/oauth2/token',
-      hooks: {
-        loginSuccess: [],
-        logoutSuccess: []
-      }
-    }
+{
+  isLoggedin: true,
+  user: { ... } // this corresponds to the key that is configured in the serviceProvider
+}
 ```
 
-#### Authentication 2.0 available scopes
+If the user is not logged in the following payload is returned.
+```js
+{
+  isLoggedin: false
+}
+```
 
-| Scope                           | Alias             |
-| ------------------------------- | ----------------- |
-| astad.aprofiel.v1.address       | aprofiel.address  |
-| astad.aprofiel.v1.all           | aprofiel.all      |
-| astad.aprofiel.v1.avatar        | aprofiel.avatar   |
-| astad.aprofiel.v1.email         | aprofiel.email    |
-| astad.aprofiel.v1.name          | aprofiel.name     |
-| astad.aprofiel.v1.phone         | aprofiel.phone    |
-| astad.aprofiel.v1.username      | aprofiel.username |
-| crspersoon.birthdate            |                   |
-| crspersoon.death                |                   |
-| crspersoon.deathdate            |                   |
-| crspersoon.familyname           |                   |
-| crspersoon.gendercode           |                   |
-| crspersoon.givenName            |                   |
-| crspersoon.housenumber          |                   |
-| crspersoon.housenumberextension |                   |
-| crspersoon.municipalityname     |                   |
-| crspersoon.municipalityniscode  |                   |
-| crspersoon.nationality          |                   |
-| crspersoon.nationalnumber       |                   |
-| crspersoon.postalcode           |                   |
-| crspersoon.registrationstate    |                   |
-| crspersoon.streetname           |                   |
+### GET {basePath}/logout
 
-## Creating and using SessionStoreLogoutAdapters
+Redirects the user to the logout. This will cause the session to be destroyed on the IDP.
+The `fromUrl` query parameter can be used to redirect the user to a given page
+after logout.
 
-Your sessionstore can be backed by your server's memory or a database system like postgres, mongodb. Because we have no generic way to query each type of store,
+
+# Available scopes
+| Scope                           | Alias             | Minimal assurance level |
+| ------------------------------- | ----------------- | ----------------------- |
+| astad.aprofiel.v1.address       | aprofiel.address  | low                     |
+| astad.aprofiel.v1.all           | aprofiel.all      | low                     |
+| astad.aprofiel.v1.avatar        | aprofiel.avatar   | low                     |
+| astad.aprofiel.v1.email         | aprofiel.email    | low                     |
+| astad.aprofiel.v1.name          | aprofiel.name     | low                     |
+| astad.aprofiel.v1.phone         | aprofiel.phone    | low                     |
+| astad.aprofiel.v1.username      | aprofiel.username | low                     |
+| crspersoon.birthdate            |                   | substantial             |
+| crspersoon.death                |                   | substantial             |
+| crspersoon.deathdate            |                   | substantial             |
+| crspersoon.familyname           |                   | substantial             |
+| crspersoon.gendercode           |                   | substantial             |
+| crspersoon.givenName            |                   | substantial             |
+| crspersoon.housenumber          |                   | substantial             |
+| crspersoon.housenumberextension |                   | substantial             |
+| crspersoon.municipalityname     |                   | substantial             |
+| crspersoon.municipalityniscode  |                   | substantial             |
+| crspersoon.nationality          |                   | substantial             |
+| crspersoon.nationalnumber       |                   | substantial             |
+| crspersoon.postalcode           |                   | substantial             |
+| crspersoon.registrationstate    |                   | substantial             |
+| crspersoon.streetname           |                   | substantial             |
+
+
+# Available authentication methods
+
+
+| Name                  | Assurance level | Context    | Description                                                    |
+| --------------------- | --------------- | -----------|--------------------------------------------------------------- |
+| iam-aprofiel-userpass | low             | citizen    | Our default aprofiel authentication with username and password |
+| fas-citizen-bmid      | substantial     | citizen    | Belgian Mobile ID (e.g. Itsme)                                 |
+| fas-citizen-otp       | substantial     | citizen    | Authentication with one time password      (e.g. sms)          |
+| fas-citizen-totp      | substantial     | citizen    | Time-based one time password   (e.g. Google Authenticator)     |
+| fas-citizen-eid       | high            | citizen    | Authentication with eID-card and pin-code                      |
+| fas-enterprise-bmid   | substantial     | enterprise | Belgian Mobile ID (e.g. Itsme)                                 |
+| fas-enterprise-otp    | substantial     | enterprise | Authentication with one time password      (e.g. sms)          |
+| fas-enterprise-totp   | substantial     | enterprise | Time-based one time password   (e.g. Google Authenticator)     |
+| fas-enterprise-eid    | high            | enterprise | Authentication with eID-card and pin-code                      |
+
+# Creating and using SessionStoreLogoutAdapters
+
+Your sessionstore can be backed by your server's memory or a database system like postgreSQL, mongodb. Because we have no generic way to query each type of store,
 we introduce the concept of adapters.
 
 `function adapter(sessionKey: String, accessTokenKey: String, userInformation: Object): Promise`
@@ -207,9 +270,9 @@ An adapter should return a promise which resolves if it succeeds in altering the
 
 It has 3 arguments:
 
-- **sessionKey**: this is the key under which your user is stored in the session (this is the same as the key property in your serviceProvider, defaults to `user`). essentially,
+- **sessionKey**: This is the key under which your user is stored in the session (this is the same as the key property in your serviceProvider, defaults to `user`). essentially,
 this is the property that should be removed from your session to remove the user's information
-- **accessTokenKey**:  this is the key of the accessToken property inside your session, which should also be removed.
+- **accessTokenKey**:  this is the key of the accesstoken property inside your session, which should also be removed.
 - **userInformation**: this is an object that contains the information of the user that has been loggedout.
   - **user**: the id of the user,
   - **timestamp**: timestamp of logout. Could be used to ignore the request if the logout was long ago.
@@ -219,7 +282,7 @@ this is the property that should be removed from your session to remove the user
 Existing adapters will be added here.
 
 ### Example of an adapter implementation 
-```
+```js
 // this is a non functional example,
 function createAdapter(options) {
   const {
@@ -231,7 +294,7 @@ function createAdapter(options) {
   return function adapter(sessionKey, accessTokenKey, userInformation) {
     return new Promise((resolve, reject) => {
           const session = db.query({
-        [`session.${sessionKey}.id]: userInformation.user
+        [`session.${sessionKey}.id`]: userInformation.user
     });
 
      // alter record and resave or do it in one query.
@@ -242,7 +305,7 @@ function createAdapter(options) {
     })
   }
 
-  const authConfig = require(./authConfig);
+  const authConfig = require('./authConfig');
 
   const adapter = createAdapter({
     connectionString: process.env.connectionString
@@ -251,180 +314,8 @@ function createAdapter(options) {
   Object.assign(authConfig, {
     logout: {
       adapter,
-      securityHash: 'blabla
+      securityHash: 'blabla'
     }
   });
 }
 ```
-
-## Example implementation
-```js
-const session = require('express-session');
-const app = express();
-app.use(session({
-  secret: 'blabla'
-}))
-
-const profileLogin = require('@digipolis/auth');
-// load session with corresponding persistence (postgres, mongo....)
-const loginSuccessHook = (req, res, next) => {
-  req.session.isEmployee = false;
-  if(req.digipolisLogin && req.digipolisLogin.serviceName === 'mprofiel') {
-    req.session.isEmployee = true;
-  }
-
-  req.session.save(() => next());
-}
-
-app.use(profileLogin(app, {
-  oauthHost: 'https://api-oauth2-o.antwerpen.be',
-  apiHost: 'https://api-gw-o.antwerpen.be',
-  errorRedirect: '/',
-  applicationName: 'this-is-my-app',
-  basePath: '/auth',
-  auth: {
-    clientId: 'your-client-id',
-    clientSecret: 'your-client-secret',
-    apiKey: 'my-api-string', // required if fetchPermissions == true
-  },
-  serviceProviders: {
-    aprofiel: {
-      scopes: '',
-      url: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/v1/me',
-      identifier:'astad.aprofiel.v1',
-      tokenUrl: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/oauth2/token',
-      hooks: {
-        loginSuccess: [],
-        logoutSuccess: []
-      }
-    },
-    mprofiel: {
-      scopes: 'all',
-      url: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/v1/me',
-      identifier: 'astad.mprofiel.v1',
-      fetchPermissions: false,
-
-      tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
-      hooks: {
-        loginSuccess: [],
-        logoutSuccess: []
-      }
-    },
-    'mprofiel-so': {
-      scopes: 'all',
-      url: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/v1/me',
-      identifier: 'astad.mprofiel.v1',
-      fetchPermissions: false,
-      authenticationType: 'so'
-      tokenUrl: 'https://api-gw-o.antwerpen.be/astad/mprofiel/v1/oauth2/token',
-      hooks: {
-        loginSuccess: [],
-        logoutSuccess: []
-      }
-    },
-    eid: {
-      scopes: 'name nationalregistrationnumber',
-      url: 'https://api-gw-o.antwerpen.be/acpaas/fasdatastore/v1/me',
-      key: 'eid'
-      identifier:'acpaas.fasdatastore.v1',
-      tokenUrl: 'https://api-gw-o.antwerpen.be//acpaas/fasdatastore/v1/oauth2/token',
-      hooks: {
-        loginSuccess: [],
-        logoutSuccess: []
-      }
-    },
-  }
-}));
-```
-
-## Session
-Multiple profile can be logged in at the same time, if a key is configured inside the serviceProvider configuration. If no key is given, the default key `user` (`req.session.user`) is used, and the possibility exists that a previous user is overwritten by another when logging in.
-
-The token can be found under `req.session.userToken` if the default key is used, otherwise it can be found under `req.session[configuredKey + Token]` e.g: token configured is `aprofiel` , the access token will be found under `req.session.aprofielToken`
-```
-{
-  accessToken: 'D20A4360-EDD3-4983-8383-B64F46221115'
-  refreshToken: '469FDDA4-7352-4E3E-A810-D0830881AA02'
-  expiresIn: '2020-12-31T23.59.59.999Z'
-}
-```
-
-## Available Routes
-
-Each route is prepended with the configured `basePath`, if no basePath is given,
-default basePath `auth` will be used.
-
-
-### GET {basePath}/login/{serviceName}?fromUrl={thisiswheretoredirectafterlogin}&lng={language}&auth_type={auth_type}&auth_methods={auth_methods}
-This endpoints tries to redirect the user to the login page of the service corresponding to the serviceName (aprofiel, mprofiel, eid).
-(this will not work if the endpoint is called with an AJAX call)
-
-#### query params
-
-- *fromUrl*: can be used to redirect the user to a given page after login.
-- *lng*: can be used to define the language. Currently supported: `nl`, `de`, `fr` and `en`
-- *auth_type*: can be used if you want to restrict the authentication types to others than defined in your service provider.
-- *auth_methods*: can be used to override the default defined authMethods. to limit the number of available methods or to enable true SSO. (comma seperated list)
-
-### GET {basePath}/isloggedin
-
-The `isloggedin` endpoint can be used to check if the user is currently loggedIn in any of the configured services if he is logged in in some services, the following payload will be returned:
-```js
-{
-  isLoggedin: true,
-  user: { ... },
-  mprofiel: {...} // this corresponds to the key that is configured in the serviceProvider
-}
-```
-
-If the user is not logged in in any of the services, the following payload is returned.
-```js
-{
-  isLoggedin: false
-}
-```
-
-### GET {basePath}/isloggedin/{service}
-
-check whether the user is logged in in the specified service. If he is logged in:
-
-{
-  isLoggedin: true,
-  [serviceKey]: {...} // this corresponds to the key that is configured in the serviceProvider, defaults to user
-}
-```
-
-If the user is not logged in int the service, the following payload is returned.
-```js
-{
-  isLoggedin: false
-}
-```
-
-### GET {basePath}/login/callback
-
-Endpoint that you should not use manually, is used to return from the identity server and fetches a user corresponding to the login and stores it on the session.
-
-If a redirect url was given through the `fromUrl` in the `login`  endpoint, the user will be redirected to this url after the callback has executed successfully.
-
-If the callback is does not originate from the login flow triggered from the application,
-it will trigger a 401. (this is checked with the state param).
-
-Hooks defined in the `serviceProviders[serviceName].hooks.loginSuccess` will be called here.
-Session data can be modified in such a hook.
-
-### GET {basePath}/logout/{service}?fromUrl={thisiswheretoredirectafterlogout}
-
-Redirects the user to the logout for the specified service. This will cause the session to be destroyed on the IDP.
-
-the `fromUrl` query parameter can be used to redirect the user to a given page
-after logout.
-
-### GET {basePath}/logout/callback/{service}
-
-Cleans up the session after the initial logout.
-
-### POST {basePath}/event/loggedout/{service}
-
-Endpoint which can be used to logout events from the eventhandler. This is used to remove a user's session when the user has logged out in an other application.
-

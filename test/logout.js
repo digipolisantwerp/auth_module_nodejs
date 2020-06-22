@@ -1,38 +1,20 @@
 'use strict';
 const assert = require('assert');
-const createRouter = require('../lib/router');
+import createRouter from '../src/router';
 const reqres = require('reqres');
 const mockExpress = require('express')();
-const correctConfig = require('./mocks/correctConfig');
+import correctConfig from './mocks/correctConfig';
+import { nockDeleteSessions } from './mocks/sessionStore';
 
-describe('GET /logout/:serviceProvider', function onDescribe() {
-  it('should 404 if provider is not known', function onIt(done) {
-    const router = createRouter(mockExpress, correctConfig);
 
-    const req = reqres.req({
-      url: '/auth/logout/aprofile',
-      session: {}
-    });
-
-    const res = reqres.res({
-        header: () => {}
-    });
-
-    res.on('end', () => {
-      assert(res.sendStatus.calledWith(404));
-      return done();
-    });
-
-    router.handle(req, res);
-
-  });
+describe('GET /logout', function onDescribe() {
 
   it('should redirect to / if no one is loggedin', function onIt(done) {
     const router = createRouter(mockExpress, correctConfig);
     const host = 'http://www.app.com';
     let redirectUrl = false;
     const req = reqres.req({
-      url: '/auth/logout/aprofiel',
+      url: '/auth/logout',
       query: {
       },
       get: () => host,
@@ -40,8 +22,8 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
         save: (cb) => cb(),
       },
     });
-      const res = reqres.res({
-      header: () => {},
+    const res = reqres.res({
+      header: () => { },
       redirect(val) {
         redirectUrl = val
         this.emit('end');
@@ -60,26 +42,28 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
   });
 
   it('should redirect to logoutPage', function onIt(done) {
+    const ssoKey = 'fakeSSO';
+    nockDeleteSessions({ ssoKey });
     const router = createRouter(mockExpress, correctConfig);
-    const host = 'http://www.app.com';
     let redirectUrl = false;
     const req = reqres.req({
-      url: '/auth/logout/aprofiel',
-      query: {
-      },
-      get: () => host,
+      url: '/auth/logout',
+      get: () => `AOS=op5ssja3rjrdqaqavt5clop1e1; dgp.auth.ssokey=${ssoKey}`,
       session: {
         save: (cb) => cb(),
         user: {
-          id: 'this-is-my-id'
+          profile: {
+            id: 'this-is-my-id'
+          },
         },
         userToken: {
-          access_token: {}
+          accessToken: 'blabla'
         }
       },
     });
+
     const res = reqres.res({
-      header: () => {},
+      header: () => { },
       redirect(val) {
         redirectUrl = val
         this.emit('end');
@@ -90,8 +74,7 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
 
     res.on('end', () => {
       assert(redirectUrl);
-      assert(redirectUrl.includes(correctConfig.auth.clientId));
-      assert(redirectUrl.includes(correctConfig.serviceProviders.aprofiel.identifier));
+      assert(redirectUrl.includes(correctConfig.clientId));
       return done();
     });
 
@@ -103,7 +86,7 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
     const host = 'http://www.app.com';
     const fromUrl = 'http://from.com';
     const req = reqres.req({
-      url: '/auth/logout/aprofiel',
+      url: '/auth/logout',
       query: {
         fromUrl
       },
@@ -111,15 +94,17 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
       session: {
         save: (cb) => cb(),
         user: {
-          id: 'this-is-my-id'
+          profile: {
+            id: 'this-is-my-id'
+          },
         },
         userToken: {
-          access_token: {}
+          accessToken: 'blabla'
         }
       },
     });
     const res = reqres.res({
-      header: () => {},
+      header: () => { },
       redirect() {
         this.emit('end');
       }
@@ -135,27 +120,30 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
     router.handle(req, res);
   });
 
-  it('should add authentication type to logout redirect', function onIt(done) {
+  it('should add authenticationmethod to logout redirect', function onIt(done) {
     const router = createRouter(mockExpress, correctConfig);
     const host = 'http://www.app.com';
     let redirectUrl = false;
     const req = reqres.req({
-      url: '/auth/logout/mprofielso',
+      url: '/auth/logout',
       query: {
       },
       get: () => host,
       session: {
         save: (cb) => cb(),
-        mprofielso: {
-          id: 'this-is-my-id'
+        user: {
+          profile: {
+            id: 'this-is-my-id'
+          },
+          authenticationMethod: 'iam-user-pass'
         },
-        mprofielsoToken: {
-          access_token: {}
+        userToken: {
+          accessToken: 'blabla'
         }
       },
     });
     const res = reqres.res({
-      header: () => {},
+      header: () => { },
       redirect(val) {
         redirectUrl = val
         this.emit('end');
@@ -165,7 +153,7 @@ describe('GET /logout/:serviceProvider', function onDescribe() {
     res.redirect.bind(res);
 
     res.on('end', () => {
-      assert(redirectUrl.includes('auth_type'));
+      assert(redirectUrl.includes('authenticationMethod=iam-user-pass'));
       return done();
     });
 
