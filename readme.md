@@ -428,3 +428,14 @@ Cleans up the session after the initial logout.
 
 Endpoint which can be used to logout events from the eventhandler. This is used to remove a user's session when the user has logged out in an other application.
 
+## Contributing
+
+Pull requests are always welcome, however keep the following things in mind:
+
+- New features (both breaking and non-breaking) should always be discussed with the [repo's owner](#support). If possible, please open an issue first to discuss what you would like to change.
+- Fork this repo and issue your fix or new feature via a pull request.
+- Please make sure to update tests as appropriate. Also check possible linting errors and update the CHANGELOG if applicable.
+
+## Support
+
+Stefan Pante (<stefan.pante@digipolis.be>)
