@@ -28,4 +28,15 @@ export default {
       'fas-enterprise-eid'
     ]
   },
+  'enterprise-citizen': {
+    substantial: [
+      'fas-hintedlogin-bmid',
+      'fas-hintedlogin-otp',
+      'fas-hintedlogin-totp',
+      'fas-hintedlogin-eid'
+    ],
+    high: [
+      'fas-hintedlogin-eid'
+    ]
+  }
 }

@@ -3,9 +3,11 @@ import qs from 'querystring';
 import uuid from 'uuid';
 import authMethodsConfig from './authMethods';
 import createService from './service';
-import {getHost, logoutEncrypt, runHooks} from './helpers';
+import { getHost, logoutEncrypt, runHooks } from './helpers';
 import createDeleteSessionsHook from './hooks/deleteSessions';
 import createAssuranceLevelAndAuthMethodHook from './hooks/assuranceLevelAndAuthMethod';
+import createDetermineLoginTypeHook from './hooks/determineLoginType';
+
 const EXPIRY_MARGIN = 5 * 60 * 1000;
 export default function createController(config) {
   const {
@@ -18,9 +20,9 @@ export default function createController(config) {
     refresh = false,
     hooks = {},
     errorRedirect = '/',
-    key: objectKey = 'user'
+    key: objectKey = 'user',
   } = config;
-  
+
   let {
     preLogin: preLoginHooks = [],
     preLogout: preLogoutHooks = [],
@@ -28,21 +30,26 @@ export default function createController(config) {
     logoutSuccess: logoutSuccessHooks = [],
   } = hooks;
 
-  loginSuccessHooks.push(createAssuranceLevelAndAuthMethodHook(config));
+
+  loginSuccessHooks.push(
+    createAssuranceLevelAndAuthMethodHook(config),
+    createDetermineLoginTypeHook(config)
+  );
+
   logoutSuccessHooks.push(createDeleteSessionsHook(config));
 
 
   const service = createService(config);
-  
+
   function determineScopes(options) {
     let scopes = [...defaultScopes];
-    if(!options.scopeGroups) {
+    if (!options.scopeGroups) {
       return scopes.join(' ');
     }
 
     const groups = Array.isArray(options.scopeGroups) ? scopeGroups : options.scopeGroups.split(',');
     groups.forEach(group => {
-      if(scopeGroups[group]) {
+      if (scopeGroups[group]) {
         scopes.push(...scopeGroups[group]);
       }
     })
@@ -56,21 +63,21 @@ export default function createController(config) {
       context = 'citizen'
     } = options;
 
-    if(auth_methods && auth_methods.length > 0) {
+    if (auth_methods && auth_methods.length > 0) {
       return auth_methods;
     }
-    if(!['citizen', 'enterprise'].includes(context)) {
+    if (!['citizen', 'enterprise', 'enterprise-citizen'].includes(context)) {
       console.log(`context ${context} not known, fallback to citizen`);
       context = 'citizen';
     }
 
-    if(!['low', 'substantial', 'high'].includes(minimal_assurance_level)) {
+    if (!['low', 'substantial', 'high'].includes(minimal_assurance_level)) {
       console.log(`${minimal_assurance_level} not known, fallback to lowest available`);
       minimal_assurance_level = 'low';
     }
-    
-    // enterprise does not have low. 
-    if(context === 'enterprise' && minimal_assurance_level === 'low') {
+
+    // enterprise does not have low.
+    if (['enterprise', 'enterprise-citizen'].includes(context) && minimal_assurance_level === 'low') {
       minimal_assurance_level = 'substantial';
     }
 
@@ -103,7 +110,7 @@ export default function createController(config) {
     return `${oauthHost}/v2/authorize?${qs.stringify(query)}`;
   }
 
-  function createLogoutUrl({ userId, token, redirectUri, authenticationMethod = 'iam-aprofiel-userpass'}) {
+  function createLogoutUrl({ userId, token, redirectUri, authenticationMethod = 'iam-aprofiel-userpass' }) {
 
     const data = JSON.stringify({
       user_id: userId,
@@ -132,7 +139,7 @@ export default function createController(config) {
   }
 
   function isLoggedin(req, res) {
-    if(!req.session[objectKey]) {
+    if (!req.session[objectKey]) {
       return res.json({
         isLoggedin: false
       });
@@ -158,13 +165,13 @@ export default function createController(config) {
       return res.redirect(loginUrl);
     }
 
+
     delete req.session[`loginKey`];
 
     try {
-      const { user, userToken} = await service.loginUser(req.query.code);
+      const { user, userToken } = await service.loginUser(req.query.code);
       req.session[objectKey] = user;
       req.session[`${objectKey}Token`] = userToken;
-  
       runHooks(loginSuccessHooks, req, res, (error) => {
         if (error) {
           console.log(error);
@@ -176,7 +183,7 @@ export default function createController(config) {
       console.log('error during logincallback', err);
       return res.redirect(errorRedirect);
     }
- 
+
   }
 
   function logoutCallback(req, res) {
@@ -205,7 +212,7 @@ export default function createController(config) {
     const logoutParams = {
       redirectUri: `${getHost(req)}${basePath}/logout/callback`,
       token: token.accessToken,
-      userId:  req.session[objectKey].profile.id,
+      userId: req.session[objectKey].profile.id,
       authenticationMethod: req.session[objectKey].authenticationMethod
     };
     const logoutUrl = createLogoutUrl(logoutParams);
@@ -248,14 +255,14 @@ export default function createController(config) {
 
     const tokenKey = `${objectKey}Token`;
     const token = req.session[tokenKey];
-    if(!token) {
+    if (!token) {
       return next();
     }
 
     if (new Date(token.expiresIn) >= new Date(Date.now() + EXPIRY_MARGIN)) {
       return next();
     }
-  
+
     const newToken = await service.refresh(token);
     req.session = Object.assign(req.session, { [tokenKey]: newToken });
     return req.session.save(() => next());

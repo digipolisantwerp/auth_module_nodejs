@@ -175,8 +175,8 @@ This endpoint can be used to login. There are some query parameters available to
 - **fromUrl** (default /)  
   Where the user should be redirected if the login process is successful.
 
-- **context** (enterprise or citizen) (default citizen)  
-  Specifies whether the user should log in as a citizen or as an enterprise user. Logging in with context enterprise enables the application to fetch additional enterprise related roles from the authz api with the access token of the user.
+- **context** (enterprise, citizen or enterprise-citizen) (default citizen)  
+  Specifies whether the user should log in as a citizen or as an enterprise user. Logging in with context enterprise enables the application to fetch additional enterprise related roles from the authz api with the access token of the user. The context enterprise-citizen presents the user with a choice if they want to login with either citizen or their enterprise.
 
 - **auth_methods**  
   A comma separated list of the auth methods to allow the user to log in with. 
