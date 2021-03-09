@@ -66,7 +66,7 @@ export function refreshToken(token, clientId, clientSecret, url) {
 
 
 export async function getAccessToken(clientId, clientSecret, url) {
-  if (tokenStore.token && tokenStore.token.expiry > Date.now()) {
+  if (tokenStore.token && tokenStore.token.expiresIn > Date.now()) {
     return tokenStore.token.accessToken;
   }
 
