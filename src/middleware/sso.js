@@ -26,6 +26,7 @@ export default function sso(options) {
     basePath = '/auth',
     port = false,
     ssoCookieName = 'dgp.auth.ssokey',
+    shouldUpgradeAssuranceLevel = true,
   } = options;
 
   const loginPath = `${basePath}/login`;
@@ -36,18 +37,27 @@ export default function sso(options) {
       return next();
     }
 
+    // if we already have a session && we do not need assurance levels, do nothing
+    if(req.session[key] && !shouldUpgradeAssuranceLevel) {
+      return next();
+    }
+
     const cookies = cookieParser.parse(cookieHeader);
     const ssoKey = cookies[ssoCookieName];
     if (!ssoKey) {
       return next();
     }
 
+
+
     const user = req.session[key] || {};
     const assuranceLevel = user.assuranceLevel || 'none';
+
 
     if (assuranceLevel === 'high') {
       return next();
     }
+
 
     try {
       const accessToken = await getAccessToken(clientId, clientSecret, consentUrl);
@@ -58,7 +68,7 @@ export default function sso(options) {
 
       const baseRedirectUrl = `${loginPath}?fromUrl=${getFromUrl(req, port)}`;
       const highSession = getSessionWithAssuranceLevel(sessions, 'high');
-  
+
       if (highSession) {
         return res.redirect(`${baseRedirectUrl}&auth_methods=${highSession.authenticationMethod}`);
       }

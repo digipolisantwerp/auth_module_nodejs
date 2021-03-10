@@ -79,7 +79,10 @@ The login router & the SSO middleware use the same configuration.
 - **consentUrl**: *string*  
   The url of the consent api is necessary to enable SSO
   (also see section [api store](#api-store-configuration)).  
-  (e.g. https://api-gw-a.antwerpen.be/acpaas/consent/v1)
+  (e.g. https://api-gw-a.antwerpen.be/acpaas/consent/v1) 
+- **shouldUpgradeAssuranceLevel**: *boolean* default true
+   Whether you should upgrade to an higher assurancelevel when you already have a session in the app
+   defaults to true (can be disabled for performance reasons)
 - **defaultScopes**: *string[ ]*  
   list of scopes you will always use (see section [scopes](#available-scopes))
   Should be compatible with assurance level = low
