@@ -1,5 +1,7 @@
 
 ## [unreleased] - 2019-08-01
+
+- Added refreshMax configuration property
 - Add example for basic mongo setup
 
 ## [1.2.3] - 2019-07-18
