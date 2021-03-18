@@ -88,7 +88,7 @@ save your subscription.
     - **tokenUrl** *string*: where the service should get the accesstoken
     - **redirectUri (optional)** *string*: custom redirect callback uri, do not use unless absolutely necessary
     - **refresh** *boolean*: whether or not to refresh the access token (experimental)
-    - **refreshMax** *number*: In seconds, if set, will refresh the session until it reached its max age based on this setting (Only if refresh is set to true)
+    - **maxAgeRefreshToken** *number*: In seconds, if set, will refresh the session until it reached its max age based on this setting (Only if refresh is set to true)
     - **key=user** *string*: the key under the session (e.g. key=profile => req.session.profile)
     - **hooks (optional)**: async execution is supported
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
@@ -103,7 +103,7 @@ save your subscription.
      - **tokenUrl** *string*: where the service should get the accesstoken
      - **redirectUri (optional)** *string*: custom redirect callback uri
      - **refresh** *boolean*: whether or not to refresh the access token (experimental)
-     - **refreshMax** *number*: In seconds, if set, will refresh the session until it reached its max age based on this setting (Only if refresh is set to true)
+     - **maxAgeRefreshToken** *number*: In seconds, if set, will refresh the session until it reached its max age based on this setting (Only if refresh is set to true)
     - **hooks (optional)**: async execution is supported
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
       - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
@@ -115,7 +115,7 @@ save your subscription.
     - **tokenUrl** *string*: where the service should get the accesstoken
     - **redirectUri (optional)** *string*: custom redirect callback uri
     - **refresh** *boolean*: whether or not to refresh the access token (experimental)
-    - **refreshMax** *number*: In seconds, if set, will refresh the session until it reached its max age based on this setting (Only if refresh is set to true)
+    - **maxAgeRefreshToken** *number*: In seconds, if set, will refresh the session until it reached its max age based on this setting (Only if refresh is set to true)
     - **hooks (optional)**: async execution is supported
       - **loginSuccess**  *array of functions*: function that can be plugged in to modify the behaviour of @digipolis/auth: function signature is the same as middleware `(req, res, next)`. these will run after successful login.
       - **logoutSuccess** *array of functions*: hooks that are triggered when logout is successful
