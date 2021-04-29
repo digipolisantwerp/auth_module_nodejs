@@ -7,7 +7,7 @@ export default function createDetermineLoginTypeMiddleware({
   return (req, res, next) => {
     let {
       hinted = false,
-      method,
+      method = '',
     } = req.query;
 
     let type = 'citizen';
