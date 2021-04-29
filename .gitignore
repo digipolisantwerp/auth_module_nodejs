@@ -44,3 +44,4 @@ nbproject/*
 # Sass /
 **\.sass-cache
 Gemfile.lock
+.env

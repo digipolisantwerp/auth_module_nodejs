@@ -79,7 +79,10 @@ The login router & the SSO middleware use the same configuration.
 - **consentUrl**: *string*  
   The url of the consent api is necessary to enable SSO
   (also see section [api store](#api-store-configuration)).  
-  (e.g. https://api-gw-a.antwerpen.be/acpaas/consent/v1)
+  (e.g. https://api-gw-a.antwerpen.be/acpaas/consent/v1) 
+- **shouldUpgradeAssuranceLevel**: *boolean* default true
+   Whether you should upgrade to an higher assurancelevel when you already have a session in the app
+   defaults to true (can be disabled for performance reasons)
 - **defaultScopes**: *string[ ]*  
   list of scopes you will always use (see section [scopes](#available-scopes))
   Should be compatible with assurance level = low
@@ -175,8 +178,8 @@ This endpoint can be used to login. There are some query parameters available to
 - **fromUrl** (default /)  
   Where the user should be redirected if the login process is successful.
 
-- **context** (enterprise or citizen) (default citizen)  
-  Specifies whether the user should log in as a citizen or as an enterprise user. Logging in with context enterprise enables the application to fetch additional enterprise related roles from the authz api with the access token of the user.
+- **context** (enterprise, citizen or enterprise-citizen) (default citizen)  
+  Specifies whether the user should log in as a citizen or as an enterprise user. Logging in with context enterprise enables the application to fetch additional enterprise related roles from the authz api with the access token of the user. The context enterprise-citizen presents the user with a choice if they want to login with either citizen or their enterprise.
 
 - **auth_methods**  
   A comma separated list of the auth methods to allow the user to log in with. 

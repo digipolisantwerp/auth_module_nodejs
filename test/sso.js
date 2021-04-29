@@ -8,11 +8,9 @@ import {
   emptySessions,
   onlyLowSession,
   lowSubstantialSessions,
-  lowSubstantialHighSessions,
   lowHighSessions,
   highSession,
   substantialSession,
-  lowSession
 } from './mocks/sessionStoreResponses';
 
 
