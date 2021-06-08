@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs';
 import qs from 'querystring';
 import uuid from 'uuid';
+import pino from 'pino';
+
 import authMethodsConfig from './authMethods';
 import createService from './service';
 import { getHost, logoutEncrypt, runHooks } from './helpers';
@@ -21,8 +23,13 @@ export default function createController(config) {
     hooks = {},
     errorRedirect = '/',
     key: objectKey = 'user',
+    logLevel = 'error',
   } = config;
 
+  const logger = pino({
+    name:'@digipolis/auth-controller',
+    level: logLevel,
+  });
   let {
     preLogin: preLoginHooks = [],
     preLogout: preLogoutHooks = [],
@@ -67,12 +74,12 @@ export default function createController(config) {
       return auth_methods;
     }
     if (!['citizen', 'enterprise', 'enterprise-citizen'].includes(context)) {
-      console.log(`context ${context} not known, fallback to citizen`);
+      logger.info(`context ${context} not known, fallback to citizen`);
       context = 'citizen';
     }
 
     if (!['low', 'substantial', 'high'].includes(minimal_assurance_level)) {
-      console.log(`${minimal_assurance_level} not known, fallback to lowest available`);
+      logger.info(`${minimal_assurance_level} not known, fallback to lowest available`);
       minimal_assurance_level = 'low';
     }
 
@@ -153,10 +160,12 @@ export default function createController(config) {
 
   async function loginCallback(req, res) {
     if (!req.query.code || !req.query.state) {
+      logger.error(`code or state not in query params`);
       return res.redirect(errorRedirect);
     }
 
     if (req.query.state !== req.session[`loginKey`]) {
+      logger.error(`state ${req.query.state} does not match loginKey ${req.session['loginKey']}`);
       let loginUrl = `${basePath}/login`;
       const fromUrl = req.session.fromUrl;
       if (fromUrl) {
@@ -174,13 +183,13 @@ export default function createController(config) {
       req.session[`${objectKey}Token`] = userToken;
       runHooks(loginSuccessHooks, req, res, (error) => {
         if (error) {
-          console.log(error);
+          logger.error(error);
           return res.redirect(errorRedirect);
         }
         req.session.save(() => res.redirect(req.session.fromUrl || '/'));
       });
     } catch (err) {
-      console.log('error during logincallback', err);
+      logger.error('error during logincallback', err);
       return res.redirect(errorRedirect);
     }
 

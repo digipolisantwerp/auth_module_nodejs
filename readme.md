@@ -69,7 +69,7 @@ router
 
 ### Configuration
 The login router & the SSO middleware use the same configuration.
-
+- **logLevel**: defaults to error
 - **basePath**: *string* (default: '/auth')  
   Each of the routes in the auth router will be prepended with this property
 - **clientId**: *string*  
