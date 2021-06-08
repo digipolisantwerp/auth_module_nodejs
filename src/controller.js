@@ -159,6 +159,7 @@ export default function createController(config) {
   }
 
   async function loginCallback(req, res) {
+    logger.debug('login callback triggered');
     if (!req.query.code || !req.query.state) {
       logger.error(`code or state not in query params`);
       return res.redirect(errorRedirect);
@@ -178,14 +179,17 @@ export default function createController(config) {
     delete req.session[`loginKey`];
 
     try {
+      logger.debug('fetch user with code');
       const { user, userToken } = await service.loginUser(req.query.code);
       req.session[objectKey] = user;
       req.session[`${objectKey}Token`] = userToken;
+      logger.debug('run hooks');
       runHooks(loginSuccessHooks, req, res, (error) => {
         if (error) {
           logger.error(error);
           return res.redirect(errorRedirect);
         }
+        logger.debug('finished hooks, redirecting to fromUrl or /');
         req.session.save(() => res.redirect(req.session.fromUrl || '/'));
       });
     } catch (err) {
