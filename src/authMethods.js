@@ -14,6 +14,7 @@ export default {
       'fas-citizen-eid'
     ],
     high: [
+      'fas-citizen-bmid',
       'fas-citizen-eid'
     ]
   },
@@ -36,6 +37,7 @@ export default {
       'fas-hintedlogin-eid'
     ],
     high: [
+      'fas-citizen-bmid',
       'fas-hintedlogin-eid'
     ]
   }

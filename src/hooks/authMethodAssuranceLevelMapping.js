@@ -30,15 +30,15 @@
 
 export default {
   'iam-aprofiel-userpass': 'low',
-  'fas-citizen-bmid': 'substantial',
+  'fas-citizen-bmid': 'high',
   'fas-citizen-otp': 'substantial',
   'fas-citizen-totp': 'substantial',
   'fas-citizen-eid': 'high',
-  'fas-enterprise-bmid': 'substantial',
+  'fas-enterprise-bmid': 'high',
   'fas-enterprise-otp': 'substantial',
   'fas-enterprise-totp': 'substantial',
   'fas-enterprise-eid': 'high',
-  'fas-hintedlogin-bmid': 'substantial',
+  'fas-hintedlogin-bmid': 'high',
   'fas-hintedlogin-otp': 'substantial',
   'fas-hintedlogin-totp': 'substantial',
   'fas-hintedlogin-eid': 'high'

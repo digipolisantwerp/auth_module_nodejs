@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import qs from 'querystring';
 import uuid from 'uuid';
 import pino from 'pino';
+import getProp from 'lodash.get';
 
 import authMethodsConfig from './authMethods';
 import createService from './service';
@@ -27,7 +28,7 @@ export default function createController(config) {
   } = config;
 
   const logger = pino({
-    name:'@digipolis/auth-controller',
+    name: '@digipolis/auth-controller',
     level: logLevel,
   });
   let {
@@ -189,7 +190,9 @@ export default function createController(config) {
           logger.error(error);
           return res.redirect(errorRedirect);
         }
-        logger.debug(`finished hooks, redirecting to ${req.session.fromUrl || '/'}`);
+
+        const username = getProp(user, 'dataSources.aprofiel.username');
+        logger.debug(`finished hooks, redirecting ${username} to ${req.session.fromUrl || '/'}`);
         req.session.save(() => res.redirect(req.session.fromUrl || '/'));
       });
     } catch (err) {
