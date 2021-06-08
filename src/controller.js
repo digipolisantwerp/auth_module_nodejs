@@ -189,11 +189,11 @@ export default function createController(config) {
           logger.error(error);
           return res.redirect(errorRedirect);
         }
-        logger.debug('finished hooks, redirecting to fromUrl or /');
+        logger.debug(`finished hooks, redirecting to ${req.session.fromUrl || '/'}`);
         req.session.save(() => res.redirect(req.session.fromUrl || '/'));
       });
     } catch (err) {
-      logger.error('error during logincallback', err);
+      logger.error(err, 'error during logincallback');
       return res.redirect(errorRedirect);
     }
 
