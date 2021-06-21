@@ -1,4 +1,5 @@
 import cookieParser from 'cookie';
+import pino from 'pino';
 
 import { getSessions } from '../sessionStore';
 import { getAccessToken } from '../accessToken';
@@ -24,13 +25,17 @@ export default function sso(options) {
     key = 'user',
     consentUrl,
     basePath = '/auth',
+    logLevel = 'error',
     port = false,
     ssoCookieName = 'dgp.auth.ssokey',
     shouldUpgradeAssuranceLevel = true,
   } = options;
 
   const loginPath = `${basePath}/login`;
-
+  const logger = pino({
+    name: '@digipolis/auth-sso-middleware',
+    level: logLevel,
+  });
   return async (req, res, next) => {
     const cookieHeader = req.get('cookie');
     if (!cookieHeader) {
@@ -38,7 +43,7 @@ export default function sso(options) {
     }
 
     // if we already have a session && we do not need assurance levels, do nothing
-    if(req.session[key] && !shouldUpgradeAssuranceLevel) {
+    if (req.session[key] && !shouldUpgradeAssuranceLevel) {
       return next();
     }
 
@@ -62,6 +67,7 @@ export default function sso(options) {
     try {
       const accessToken = await getAccessToken(clientId, clientSecret, consentUrl);
       const { sessions = [] } = await getSessions(consentUrl, ssoKey, accessToken);
+      logger.debug({ sessions });
       if (!sessions || sessions.length === 0) {
         return next();
       }
@@ -70,6 +76,7 @@ export default function sso(options) {
       const highSession = getSessionWithAssuranceLevel(sessions, 'high');
 
       if (highSession) {
+        logger.debug(`redirect with ${highSession.authenticationMethod}`)
         return res.redirect(`${baseRedirectUrl}&auth_methods=${highSession.authenticationMethod}`);
       }
 
@@ -79,6 +86,7 @@ export default function sso(options) {
 
       const substantialSession = getSessionWithAssuranceLevel(sessions, 'substantial');
       if (substantialSession) {
+        logger.debug(`redirect with ${substantialSession.authenticationMethod}`)
         return res.redirect(`${baseRedirectUrl}&auth_methods=${substantialSession.authenticationMethod}`);
       }
 

@@ -31,6 +31,7 @@ export default function createController(config) {
     name: '@digipolis/auth-controller',
     level: logLevel,
   });
+
   let {
     preLogin: preLoginHooks = [],
     preLogout: preLogoutHooks = [],
