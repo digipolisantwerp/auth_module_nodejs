@@ -12,7 +12,7 @@ export default function createAssuranceLevelAndAuthMethodHook({
       method,
     } = req.query;
     if (method === 'astad.aprofiel.v1') {
-      method = 'iam-aprofiel-userpass'
+      method = 'iam-aprofiel-userpass';
     }
     req.session[key].assuranceLevel = assuranceLevelMapping[method] || 'low';
     req.session[key].authenticationMethod = method || 'iam-aprofiel-userpass';

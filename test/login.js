@@ -301,6 +301,43 @@ describe('GET /login', function onDescribe() {
         assert(redirectUrl);
         assert(redirectUrl.includes('level=high'));
         assert(redirectUrl.includes('fas-enterprise-eid'));
+        assert(redirectUrl.includes('save_consent=true'));
+        return done();
+      });
+      router.handle(req, res);
+    });
+
+    it('save_consent = false should result in a loginUrl which does not save consent', function onIt(done) {
+      const router = createRouter(mockExpress, correctConfig);
+      const host = 'http://www.app.com';
+      let redirectUrl = false;
+      const req = reqres.req({
+        url: '/auth/login',
+        query: {
+          minimal_assurance_level: 'high',
+          context: 'enterprise',
+          save_consent: false,
+        },
+        get: () => host,
+        session: {
+          save: (cb) => cb(),
+        },
+      });
+      const res = reqres.res({
+        header: () => { },
+        redirect(val) {
+          redirectUrl = val
+          this.emit('end');
+        }
+      });
+  
+      res.redirect.bind(res);
+  
+      res.on('end', () => {
+        assert(redirectUrl);
+        assert(redirectUrl.includes('level=high'));
+        assert(redirectUrl.includes('save_consent=false'));
+        assert(redirectUrl.includes('fas-enterprise-eid'));
         return done();
       });
       router.handle(req, res);

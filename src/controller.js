@@ -95,12 +95,13 @@ export default function createController(config) {
 
   function createLoginUrl(host, stateKey, options) {
     const fallbackAssuranceLevel = options.context === 'enterprise' ? 'substantial' : 'low';
+    const { save_consent = true } = options;
     const query = {
       client_id: clientId,
       redirect_uri: `${host}${basePath}/login/callback`,
       state: stateKey,
       scope: determineScopes(options),
-      save_consent: true,
+      save_consent,
       response_type: 'code',
       auth_methods: determineAuthMethods(options),
       minimal_assurance_level: options.minimal_assurance_level || fallbackAssuranceLevel
@@ -111,7 +112,7 @@ export default function createController(config) {
     }
 
     Object.keys(query).forEach(key => {
-      if (!query[key]) {
+      if (query[key] == null) {
         delete query[key];
       }
     });

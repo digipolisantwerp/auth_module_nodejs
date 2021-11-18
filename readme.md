@@ -181,6 +181,9 @@ This endpoint can be used to login. There are some query parameters available to
 - **context** (enterprise, citizen or enterprise-citizen) (default citizen)  
   Specifies whether the user should log in as a citizen or as an enterprise user. Logging in with context enterprise enables the application to fetch additional enterprise related roles from the authz api with the access token of the user. The context enterprise-citizen presents the user with a choice if they want to login with either citizen or their enterprise.
 
+- **save_consent** (default: true)
+  optional query parameter that can be used if you do not want to save the consent.
+
 - **auth_methods**  
   A comma separated list of the auth methods to allow the user to log in with. 
   This limits the list of authentication methods provided to the user by the minimal_assurance_level parameter (if specified) and the context.  
