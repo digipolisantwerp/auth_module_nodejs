@@ -184,6 +184,9 @@ This endpoint can be used to login. There are some query parameters available to
 - **save_consent** (default: true)
   optional query parameter that can be used if you do not want to save the consent.
 
+- **force_auth** (default: false)
+  optional query parameter that can be used to force the login screen to show, even if a user is loggedin on the identity provider.
+
 - **auth_methods**  
   A comma separated list of the auth methods to allow the user to log in with. 
   This limits the list of authentication methods provided to the user by the minimal_assurance_level parameter (if specified) and the context.  

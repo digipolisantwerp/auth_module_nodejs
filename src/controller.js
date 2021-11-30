@@ -95,7 +95,7 @@ export default function createController(config) {
 
   function createLoginUrl(host, stateKey, options) {
     const fallbackAssuranceLevel = options.context === 'enterprise' ? 'substantial' : 'low';
-    const { save_consent = true } = options;
+    const { save_consent = true, force_auth = false } = options;
     const query = {
       client_id: clientId,
       redirect_uri: `${host}${basePath}/login/callback`,
@@ -109,6 +109,10 @@ export default function createController(config) {
 
     if (options.lng) {
       query.lng = options.lng;
+    }
+
+    if(force_auth) {
+      query.force_auth = true;
     }
 
     Object.keys(query).forEach(key => {
