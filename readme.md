@@ -259,6 +259,7 @@ after logout.
 | Name                  | Assurance level | Context    | Description                                                    |
 | --------------------- | --------------- | -----------|--------------------------------------------------------------- |
 | iam-aprofiel-userpass | low             | citizen    | Our default aprofiel authentication with username and password |
+| iam-aprofiel-phone   | low             | citizen    | Our aprofiel authentication with phone and code |
 | fas-citizen-bmid      | substantial     | citizen    | Belgian Mobile ID (e.g. Itsme)                                 |
 | fas-citizen-otp       | substantial     | citizen    | Authentication with one time password      (e.g. sms)          |
 | fas-citizen-totp      | substantial     | citizen    | Time-based one time password   (e.g. Google Authenticator)     |
