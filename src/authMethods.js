@@ -2,6 +2,7 @@ export default {
   citizen: {
     low: [
       'iam-aprofiel-userpass',
+      'iam-aprofiel-phone',
       'fas-citizen-bmid',
       'fas-citizen-otp',
       'fas-citizen-totp',
