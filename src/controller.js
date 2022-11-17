@@ -73,10 +73,6 @@ export default function createController(config) {
     } = options;
 
     if (auth_methods && auth_methods.length > 0) {
-      return auth_methods;
-    }
-
-    if (auth_methods && auth_methods.length > 0) {
       auth_methods = auth_methods.replace('astad.aprofiel.v1', 'iam-aprofiel-userpass');
       return auth_methods;
     }
