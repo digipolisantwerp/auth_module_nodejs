@@ -73,8 +73,10 @@ export default function createController(config) {
     } = options;
 
     if (auth_methods && auth_methods.length > 0) {
+      auth_methods = auth_methods.replace('astad.aprofiel.v1', 'iam-aprofiel-userpass');
       return auth_methods;
     }
+
     if (!['citizen', 'enterprise', 'enterprise-citizen'].includes(context)) {
       logger.info(`context ${context} not known, fallback to citizen`);
       context = 'citizen';

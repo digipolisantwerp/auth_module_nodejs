@@ -86,6 +86,41 @@ describe('GET /login', function onDescribe() {
     router.handle(req, res);
   });
 
+  it('should replace auth method "astad.aprofiel.v1" with "iam-aprofiel-userpass"', function onIt(done) {
+    const router = createRouter(mockExpress, correctConfig);
+    const host = 'http://www.app.com';
+    let redirectUrl = false;
+
+    const req = reqres.req({
+      url: '/auth/login',
+      query: {
+        auth_methods: 'astad.aprofiel.v1'
+      },
+      get: () => host,
+      session: {
+        save: (cb) => cb(),
+      },
+    });
+
+    const res = reqres.res({
+      header: () => { },
+      redirect(val) {
+        redirectUrl = val
+        this.emit('end');
+      }
+    });
+
+    res.redirect.bind(res);
+
+    res.on('end', () => {
+      assert(redirectUrl);
+      assert(redirectUrl.includes('auth_methods=iam-aprofiel-userpass'));
+      return done();
+    });
+
+    router.handle(req, res);
+  });
+
   it('should redirect to login with extra scopes if scopeGroups query param is supplied', function onIt(done) {
     const config = Object.assign({}, correctConfig, {
       scopeGroups: {

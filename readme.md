@@ -133,12 +133,10 @@ After creating your application on the api store, you should create a contract w
 and the Consent API (if you want to enable SSO)
 ![Create Contract consent](/assets/consent.png "Create contract consent")
 
-The next step is to navigate to your applications and clicking on actions
-
-![actions](/assets/oauth-config.png "actions")
+The next step is to navigate to your applications in the publisher and clicking on Instellingen > Client Keys > `<environment>`
 
 
-Click on oauth2 config. You'll find your clientId and secret here.
+You'll find your clientId and secret here.
 
 ![configure callback](/assets/callback.png "callback")
 
@@ -259,7 +257,7 @@ after logout.
 | Name                  | Assurance level | Context    | Description                                                    |
 | --------------------- | --------------- | -----------|--------------------------------------------------------------- |
 | iam-aprofiel-userpass | low             | citizen    | Our default aprofiel authentication with username and password |
-| iam-aprofiel-phone   | low             | citizen    | Our aprofiel authentication with phone and code |
+| iam-aprofiel-phone    | low             | citizen    | Our aprofiel authentication with phone and code |
 | fas-citizen-bmid      | substantial     | citizen    | Belgian Mobile ID (e.g. Itsme)                                 |
 | fas-citizen-otp       | substantial     | citizen    | Authentication with one time password      (e.g. sms)          |
 | fas-citizen-totp      | substantial     | citizen    | Time-based one time password   (e.g. Google Authenticator)     |
