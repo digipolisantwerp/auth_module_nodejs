@@ -1,11 +1,8 @@
-
-
 export default function createDetermineLoginTypeMiddleware({
   key = 'user',
 }) {
-
-  return (req, res, next) => {
-    let {
+  return (req, _res, next) => {
+    const {
       hinted = false,
       method = '',
     } = req.query;
@@ -21,6 +18,5 @@ export default function createDetermineLoginTypeMiddleware({
 
     req.session[key].type = type;
     return next();
-  }
-
+  };
 }

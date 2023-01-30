@@ -6,38 +6,38 @@ export default {
       'fas-citizen-bmid',
       'fas-citizen-otp',
       'fas-citizen-totp',
-      'fas-citizen-eid'
+      'fas-citizen-eid',
     ],
     substantial: [
       'fas-citizen-bmid',
       'fas-citizen-otp',
       'fas-citizen-totp',
-      'fas-citizen-eid'
+      'fas-citizen-eid',
     ],
     high: [
-      'fas-citizen-eid'
-    ]
+      'fas-citizen-eid',
+    ],
   },
   enterprise: {
     substantial: [
       'fas-enterprise-bmid',
       'fas-enterprise-otp',
       'fas-enterprise-totp',
-      'fas-enterprise-eid'
+      'fas-enterprise-eid',
     ],
     high: [
-      'fas-enterprise-eid'
-    ]
+      'fas-enterprise-eid',
+    ],
   },
   'enterprise-citizen': {
     substantial: [
       'fas-hintedlogin-bmid',
       'fas-hintedlogin-otp',
       'fas-hintedlogin-totp',
-      'fas-hintedlogin-eid'
+      'fas-hintedlogin-eid',
     ],
     high: [
-      'fas-hintedlogin-eid'
-    ]
-  }
-}
+      'fas-hintedlogin-eid',
+    ],
+  },
+};

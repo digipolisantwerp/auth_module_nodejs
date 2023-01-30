@@ -1,15 +1,13 @@
-'use strict';
-const assert = require('assert');
+import assert from 'assert';
+import reqres from 'reqres';
 import createRouter from '../src/router';
-const reqres = require('reqres');
-const mockExpress = require('express')();
 
 import correctConfig from './mocks/correctConfig';
 
-describe('GET /logout/callback', function onDescribe() {
+const mockExpress = require('express')();
 
-
-  it('should remove session when callback is triggered', function onIt(done) {
+describe('GET /logout/callback', () => {
+  it('should remove session when callback is triggered', (done) => {
     const router = createRouter(mockExpress, correctConfig);
 
     let redirectUrl = false;
@@ -17,7 +15,7 @@ describe('GET /logout/callback', function onDescribe() {
       url: '/auth/logout/callback',
       method: 'GET',
       query: {
-        state: '1234'
+        state: '1234',
       },
       get: () => undefined,
       session: {
@@ -25,15 +23,15 @@ describe('GET /logout/callback', function onDescribe() {
         user: {},
         userToken: {},
         aprofiel_logoutKey: '1234',
-        regenerate: (cb) => cb()
+        regenerate: (cb) => cb(),
       },
     });
     const res = reqres.res({
       header: () => {},
       redirect(val) {
-        redirectUrl = val
+        redirectUrl = val;
         this.emit('end');
-      }
+      },
     });
 
     res.redirect.bind(res);
@@ -49,7 +47,7 @@ describe('GET /logout/callback', function onDescribe() {
     router.handle(req, res);
   });
 
-  it('should redirect to the given logoutUrl', function onIt(done) {
+  it('should redirect to the given logoutUrl', (done) => {
     const router = createRouter(mockExpress, correctConfig);
     const logoutFromUrl = 'https://google.com';
     let redirectUrl = false;
@@ -57,7 +55,7 @@ describe('GET /logout/callback', function onDescribe() {
       url: '/auth/logout/callback',
       method: 'GET',
       query: {
-        state: '1234'
+        state: '1234',
       },
       get: () => undefined,
       session: {
@@ -66,7 +64,7 @@ describe('GET /logout/callback', function onDescribe() {
         userToken: {},
         aprofiel_logoutKey: '1234',
         logoutFromUrl,
-        regenerate: (cb) => cb()
+        regenerate: (cb) => cb(),
       },
     });
     const res = reqres.res({
@@ -74,7 +72,7 @@ describe('GET /logout/callback', function onDescribe() {
       redirect(val) {
         redirectUrl = val;
         this.emit('end');
-      }
+      },
     });
 
     res.redirect.bind(res);

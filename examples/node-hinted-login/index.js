@@ -1,7 +1,8 @@
 const express = require('express');
 const session = require('express-session');
 // for this to work, run npm run build in the root of this repository
-const { createRouter } = require('../../');
+const { createRouter } = require('../..');
+
 const app = express();
 
 const authConfig = {
@@ -16,9 +17,9 @@ const authConfig = {
       'astad.aprofiel.v1.avatar',
       'astad.aprofiel.v1.email',
     ],
-    high: ['crspersoon.nationalnumber']
+    high: ['crspersoon.nationalnumber'],
   },
-  defaultScopes: ['astad.aprofiel.v1.name',],
+  defaultScopes: ['astad.aprofiel.v1.name'],
   url: 'https://api-gw-o.antwerpen.be/acpaas/shared-identity-data/v1',
   hooks: {
     loginSuccess: [
@@ -26,9 +27,9 @@ const authConfig = {
         console.log(req.query);
         req.session.user.hookTest = 'hello';
         return next();
-      }
-    ]
-  }
+      },
+    ],
+  },
 };
 
 app.use(session({

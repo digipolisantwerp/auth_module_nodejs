@@ -13,17 +13,14 @@ import {
   substantialSession,
 } from './mocks/sessionStoreResponses';
 
-
-describe('test sso middleware', function onDescribe() {
-  // nockGetSession({ssoKey: 'fakessokey', payload: emptySessions})
+describe('test sso middleware', () => {
   const middleware = createSSOMiddleware(correctConfig);
-  it('no cookie header should result in next being called', function onIt(done) {
+  it('no cookie header should result in next being called', (done) => {
     const req = reqres.req({
-      get: () => ''
+      get: () => '',
     });
 
     const res = reqres.res();
-
 
     middleware(req, res, () => {
       assert(true);
@@ -31,13 +28,12 @@ describe('test sso middleware', function onDescribe() {
     });
   });
 
-  it('cookie header without ssoKey should result in next', function onIt(done) {
+  it('cookie header without ssoKey should result in next', (done) => {
     const req = reqres.req({
-      get: () => 'AOS=op5ssja3rjrdqaqavt5clop1e1'
+      get: () => 'AOS=op5ssja3rjrdqaqavt5clop1e1',
     });
 
     const res = reqres.res();
-
 
     middleware(req, res, () => {
       assert(true);
@@ -45,7 +41,7 @@ describe('test sso middleware', function onDescribe() {
     });
   });
 
-  it('cookie header with ssoKey but empty sessions should result in next', function onIt(done) {
+  it('cookie header with ssoKey but empty sessions should result in next', (done) => {
     const ssoKey = 'fakessokey';
     nockGetSessions({ ssoKey, payload: emptySessions });
     const req = reqres.req({
@@ -54,25 +50,23 @@ describe('test sso middleware', function onDescribe() {
 
     const res = reqres.res();
 
-
     middleware(req, res, () => {
       assert(true);
       return done();
     });
   });
 
-  it('user with assuranceLevel = high should result in next', function onIt(done) {
+  it('user with assuranceLevel = high should result in next', (done) => {
     const req = reqres.req({
       get: () => 'AOS=op5ssja3rjrdqaqavt5clop1e1',
       session: {
         user: {
-          assuranceLevel: 'high'
-        }
-      }
+          assuranceLevel: 'high',
+        },
+      },
     });
 
     const res = reqres.res();
-
 
     middleware(req, res, () => {
       assert(true);
@@ -80,7 +74,7 @@ describe('test sso middleware', function onDescribe() {
     });
   });
 
-  it('user with assurancelevel substantial but with high session should result in redirect', function onIt(done) {
+  it('user with assurancelevel substantial but with high session should result in redirect', (done) => {
     const ssoKey = 'fakessokey';
     let redirectValue;
     nockGetSessions({ ssoKey, payload: lowHighSessions });
@@ -88,15 +82,15 @@ describe('test sso middleware', function onDescribe() {
       get: () => `AOS=op5ssja3rjrdqaqavt5clop1e1; dgp.auth.ssokey=${ssoKey}`,
       session: {
         user: {
-          assuranceLevel: 'substantial'
-        }
-      }
+          assuranceLevel: 'substantial',
+        },
+      },
     });
     const res = reqres.res({
       redirect(val) {
         redirectValue = val;
         this.emit('end');
-      }
+      },
     });
 
     res.on('end', () => {
@@ -107,21 +101,21 @@ describe('test sso middleware', function onDescribe() {
     middleware(req, res, () => {});
   });
 
-  it('user with assurancelevel substantial but with substantial session should result in next', function onIt(done) {
+  it('user with assurancelevel substantial but with substantial session should result in next', (done) => {
     const ssoKey = 'fakessokey';
     nockGetSessions({ ssoKey, payload: lowSubstantialSessions });
     const req = reqres.req({
       get: () => `AOS=op5ssja3rjrdqaqavt5clop1e1; dgp.auth.ssokey=${ssoKey}`,
       session: {
         user: {
-          assuranceLevel: 'substantial'
-        }
-      }
+          assuranceLevel: 'substantial',
+        },
+      },
     });
     const res = reqres.res({
-      redirect(val) {
+      redirect(_val) {
         this.emit('end');
-      }
+      },
     });
 
     res.on('end', () => {
@@ -129,12 +123,10 @@ describe('test sso middleware', function onDescribe() {
       done();
     });
 
-    middleware(req, res, () => {
-      return done();
-    });
+    middleware(req, res, () => done());
   });
 
-  it('user with assurancelevel low but with substantial session should result in redirect', function onIt(done) {
+  it('user with assurancelevel low but with substantial session should result in redirect', (done) => {
     const ssoKey = 'fakessokey';
     let redirectValue;
     nockGetSessions({ ssoKey, payload: lowSubstantialSessions });
@@ -142,15 +134,15 @@ describe('test sso middleware', function onDescribe() {
       get: () => `AOS=op5ssja3rjrdqaqavt5clop1e1; dgp.auth.ssokey=${ssoKey}`,
       session: {
         user: {
-          assuranceLevel: 'low'
-        }
-      }
+          assuranceLevel: 'low',
+        },
+      },
     });
     const res = reqres.res({
       redirect(val) {
         redirectValue = val;
         this.emit('end');
-      }
+      },
     });
 
     res.on('end', () => {
@@ -161,23 +153,21 @@ describe('test sso middleware', function onDescribe() {
     middleware(req, res, () => {});
   });
 
-  it('user with assurancelevel low but with low session should result in next', function onIt(done) {
+  it('user with assurancelevel low but with low session should result in next', (done) => {
     const ssoKey = 'fakessokey';
-    let redirectValue;
     nockGetSessions({ ssoKey, payload: onlyLowSession });
     const req = reqres.req({
       get: () => `AOS=op5ssja3rjrdqaqavt5clop1e1; dgp.auth.ssokey=${ssoKey}`,
       session: {
         user: {
-          assuranceLevel: 'low'
-        }
-      }
+          assuranceLevel: 'low',
+        },
+      },
     });
     const res = reqres.res({
-      redirect(val) {
-        redirectValue = val;
+      redirect(_val) {
         this.emit('end');
-      }
+      },
     });
 
     res.on('end', () => {
@@ -185,26 +175,24 @@ describe('test sso middleware', function onDescribe() {
       done();
     });
 
-    middleware(req, res, () => {
-      return done();
-    });
+    middleware(req, res, () => done());
   });
 
-  it('no user but with low session should result in redirect', function onIt(done) {
+  it('no user but with low session should result in redirect', (done) => {
     const ssoKey = 'fakessokey';
     let redirectValue;
     nockGetSessions({ ssoKey, payload: onlyLowSession });
     const req = reqres.req({
       get: () => `AOS=op5ssja3rjrdqaqavt5clop1e1; dgp.auth.ssokey=${ssoKey}`,
       session: {
-      }
+      },
     });
-  
+
     const res = reqres.res({
       redirect(val) {
         redirectValue = val;
         this.emit('end');
-      }
+      },
     });
 
     res.on('end', () => {
@@ -214,7 +202,4 @@ describe('test sso middleware', function onDescribe() {
 
     middleware(req, res, () => {});
   });
-
-
-
 });

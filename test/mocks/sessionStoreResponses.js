@@ -1,4 +1,3 @@
-
 export const lowSession = {
   assuranceLevel: 'low',
   authenticationMethod: 'astad.aprofiel.v1',
@@ -7,7 +6,6 @@ export const lowSession = {
   user: 'Jos.verm',
 };
 
-
 export const substantialSession = {
   assuranceLevel: 'substantial',
   authenticationMethod: 'fas-citizen-bmid',
@@ -15,7 +13,6 @@ export const substantialSession = {
   name: 'Joske Vermeulen',
   user: 'Jos.verm',
 };
-
 
 export const highSession = {
   assuranceLevel: 'high',
@@ -26,34 +23,33 @@ export const highSession = {
 };
 
 export const emptySessions = {
-  sessions: []
-}
+  sessions: [],
+};
 
 export const onlyLowSession = {
   sessions: [
-    lowSession
-  ]
+    lowSession,
+  ],
 };
 
 export const lowSubstantialSessions = {
   sessions: [
     lowSession,
-    substantialSession
-  ]
-}
+    substantialSession,
+  ],
+};
 
 export const lowSubstantialHighSessions = {
   sessions: [
     lowSession,
     substantialSession,
-    highSession
-  ]
-}
+    highSession,
+  ],
+};
 
 export const lowHighSessions = {
   sessions: [
     lowSession,
-    highSession
-  ]
-}
-
+    highSession,
+  ],
+};

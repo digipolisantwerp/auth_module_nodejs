@@ -1,16 +1,15 @@
 import { Router, json } from 'express';
 import createController from './controller';
 
-function preventBrowserCache(req, res, next) {
+function preventBrowserCache(_req, res, next) {
   res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
   res.header('Expires', '-1');
   res.header('Vary', '*');
   res.header('Pragma', 'no-cache');
   return next();
-};
+}
 
 export default function loadRoutes(app, config) {
-
   const { basePath = '/auth' } = config;
   const {
     loginCallback,
@@ -19,11 +18,11 @@ export default function loadRoutes(app, config) {
     isLoggedin,
     logoutCallback,
     loggedoutEvent,
-    refreshToken
+    refreshToken,
   } = createController(config);
 
   const router = new Router();
-  // warning printen als trust proxy niet enabled is? of standaard enablen?
+  // print warning if trust proxy is not enabled? or enable by default?
   router.get(`${basePath}/login/callback`, preventBrowserCache, loginCallback);
   router.get(`${basePath}/login`, preventBrowserCache, login);
   router.get(`${basePath}/logout`, preventBrowserCache, logout);
@@ -33,4 +32,4 @@ export default function loadRoutes(app, config) {
   app.use(refreshToken);
 
   return router;
-};
+}

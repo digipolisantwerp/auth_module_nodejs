@@ -1,4 +1,6 @@
-import { getUserTokenFromAuthorizationCode, refreshToken } from './accessToken';
+import fetch from 'isomorphic-fetch';
+
+import { getUserTokenFromAuthorizationCode, refreshAccessToken } from './accessToken';
 
 export default function createService(config) {
   const {
@@ -12,9 +14,9 @@ export default function createService(config) {
       `${url}/me`,
       {
         headers: {
-          Authorization: `bearer ${token}`
-        }
-      }
+          Authorization: `bearer ${token}`,
+        },
+      },
     );
     const body = await response.json();
 
@@ -26,19 +28,18 @@ export default function createService(config) {
   }
 
   async function loginUser(code) {
-
     const userToken = await getUserTokenFromAuthorizationCode(code, clientId, clientSecret, url);
     const user = await requestUserWithToken(userToken.accessToken);
     return { user, userToken };
   }
 
   function refresh(token) {
-    return refreshToken(token, clientId, clientSecret, url);
+    return refreshAccessToken(token, clientId, clientSecret, url);
   }
 
   return {
     loginUser,
     requestUserWithToken,
-    refresh
+    refresh,
   };
 }

@@ -10,11 +10,11 @@ const config = {
   ],
   scopeGroups: {
     address: ['crspersoon.housenumber', 'crspersoon.streetname'],
-    personal: ['crspersoon.nationalnumber', 'crspersoon.nationality']
+    personal: ['crspersoon.nationalnumber', 'crspersoon.nationality'],
   },
   url: 'https://api-gw-a.antwerpen.be/acpaas/shared-identity-data/v1',
   consentUrl: 'https://api-gw-a.antwerpen.be/acpaas/consent/v1',
-  refresh: true
+  refresh: true,
 };
 
 export default config;

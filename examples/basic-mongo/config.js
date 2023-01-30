@@ -12,17 +12,17 @@ module.exports = {
         'astad.aprofiel.v1.avatar',
         'astad.aprofiel.v1.email',
       ],
-      high: ['crspersoon.nationalnumber']
+      high: ['crspersoon.nationalnumber'],
     },
-    defaultScopes: ['astad.aprofiel.v1.name',],
+    defaultScopes: ['astad.aprofiel.v1.name'],
     url: 'https://api-gw-a.antwerpen.be/acpaas/shared-identity-data/v1',
     hooks: {
       loginSuccess: [
         (req, res, next) => {
           req.session.user.hookTest = 'hello';
           return next();
-        }
-      ]
-    }
-  }
-}
+        },
+      ],
+    },
+  },
+};

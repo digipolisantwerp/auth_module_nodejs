@@ -1,6 +1,7 @@
+/* eslint-disable camelcase */
+import * as uuid from 'uuid';
 import bcrypt from 'bcryptjs';
 import qs from 'querystring';
-import uuid from 'uuid';
 import pino from 'pino';
 import getProp from 'lodash.get';
 
@@ -32,36 +33,36 @@ export default function createController(config) {
     level: logLevel,
   });
 
-  let {
+  const {
     preLogin: preLoginHooks = [],
     preLogout: preLogoutHooks = [],
     loginSuccess: loginSuccessHooks = [],
     logoutSuccess: logoutSuccessHooks = [],
   } = hooks;
 
-
   loginSuccessHooks.push(
     createAssuranceLevelAndAuthMethodHook(config),
-    createDetermineLoginTypeHook(config)
+    createDetermineLoginTypeHook(config),
   );
 
   logoutSuccessHooks.push(createDeleteSessionsHook(config));
 
-
   const service = createService(config);
 
   function determineScopes(options) {
-    let scopes = [...defaultScopes];
+    const scopes = [...defaultScopes];
     if (!options.scopeGroups) {
       return scopes.join(' ');
     }
 
-    const groups = Array.isArray(options.scopeGroups) ? scopeGroups : options.scopeGroups.split(',');
-    groups.forEach(group => {
+    const groups = Array.isArray(options.scopeGroups)
+      ? scopeGroups
+      : options.scopeGroups.split(',');
+    groups.forEach((group) => {
       if (scopeGroups[group]) {
         scopes.push(...scopeGroups[group]);
       }
-    })
+    });
     return scopes.join(' ');
   }
 
@@ -69,11 +70,14 @@ export default function createController(config) {
     let {
       auth_methods = false,
       minimal_assurance_level = 'low',
-      context = 'citizen'
+      context = 'citizen',
     } = options;
 
     if (auth_methods && auth_methods.length > 0) {
-      auth_methods = auth_methods.replace('astad.aprofiel.v1', 'iam-aprofiel-userpass');
+      auth_methods = auth_methods.replace(
+        'astad.aprofiel.v1',
+        'iam-aprofiel-userpass',
+      );
       return auth_methods;
     }
 
@@ -83,12 +87,17 @@ export default function createController(config) {
     }
 
     if (!['low', 'substantial', 'high'].includes(minimal_assurance_level)) {
-      logger.info(`${minimal_assurance_level} not known, fallback to lowest available`);
+      logger.info(
+        `${minimal_assurance_level} not known, fallback to lowest available`,
+      );
       minimal_assurance_level = 'low';
     }
 
     // enterprise does not have low.
-    if (['enterprise', 'enterprise-citizen'].includes(context) && minimal_assurance_level === 'low') {
+    if (
+      ['enterprise', 'enterprise-citizen'].includes(context)
+      && minimal_assurance_level === 'low'
+    ) {
       minimal_assurance_level = 'substantial';
     }
 
@@ -106,18 +115,19 @@ export default function createController(config) {
       save_consent,
       response_type: 'code',
       auth_methods: determineAuthMethods(options),
-      minimal_assurance_level: options.minimal_assurance_level || fallbackAssuranceLevel
-    }
+      minimal_assurance_level:
+        options.minimal_assurance_level || fallbackAssuranceLevel,
+    };
 
     if (options.lng) {
       query.lng = options.lng;
     }
 
-    if(force_auth) {
+    if (force_auth) {
       query.force_auth = true;
     }
 
-    Object.keys(query).forEach(key => {
+    Object.keys(query).forEach((key) => {
       if (query[key] == null) {
         delete query[key];
       }
@@ -126,12 +136,16 @@ export default function createController(config) {
     return `${oauthHost}/v2/authorize?${qs.stringify(query)}`;
   }
 
-  function createLogoutUrl({ userId, token, redirectUri, authenticationMethod = 'iam-aprofiel-userpass' }) {
-
+  function createLogoutUrl({
+    userId,
+    token,
+    redirectUri,
+    authenticationMethod = 'iam-aprofiel-userpass',
+  }) {
     const data = JSON.stringify({
       user_id: userId,
       access_token: token,
-      redirect_uri: redirectUri
+      redirect_uri: redirectUri,
     });
 
     const query = {
@@ -147,67 +161,70 @@ export default function createController(config) {
     const host = getHost(req);
     const stateKey = uuid.v4();
     const url = createLoginUrl(host, stateKey, req.query);
-    req.session[`loginKey`] = stateKey;
+    req.session.loginKey = stateKey;
     req.session.fromUrl = req.query.fromUrl || '/';
-    runHooks(preLoginHooks, req, res, () => {
-      return req.session.save(() => res.redirect(url));
-    });
+    runHooks(preLoginHooks, req, res, () => req.session.save(() => res.redirect(url)));
   }
 
   function isLoggedin(req, res) {
     if (!req.session[objectKey]) {
       return res.json({
-        isLoggedin: false
+        isLoggedin: false,
       });
     }
 
     return res.json({
       isLoggedin: true,
-      [objectKey]: req.session[objectKey]
+      [objectKey]: req.session[objectKey],
     });
   }
 
   async function loginCallback(req, res) {
     logger.debug('login callback triggered');
     if (!req.query.code || !req.query.state) {
-      logger.error(`code or state not in query params`);
+      logger.error('code or state not in query params');
       return res.redirect(errorRedirect);
     }
 
-    if (req.query.state !== req.session[`loginKey`]) {
-      logger.error(`state ${req.query.state} does not match loginKey ${req.session['loginKey']}`);
+    if (req.query.state !== req.session.loginKey) {
+      logger.error(
+        `state ${req.query.state} does not match loginKey ${req.session.loginKey}`,
+      );
       let loginUrl = `${basePath}/login`;
-      const fromUrl = req.session.fromUrl;
+      const { fromUrl } = req.session;
       if (fromUrl) {
         loginUrl = `${loginUrl}?fromUrl=${fromUrl}`;
       }
       return res.redirect(loginUrl);
     }
 
-
-    delete req.session[`loginKey`];
+    delete req.session.loginKey;
 
     try {
       logger.debug('fetch user with code');
       const { user, userToken } = await service.loginUser(req.query.code);
+
       req.session[objectKey] = user;
       req.session[`${objectKey}Token`] = userToken;
       logger.debug('run hooks');
-      runHooks(loginSuccessHooks, req, res, (error) => {
+      return runHooks(loginSuccessHooks, req, res, (error) => {
         if (error) {
           logger.error(error);
           return res.redirect(errorRedirect);
         }
 
         const username = getProp(user, 'dataSources.aprofiel.username');
-        logger.debug(`finished hooks, redirecting ${username} to ${req.session.fromUrl || '/'}`);
-        req.session.save(() => res.redirect(req.session.fromUrl || '/'));
+        logger.debug(
+          `finished hooks, redirecting ${username} to ${
+            req.session.fromUrl || '/'
+          }`,
+        );
+        return req.session.save(() => res.redirect(req.session.fromUrl || '/'));
       });
     } catch (err) {
       logger.error(err, 'error during logincallback');
       return res.redirect(errorRedirect);
     }
-
   }
 
   function logoutCallback(req, res) {
@@ -223,13 +240,12 @@ export default function createController(config) {
   }
 
   function logout(req, res) {
-
     const logoutFromUrl = req.query.fromUrl || req.query.fromurl || '/';
     if (!req.session[objectKey]) {
       return res.redirect(logoutFromUrl);
     }
 
-    const token = req.session[`${objectKey}Token`]
+    const token = req.session[`${objectKey}Token`];
     req.session.logoutFromUrl = logoutFromUrl;
     // used to prevent eventhandler from deleting this application
     req.session.isLogoutOrigin = true;
@@ -237,11 +253,12 @@ export default function createController(config) {
       redirectUri: `${getHost(req)}${basePath}/logout/callback`,
       token: token.accessToken,
       userId: req.session[objectKey].profile.id,
-      authenticationMethod: req.session[objectKey].authenticationMethod
+      authenticationMethod: req.session[objectKey].authenticationMethod,
     };
     const logoutUrl = createLogoutUrl(logoutParams);
-    runHooks(preLogoutHooks, req, res, () => {
-      req.session.save(() => res.redirect(logoutUrl));
+    // eslint-disable-next-line arrow-body-style
+    return runHooks(preLogoutHooks, req, res, () => {
+      return req.session.save(() => res.redirect(logoutUrl));
     });
   }
 
@@ -249,7 +266,7 @@ export default function createController(config) {
     const {
       headerKey = 'x-logout-token',
       securityHash = '',
-      sessionStoreLogoutAdapter: adapter = false
+      sessionStoreLogoutAdapter: adapter = false,
     } = config.logout || {};
 
     const token = req.get(headerKey) || '';
@@ -266,13 +283,11 @@ export default function createController(config) {
       await adapter(objectKey, accessTokenKey, req.body);
       return res.sendStatus(200);
     } catch (err) {
-      console.log('error during logout event', err);
       return res.status(500).json(err);
     }
   }
 
   async function refreshToken(req, res, next) {
-
     if (!refresh) {
       return next();
     }
@@ -299,6 +314,6 @@ export default function createController(config) {
     isLoggedin,
     loginCallback,
     refreshToken,
-    loggedoutEvent
-  }
+    loggedoutEvent,
+  };
 }
