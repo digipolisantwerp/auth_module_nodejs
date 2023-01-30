@@ -21,8 +21,8 @@ export default function sso(options) {
   const {
     clientId,
     clientSecret,
-    key = 'user',
     consentUrl,
+    key = 'user',
     basePath = '/auth',
     logLevel = 'error',
     port = false,
