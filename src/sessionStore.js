@@ -1,4 +1,3 @@
-
 import fetch from 'isomorphic-fetch';
 
 export async function getSessions(consentUrl, ssoKey, accessToken) {
@@ -21,7 +20,6 @@ export async function getSessions(consentUrl, ssoKey, accessToken) {
   return body;
 }
 
-
 export async function deleteSessions(consentUrl, ssoKey, accessToken) {
   const response = await fetch(
     `${consentUrl}/sessions/${ssoKey}`,
@@ -33,7 +31,7 @@ export async function deleteSessions(consentUrl, ssoKey, accessToken) {
     },
   );
 
-  if(!response.ok) {
+  if (!response.ok) {
     throw new Error('failed to delete sessions');
   }
 

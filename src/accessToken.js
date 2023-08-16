@@ -3,19 +3,20 @@ import { OAuth2 } from 'oauth';
 const tokenStore = {};
 const ACCESS_TOKEN_PATH = '/oauth2/token';
 const EXPIRY_MARGIN = 1000 * 60 * 5; // 5 minute margin
+
 function createUserToken(results, refreshToken) {
   return {
     accessToken: results.access_token,
     refreshToken,
     expiresIn: new Date(new Date().getTime() + (results.expires_in * 1000) - EXPIRY_MARGIN),
-    isRefreshing: false
-  }
+    isRefreshing: false,
+  };
 }
 
 function getNewAccessToken(clientId, clientSecret, url) {
   const oauth2 = new OAuth2(clientId, clientSecret, url, null, ACCESS_TOKEN_PATH);
   return new Promise((resolve, reject) => {
-    oauth2.getOAuthAccessToken('', { grant_type: 'client_credentials' }, (err, accessToken, refreshToken, results) => {
+    oauth2.getOAuthAccessToken('', { grant_type: 'client_credentials' }, (err, accessToken, _refreshToken, results) => {
       if (err) {
         return reject(err);
       }
@@ -28,7 +29,6 @@ function getNewAccessToken(clientId, clientSecret, url) {
   });
 }
 
-
 export function getUserTokenFromAuthorizationCode(code, clientId, clientSecret, url) {
   const oauth2 = new OAuth2(clientId, clientSecret, url, null, ACCESS_TOKEN_PATH);
 
@@ -36,34 +36,35 @@ export function getUserTokenFromAuthorizationCode(code, clientId, clientSecret, 
     oauth2.getOAuthAccessToken(
       code,
       { grant_type: 'authorization_code' },
-      (err, accessToken, refreshToken, results) => {
+      (err, _accessToken, refreshToken, results) => {
         if (err) {
           return reject(err);
         }
 
         const userToken = createUserToken(results, refreshToken);
         return resolve(userToken);
-      });
-  })
+      },
+    );
+  });
 }
 
-export function refreshToken(token, clientId, clientSecret, url) {
+export function refreshAccessToken(token, clientId, clientSecret, url) {
   const oauth2 = new OAuth2(clientId, clientSecret, url, null, ACCESS_TOKEN_PATH);
   return new Promise((resolve, reject) => {
     oauth2.getOAuthAccessToken(
       token.refreshToken,
-      { 'grant_type': 'refresh_token' },
-      (err, accessToken, refreshToken, results) => {
+      { grant_type: 'refresh_token' },
+      (err, _accessToken, refreshToken, results) => {
         if (err) {
           return reject(err);
         }
 
         const userToken = createUserToken(results, refreshToken);
-        return resolve(userToken)
-      });
+        return resolve(userToken);
+      },
+    );
   });
 }
-
 
 export async function getAccessToken(clientId, clientSecret, url) {
   if (tokenStore.token && tokenStore.token.expiresIn > Date.now()) {
@@ -73,5 +74,3 @@ export async function getAccessToken(clientId, clientSecret, url) {
   tokenStore.token = await getNewAccessToken(clientId, clientSecret, url);
   return tokenStore.token.accessToken;
 }
-
-

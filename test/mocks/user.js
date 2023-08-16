@@ -1,4 +1,3 @@
-
 import nock from 'nock';
 import user from './user.json';
 
@@ -7,4 +6,3 @@ export default function nockGetAprofiel(apiHost, status) {
     .get('/me')
     .reply(status || 200, user);
 }
-

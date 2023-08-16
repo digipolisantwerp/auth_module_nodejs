@@ -1,12 +1,11 @@
+import * as uuid from 'uuid';
 import mockery from 'mockery';
-import uuid from 'uuid';
 
 mockery.enable({
   useCleanCache: true,
   warnOnReplace: false,
-  warnOnUnregistered: false
+  warnOnUnregistered: false,
 });
-
 
 class OAuth2 {
   constructor(clientId, clientSecret, apiHost, irr1, endpoint) {
@@ -23,11 +22,11 @@ class OAuth2 {
     const refresh = uuid.v4();
     setTimeout(() => callback(null, token, refresh, {
       access_token: token,
-      expires_in: 2 * 60 * 60
+      expires_in: 2 * 60 * 60,
     }));
   }
 }
 
 mockery.registerMock('oauth', {
-  OAuth2: OAuth2
+  OAuth2,
 });

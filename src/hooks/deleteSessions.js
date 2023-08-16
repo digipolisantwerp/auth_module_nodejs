@@ -9,7 +9,7 @@ export default function createDeleteSessionsHook(options) {
     consentUrl,
     ssoCookieName = 'dgp.auth.ssokey',
   } = options;
-  return async (req, res, next) => {
+  return async (req, _res, next) => {
     const cookieHeader = req.get('cookie');
 
     if (!cookieHeader) {
@@ -23,13 +23,10 @@ export default function createDeleteSessionsHook(options) {
     }
 
     try {
-      console.log(clientId, clientSecret);
       const accessToken = await getAccessToken(clientId, clientSecret, consentUrl);
-      console.log('accesstoken', accessToken);
       await deleteSessions(consentUrl, ssoKey, accessToken);
     } catch (exception) {
-      console.log('the exception is here');
-      console.log(exception);
+      next(exception);
     }
 
     return next();

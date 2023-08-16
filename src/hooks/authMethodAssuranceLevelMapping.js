@@ -2,7 +2,6 @@
  * the following script can be used to automatically generate this mapping
  */
 
-
 // import authMethodsConfig from '../authMethods';
 
 // const authMethodsAssuranceLevel = Object
@@ -41,5 +40,5 @@ export default {
   'fas-hintedlogin-bmid': 'substantial',
   'fas-hintedlogin-otp': 'substantial',
   'fas-hintedlogin-totp': 'substantial',
-  'fas-hintedlogin-eid': 'high'
-}
+  'fas-hintedlogin-eid': 'high',
+};

@@ -1,6 +1,3 @@
-'use strict';
-const uuid = require('uuid');
-
 module.exports = {
   oauthHost: 'https://api-oauth2-o.antwerpen.be',
   apiHost: 'https://api-gw-o.antwerpen.be',
@@ -21,8 +18,8 @@ module.exports = {
       tokenUrl: 'https://api-gw-o.antwerpen.be/astad/aprofiel/v1/oauth2/token',
       hooks: {
         loginSuccess: [],
-        logoutSuccess: []
-      }
+        logoutSuccess: [],
+      },
     },
     eid: {
       version: 'v2',
@@ -34,8 +31,8 @@ module.exports = {
       tokenUrl: 'https://api-gw-o.antwerpen.be/acpaas/shared-identity-data/v1/oauth2/token',
       hooks: {
         loginSuccess: [],
-        logoutSuccess: []
-      }
-    }
-  }
-}
+        logoutSuccess: [],
+      },
+    },
+  },
+};

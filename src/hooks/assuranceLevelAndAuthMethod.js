@@ -1,13 +1,9 @@
-import cookieParser from 'cookie';
-import { getSessions } from '../sessionStore';
 import assuranceLevelMapping from './authMethodAssuranceLevelMapping';
-
 
 export default function createAssuranceLevelAndAuthMethodHook({
   key = 'user',
 }) {
-
-  return (req, res, next) => {
+  return (req, _res, next) => {
     let {
       method,
     } = req.query;
@@ -18,5 +14,5 @@ export default function createAssuranceLevelAndAuthMethodHook({
     req.session[key].authenticationMethod = method || 'iam-aprofiel-userpass';
 
     return next();
-  }
+  };
 }

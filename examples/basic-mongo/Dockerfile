@@ -1,4 +1,4 @@
-FROM node:dubnium
+FROM node:18
 
 
 RUN mkdir /app

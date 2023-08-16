@@ -1,31 +1,35 @@
 import createRouter from './router';
 import createSsoMiddleware from './middleware/sso';
 
-
-const REQUIRED_CONFIG_PROPS = [
-  'clientId', 
+const REQUIRED_ROUTER_CONFIG_PROPS = [
+  'clientId',
   'clientSecret',
-  'oauthHost'
+  'oauthHost',
 ];
 
-function validateConfig(config) {
+const REQUIRED_SSO_MIDDLEWARE_CONFIG_PROPS = [
+  'clientId',
+  'clientSecret',
+  'consentUrl',
+];
 
-  REQUIRED_CONFIG_PROPS.forEach(prop => {
-    if(config[prop] == null) {
+function validateConfig(requiredProps, config) {
+  requiredProps.forEach((prop) => {
+    if (config[prop] == null) {
       throw new Error(`${prop} is required config`);
     }
   });
 }
 
-const toExport =  {
+const toExport = {
   createRouter: (app, config) => {
-    validateConfig(config);
+    validateConfig(REQUIRED_ROUTER_CONFIG_PROPS, config);
     return createRouter(app, config);
   },
   createSsoMiddleware: (config) => {
-    validateConfig(config);
+    validateConfig(REQUIRED_SSO_MIDDLEWARE_CONFIG_PROPS, config);
     return createSsoMiddleware(config);
-  }
+  },
 };
 
 export default toExport;

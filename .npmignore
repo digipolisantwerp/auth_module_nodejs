@@ -1,1 +1,17 @@
+# Eslint configuration
+.eslintignore
+.eslintrc
+
+# Build configuration
+.babelrc
+rollup.config.js
+.travis.yml
+
+# Tests
+test
+
+# Examples
 examples
+
+# Workflows
+.github

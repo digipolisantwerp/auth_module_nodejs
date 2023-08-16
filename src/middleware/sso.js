@@ -4,7 +4,6 @@ import pino from 'pino';
 import { getSessions } from '../sessionStore';
 import { getAccessToken } from '../accessToken';
 
-
 function getFallbackFromUrl(req, port) {
   return `${req.protocol}://${req.hostname}${port ? `:${port}` : ''}${req.originalUrl}`;
 }
@@ -15,15 +14,15 @@ function getFromUrl(req, port) {
 }
 
 function getSessionWithAssuranceLevel(sessions, assuranceLevel) {
-  return sessions.find(session => session.assuranceLevel === assuranceLevel && !session.authenticationMethod.includes('mprofiel'));
+  return sessions.find((session) => session.assuranceLevel === assuranceLevel && !session.authenticationMethod.includes('mprofiel'));
 }
 
 export default function sso(options) {
   const {
     clientId,
     clientSecret,
-    key = 'user',
     consentUrl,
+    key = 'user',
     basePath = '/auth',
     logLevel = 'error',
     port = false,
@@ -53,16 +52,12 @@ export default function sso(options) {
       return next();
     }
 
-
-
     const user = req.session[key] || {};
     const assuranceLevel = user.assuranceLevel || 'none';
-
 
     if (assuranceLevel === 'high') {
       return next();
     }
-
 
     try {
       const accessToken = await getAccessToken(clientId, clientSecret, consentUrl);
@@ -76,7 +71,7 @@ export default function sso(options) {
       const highSession = getSessionWithAssuranceLevel(sessions, 'high');
 
       if (highSession) {
-        logger.debug(`redirect with ${highSession.authenticationMethod}`)
+        logger.debug(`redirect with ${highSession.authenticationMethod}`);
         return res.redirect(`${baseRedirectUrl}&auth_methods=${highSession.authenticationMethod}`);
       }
 
@@ -86,7 +81,7 @@ export default function sso(options) {
 
       const substantialSession = getSessionWithAssuranceLevel(sessions, 'substantial');
       if (substantialSession) {
-        logger.debug(`redirect with ${substantialSession.authenticationMethod}`)
+        logger.debug(`redirect with ${substantialSession.authenticationMethod}`);
         return res.redirect(`${baseRedirectUrl}&auth_methods=${substantialSession.authenticationMethod}`);
       }
 
@@ -94,16 +89,14 @@ export default function sso(options) {
         return next();
       }
 
-      const lowSession = getSessionWithAssuranceLevel(sessions, 'low')
+      const lowSession = getSessionWithAssuranceLevel(sessions, 'low');
       if (lowSession) {
         return res.redirect(`${baseRedirectUrl}&auth_methods=iam-aprofiel-userpass`);
       }
-
     } catch (exception) {
-      console.log(exception);
+      logger.error(exception);
     }
 
     return next();
-  }
+  };
 }
-
