@@ -123,7 +123,7 @@ The login router & the SSO middleware use the same configuration.
 - **allowedDomains**: *String[]* 
   List of domains allowed to redirect to after successful login  
   (e.g.: ['antwerpen.be'])
-  (e.g.: ['antwerpen.be', 'digipolis.be, 'gate15.be'])
+  (e.g.: ['antwerpen.be', 'digipolis.be', 'gate15.be'])
 
 
 ### API Store configuration
