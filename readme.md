@@ -120,6 +120,10 @@ The login router & the SSO middleware use the same configuration.
 - **url**: *String* 
   Url where the user will be retrieved with after login has succeeded  
   (e.g.: https://api-gw-a.antwerpen.be/acpaas/shared-identity-data/v1)
+- **allowedDomains**: *String[]* 
+  List of domains allowed to redirect to after successful login  
+  (e.g.: ['antwerpen.be'])
+  (e.g.: ['antwerpen.be', 'digipolis.be, 'gate15.be'])
 
 
 ### API Store configuration

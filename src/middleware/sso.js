@@ -3,14 +3,21 @@ import pino from 'pino';
 
 import { getSessions } from '../sessionStore';
 import { getAccessToken } from '../accessToken';
+import { isValidCallbackUrl } from '../util/isValidCallbackUrl';
 
 function getFallbackFromUrl(req, port) {
   return `${req.protocol}://${req.hostname}${port ? `:${port}` : ''}${req.originalUrl}`;
 }
 
-function getFromUrl(req, port) {
-  const rawFromUrl = req.query.fromUrl || req.query.fromurl || getFallbackFromUrl(req, port);
-  return encodeURIComponent(rawFromUrl);
+function getFromUrl(req, port, allowedDomains) {
+  if (
+    (!req.query.fromUrl && !req.query.fromurl) ||
+    !isValidCallbackUrl(req.query.fromUrl || req.query.fromurl, allowedDomains)
+  ) {
+    return encodeURIComponent(getFallbackFromUrl(req, port));
+  }
+
+  return encodeURIComponent(req.query.fromUrl || req.query.fromurl);
 }
 
 function getSessionWithAssuranceLevel(sessions, assuranceLevel) {
@@ -28,6 +35,7 @@ export default function sso(options) {
     port = false,
     ssoCookieName = 'dgp.auth.ssokey',
     shouldUpgradeAssuranceLevel = true,
+    allowedDomains
   } = options;
 
   const loginPath = `${basePath}/login`;
@@ -67,7 +75,7 @@ export default function sso(options) {
         return next();
       }
 
-      const baseRedirectUrl = `${loginPath}?fromUrl=${getFromUrl(req, port)}`;
+      const baseRedirectUrl = `${loginPath}?fromUrl=${getFromUrl(req, port, allowedDomains)}`;
       const highSession = getSessionWithAssuranceLevel(sessions, 'high');
 
       if (highSession) {

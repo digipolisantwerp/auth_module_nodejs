@@ -11,6 +11,7 @@ import { getHost, logoutEncrypt, runHooks } from './helpers';
 import createDeleteSessionsHook from './hooks/deleteSessions';
 import createAssuranceLevelAndAuthMethodHook from './hooks/assuranceLevelAndAuthMethod';
 import createDetermineLoginTypeHook from './hooks/determineLoginType';
+import { isValidCallbackUrl } from './util/isValidCallbackUrl';
 
 const EXPIRY_MARGIN = 5 * 60 * 1000;
 export default function createController(config) {
@@ -26,6 +27,7 @@ export default function createController(config) {
     errorRedirect = '/',
     key: objectKey = 'user',
     logLevel = 'error',
+    allowedDomains,
   } = config;
 
   const logger = pino({
@@ -162,7 +164,7 @@ export default function createController(config) {
     const stateKey = uuid.v4();
     const url = createLoginUrl(host, stateKey, req.query);
     req.session.loginKey = stateKey;
-    req.session.fromUrl = req.query.fromUrl || '/';
+    req.session.fromUrl = isValidCallbackUrl(req.query.fromUrl, allowedDomains) ? req.query.fromUrl : '/';
     runHooks(preLoginHooks, req, res, () => req.session.save(() => res.redirect(url)));
   }
 
@@ -215,8 +217,7 @@ export default function createController(config) {
 
         const username = getProp(user, 'dataSources.aprofiel.username');
         logger.debug(
-          `finished hooks, redirecting ${username} to ${
-            req.session.fromUrl || '/'
+          `finished hooks, redirecting ${username} to ${req.session.fromUrl || '/'
           }`,
         );
         return req.session.save(() => res.redirect(req.session.fromUrl || '/'));
