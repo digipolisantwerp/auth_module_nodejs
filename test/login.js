@@ -9,7 +9,7 @@ describe('GET /login', () => {
   it('should redirect to login', (done) => {
     const router = createRouter(mockExpress, correctConfig);
     const host = 'http://www.app.com';
-    const fromUrl = 'test.com/d';
+    const fromUrl = 'https://test.com/d';
     let redirectUrl = false;
     const req = reqres.req({
       url: '/auth/login',
@@ -34,6 +34,47 @@ describe('GET /login', () => {
     res.on('end', () => {
       assert(redirectUrl);
       assert(req.session.fromUrl === fromUrl);
+      assert(redirectUrl.includes(encodeURIComponent(host)));
+      assert(redirectUrl.includes(encodeURIComponent(correctConfig.clientId)));
+      const scopes = correctConfig.defaultScopes.join(' ');
+      assert(
+        redirectUrl
+          .includes(encodeURIComponent(scopes)),
+      );
+      return done();
+    });
+
+    router.handle(req, res);
+  });
+
+  it('should not redirect if fromUrl is invalid', (done) => {
+    const router = createRouter(mockExpress, correctConfig);
+    const host = 'http://www.app.com';
+    const fromUrl = 'https://invalid.com/d';
+    let redirectUrl = false;
+    const req = reqres.req({
+      url: '/auth/login',
+      query: {
+        fromUrl,
+      },
+      get: () => host,
+      session: {
+        save: (cb) => {
+          cb();
+        },
+      },
+    });
+    const res = reqres.res({
+      header: () => { },
+      redirect(val) {
+        redirectUrl = val;
+        this.emit('end');
+      },
+    });
+
+    res.on('end', () => {
+      assert(redirectUrl);
+      assert(req.session.fromUrl === '/');
       assert(redirectUrl.includes(encodeURIComponent(host)));
       assert(redirectUrl.includes(encodeURIComponent(correctConfig.clientId)));
       const scopes = correctConfig.defaultScopes.join(' ');
