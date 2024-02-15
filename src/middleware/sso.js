@@ -11,8 +11,8 @@ function getFallbackFromUrl(req, port) {
 
 function getFromUrl(req, port, allowedDomains) {
   if (
-    (!req.query.fromUrl && !req.query.fromurl) ||
-    !isValidCallbackUrl(req.query.fromUrl || req.query.fromurl, allowedDomains)
+    (!req.query.fromUrl && !req.query.fromurl)
+    || !isValidCallbackUrl(req.query.fromUrl || req.query.fromurl, allowedDomains)
   ) {
     return encodeURIComponent(getFallbackFromUrl(req, port));
   }
@@ -35,7 +35,7 @@ export default function sso(options) {
     port = false,
     ssoCookieName = 'dgp.auth.ssokey',
     shouldUpgradeAssuranceLevel = true,
-    allowedDomains
+    allowedDomains,
   } = options;
 
   const loginPath = `${basePath}/login`;
