@@ -1,3 +1,7 @@
+# Changelog
+
+## [2.3.5] 2024-02-19
+- ASTAD-28445 Limit redirects from fromUrls
 
 ## [unreleased] - 2019-08-01
 - Add example for basic mongo setup
