@@ -1,7 +1,6 @@
 /// <reference types="node" />
 declare module "@digipolis/auth" {
   import { Router, Application } from "express";
-  import { LevelWithSilent } from 'pino';
 
   export interface RouterConfig {
     clientId: string;
@@ -19,7 +18,7 @@ declare module "@digipolis/auth" {
     };
     errorRedirect?: string;
     key?: string;
-    logLevel?: LevelWithSilent;
+    logLevel?: string;
   }
 
   export interface SsoMiddlewareConfig {
@@ -28,17 +27,12 @@ declare module "@digipolis/auth" {
     consentUrl: string;
     key?: string;
     basePath?: string;
-    logLevel?: LevelWithSilent;
+    logLevel?: string;
     port?: number;
     ssoCookieName?: string;
     shouldUpgradeAssuranceLevel?: boolean;
   }
 
-  function createRouter(app: Application, config: RouterConfig): Router;
-  function createSsoMiddleware(config: SsoMiddlewareConfig): Promise<void>;
-
-  export = {
-    createRouter,
-    createSsoMiddleware,
-  };
+  export function createRouter(app: Application, config: RouterConfig): Router;
+  export function createSsoMiddleware(config: SsoMiddlewareConfig): any;
 }
