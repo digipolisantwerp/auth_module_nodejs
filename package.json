@@ -1,12 +1,12 @@
 {
   "name": "@digipolis/auth",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "index.d.ts",
-  "engines" : { 
-    "node" : ">=15.0.0"
+  "engines": {
+    "node": ">=15.0.0"
   },
   "scripts": {
     "build": "npx rollup -c --exports default",
