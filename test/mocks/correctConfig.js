@@ -15,7 +15,7 @@ const config = {
   url: 'https://api-gw-a.antwerpen.be/acpaas/shared-identity-data/v1',
   consentUrl: 'https://api-gw-a.antwerpen.be/acpaas/consent/v1',
   refresh: true,
-  allowedDomains: ['test.com']
+  allowedDomains: ['test.com'],
 };
 
 export default config;
