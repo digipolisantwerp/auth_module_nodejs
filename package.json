@@ -9,6 +9,7 @@
     "build": "npx rollup -c --exports default",
     "prepublish": "npm run build",
     "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
     "test": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text mocha"
   },
   "publishConfig": {

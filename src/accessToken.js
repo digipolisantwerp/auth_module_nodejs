@@ -80,7 +80,7 @@ export async function getAccessToken(clientId, clientSecret, url) {
     if (tokenStore.token && tokenStore.token.expiresIn > Date.now()) {
       return tokenStore.token.accessToken;
     }
-  
+
     tokenStore.token = await getNewAccessToken(clientId, clientSecret, url);
     return tokenStore.token.accessToken;
   } catch (error) {
