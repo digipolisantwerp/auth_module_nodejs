@@ -289,23 +289,28 @@ export default function createController(config) {
   }
 
   async function refreshToken(req, res, next) {
-    if (!refresh) {
+    try {
+      if (!refresh) {
+        return next();
+      }
+
+      const tokenKey = `${objectKey}Token`;
+      const token = req.session[tokenKey];
+      if (!token) {
+        return next();
+      }
+
+      if (new Date(token.expiresIn) >= new Date(Date.now() + EXPIRY_MARGIN)) {
+        return next();
+      }
+
+      const newToken = await service.refresh(token);
+      req.session = Object.assign(req.session, { [tokenKey]: newToken });
+      return req.session.save(() => next());
+    } catch (error) {
+      logger.error('An error occurred while refreshing token', error);
       return next();
     }
-
-    const tokenKey = `${objectKey}Token`;
-    const token = req.session[tokenKey];
-    if (!token) {
-      return next();
-    }
-
-    if (new Date(token.expiresIn) >= new Date(Date.now() + EXPIRY_MARGIN)) {
-      return next();
-    }
-
-    const newToken = await service.refresh(token);
-    req.session = Object.assign(req.session, { [tokenKey]: newToken });
-    return req.session.save(() => next());
   }
 
   return {
