@@ -247,7 +247,7 @@ export default function createController(config) {
     }
 
     const token = req.session[`${objectKey}Token`];
-    req.session.logoutFromUrl = logoutFromUrl;
+    req.session.logoutFromUrl = isValidCallbackUrl(logoutFromUrl, allowedDomains) ? logoutFromUrl : '/';
     // used to prevent eventhandler from deleting this application
     req.session.isLogoutOrigin = true;
     const logoutParams = {
